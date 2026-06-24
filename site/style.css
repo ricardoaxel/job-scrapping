@@ -1075,6 +1075,15 @@ main {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 24px;
+  align-items: center;
+}
+.actions-track {
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--bg);
+  border-radius: 8px;
+  border: 1px solid var(--border);
 }
 
 .modal-body .btn {
@@ -1932,6 +1941,7 @@ footer a:hover {
   .modal-body .meta-line { gap: 8px; font-size: 0.78rem; }
   .modal-body .actions { flex-direction: column; }
   .modal-body .actions .btn { width: 100%; justify-content: center; }
+  .actions-track { align-self: flex-start; }
   .cv-section { padding: 14px; margin: 20px 0; }
   .cv-section h3 { font-size: 0.78rem; }
   .cv-links .btn { flex: 1; justify-content: center; font-size: 0.75rem; padding: 6px 12px; }

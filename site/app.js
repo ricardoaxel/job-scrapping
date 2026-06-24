@@ -1266,6 +1266,7 @@
         ${`<span class="apply-badge ${applyClass}">${applyLabel}</span>`}
       </div>
       <div class="actions">
+        <div class="actions-track">${trackBtnHtml(job)}</div>
         ${job.url ? `<a href="${job.url}" target="_blank" class="btn btn-primary">🔗 Ver en LinkedIn</a>` : ''}
       </div>
     `;
@@ -1335,6 +1336,25 @@
             btn.classList.remove('copied');
             btn.querySelector('.pill-label').textContent = btn.dataset.label;
           }, 1500);
+        });
+      });
+    });
+
+    modalBody.querySelectorAll('.track-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        btn.classList.remove('track-btn-animate');
+        void btn.offsetWidth;
+        btn.classList.add('track-btn-animate');
+        toggleTrack(job, btn.dataset.action);
+        modalBody.querySelectorAll('.track-btn').forEach(b => {
+          const a = b.dataset.action;
+          const st = getTrackStatus(job);
+          b.classList.toggle('active',
+            (a === 'interested' && st.interested) ||
+            (a === 'applied' && st.applied) ||
+            (a === 'disliked' && st.disliked)
+          );
         });
       });
     });
