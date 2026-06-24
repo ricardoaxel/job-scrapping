@@ -646,14 +646,14 @@ main {
   color: var(--text-secondary);
 }
 
-/* SKILLS SECTION (modal) */
-.skills-section {
+/* SKILLS MODAL LIST */
+.modal-skills {
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
 }
 
-.skills-section h3 {
+.modal-skills h3 {
   font-size: 0.82rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -662,15 +662,29 @@ main {
   margin-bottom: 10px;
 }
 
-.skills-section .skill-pills {
-  margin-top: 0;
+.modal-skills ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.skills-section .skill-pill {
-  max-width: 260px;
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
+.modal-skills li {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  padding-left: 14px;
+  position: relative;
+}
+
+.modal-skills li::before {
+  content: '▹';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 0.75rem;
 }
 
 /* FORM DATA SECTION */
@@ -947,7 +961,7 @@ footer a:hover {
   }
   .form-data-pill .pill-label { font-size: 0.72rem; }
   .form-data-pill .pill-value { font-size: 0.58rem; }
-  .skills-section .skill-pill { max-width: 100%; }
+  .modal-skills li { font-size: 0.78rem; }
   .cv-viewer-content h1 { font-size: 1.1rem; }
   .cv-viewer-content h2 { font-size: 1rem; }
   .cv-viewer-content p, .cv-viewer-content li { font-size: 0.82rem; }

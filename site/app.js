@@ -401,11 +401,11 @@
 
     const skills = job.skills && job.skills.length ? job.skills : [];
     if (skills.length > 0) {
-      html += '<div class="skills-section"><h3>Skills requeridos</h3><div class="skill-pills">';
+      html += '<div class="modal-skills"><h3>Skills requeridos</h3><ul>';
       skills.forEach(s => {
-        html += `<span class="skill-pill">${s}</span>`;
+        html += `<li>${s}</li>`;
       });
-      html += '</div></div>';
+      html += '</ul></div>';
     }
 
     // Form data section
