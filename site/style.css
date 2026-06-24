@@ -322,13 +322,6 @@ main {
   border-color: var(--border);
 }
 
-.card-link {
-  text-decoration: none;
-  font-size: 0.9rem;
-  opacity: 0.4;
-  transition: opacity 0.15s ease;
-}
-
 .skill-pill:hover {
   background: #dcfce7;
   border-color: #86efac;
@@ -884,20 +877,84 @@ footer a:hover {
 }
 
 /* RESPONSIVE */
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   header {
-    padding: 24px 16px 20px;
+    padding: 18px 12px 16px;
+    position: static;
   }
-  header h1 { font-size: 1.2rem; }
-  main { padding: 16px 12px; }
+  header h1 { font-size: 1.1rem; }
+  header .subtitle { font-size: 0.75rem; }
+  .ref-cv-btn {
+    margin-top: 10px;
+    padding: 5px 13px;
+    font-size: 0.72rem;
+  }
+  main { padding: 12px 10px; }
+  .filters-card {
+    padding: 14px 14px 12px;
+    margin-bottom: 14px;
+    border-radius: var(--radius-sm);
+  }
+  #search { font-size: 0.85rem; padding: 8px 12px; }
+  .pill { font-size: 0.72rem; padding: 3px 10px; }
+  .stats { font-size: 0.78rem; }
+  .job-card { padding: 12px 14px; }
+  .job-card-title { font-size: 0.9rem; }
+  .job-card-company { font-size: 0.82rem; }
+  .skill-pill { font-size: 0.62rem; padding: 2px 7px; max-width: 130px; }
+  .date-range {
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px;
+  }
+  .date-range label {
+    font-size: 0.72rem;
+  }
+  .date-range input[type="date"] {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.72rem;
+  }
+
   .modal-content {
-    padding: 24px 18px;
-    max-height: 90vh;
+    padding: 20px 14px;
+    max-height: 94vh;
     border-radius: var(--radius);
+    margin: 0 4px;
   }
-  .modal-body h2 { font-size: 1.15rem; }
+  .modal-close {
+    top: 10px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    font-size: 1.1rem;
+  }
+  .modal-body h2 {
+    font-size: 1.05rem;
+    padding-right: 32px;
+  }
+  .modal-body .company-line { font-size: 0.88rem; }
+  .modal-body .meta-line { gap: 8px; font-size: 0.78rem; }
   .modal-body .actions { flex-direction: column; }
   .modal-body .actions .btn { width: 100%; justify-content: center; }
-  .cv-section { padding: 16px; }
-  .cv-links .btn { flex: 1; justify-content: center; }
+  .cv-section { padding: 14px; margin: 20px 0; }
+  .cv-section h3 { font-size: 0.78rem; }
+  .cv-links .btn { flex: 1; justify-content: center; font-size: 0.75rem; padding: 6px 12px; }
+  .modal-body .description { font-size: 0.82rem; }
+  .form-data-pill {
+    min-width: 90px;
+    padding: 5px 10px;
+  }
+  .form-data-pill .pill-label { font-size: 0.72rem; }
+  .form-data-pill .pill-value { font-size: 0.58rem; }
+  .skills-section .skill-pill { max-width: 100%; }
+  .cv-viewer-content h1 { font-size: 1.1rem; }
+  .cv-viewer-content h2 { font-size: 1rem; }
+  .cv-viewer-content p, .cv-viewer-content li { font-size: 0.82rem; }
+
+  .pagination { gap: 6px; margin-top: 20px; }
+  .page-btn { padding: 5px 12px; font-size: 0.78rem; }
+  .page-info { font-size: 0.78rem; }
+
+  footer { padding: 14px 12px; font-size: 0.72rem; }
 }
