@@ -127,6 +127,75 @@ main {
   margin-top: 12px;
 }
 
+.time-filters {
+  margin-top: 10px;
+}
+
+.time-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.time-pill {
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-tertiary);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.time-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+.time-pill.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.date-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+
+.date-range label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-range input[type="date"] {
+  padding: 4px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+}
+
+.date-range input[type="date"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-ring);
+}
+
 .pill {
   padding: 5px 14px;
   border-radius: 999px;

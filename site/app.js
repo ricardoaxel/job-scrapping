@@ -30,6 +30,11 @@
   const modalClose = document.getElementById('modal-close');
   const modalBackdrop = document.getElementById('modal-backdrop');
   const refCvBtn = document.getElementById('ref-cv-btn');
+  const timeFilters = document.getElementById('time-filters');
+
+  let activeTimeFilter = '';
+  let customDateFrom = '';
+  let customDateTo = '';
 
   function relativeDate(dateStr) {
     if (!dateStr) return 'Fecha no disponible';
@@ -98,6 +103,61 @@
         applyFilters();
       });
     });
+  }
+
+  function renderTimeFilters() {
+    const presets = [
+      { key: '', label: 'Todas' },
+      { key: '24h', label: '24 h' },
+      { key: '3d', label: '3 días' },
+      { key: '7d', label: '7 días' },
+    ];
+    let html = '<div class="time-pills">';
+    presets.forEach(p => {
+      const active = activeTimeFilter === p.key ? ' active' : '';
+      html += `<span class="time-pill${active}" data-time="${p.key}">${p.label}</span>`;
+    });
+    const active = activeTimeFilter === 'custom' ? ' active' : '';
+    html += `<span class="time-pill${active}" data-time="custom">Personalizado</span>`;
+    html += '</div>';
+
+    if (activeTimeFilter === 'custom') {
+      html += '<div class="date-range">';
+      html += `<label>Desde: <input type="date" id="date-from" value="${customDateFrom}"></label>`;
+      html += `<label>Hasta: <input type="date" id="date-to" value="${customDateTo}"></label>`;
+      html += '</div>';
+    }
+
+    timeFilters.innerHTML = html;
+    timeFilters.querySelectorAll('.time-pill').forEach(el => {
+      el.addEventListener('click', () => {
+        activeTimeFilter = el.dataset.time;
+        customDateFrom = '';
+        customDateTo = '';
+        currentPage = 1;
+        renderTimeFilters();
+        applyFilters();
+      });
+    });
+
+    if (activeTimeFilter === 'custom') {
+      const fromInput = document.getElementById('date-from');
+      const toInput = document.getElementById('date-to');
+      if (fromInput) {
+        fromInput.addEventListener('change', () => {
+          customDateFrom = fromInput.value;
+          currentPage = 1;
+          applyFilters();
+        });
+      }
+      if (toInput) {
+        toInput.addEventListener('change', () => {
+          customDateTo = toInput.value;
+          currentPage = 1;
+          applyFilters();
+        });
+      }
+    }
   }
 
   function truncateText(text, max) {
@@ -238,13 +298,38 @@
     });
   }
 
+  function isWithinTime(job) {
+    const dateStr = job.postedDate || job.scrapedAt;
+    if (!dateStr) return activeTimeFilter === '';
+    const jobDate = new Date(dateStr);
+    if (isNaN(jobDate.getTime())) return activeTimeFilter === '';
+    const now = new Date();
+
+    if (activeTimeFilter === '24h') {
+      return (now - jobDate) <= 24 * 3600000;
+    }
+    if (activeTimeFilter === '3d') {
+      return (now - jobDate) <= 3 * 24 * 3600000;
+    }
+    if (activeTimeFilter === '7d') {
+      return (now - jobDate) <= 7 * 24 * 3600000;
+    }
+    if (activeTimeFilter === 'custom') {
+      if (customDateFrom && jobDate < new Date(customDateFrom + 'T00:00:00')) return false;
+      if (customDateTo && jobDate > new Date(customDateTo + 'T23:59:59')) return false;
+    }
+    return true;
+  }
+
   function applyFilters() {
     const query = searchInput.value.toLowerCase().trim();
     filtered = allJobs.filter(j => {
       if (activeCategory && (j.category || '') !== activeCategory) return false;
-      if (!query) return true;
-      const searchText = (j.title + ' ' + j.company + ' ' + (j.category || '') + ' ' + (j.description || '')).toLowerCase();
-      return searchText.includes(query);
+      if (query) {
+        const searchText = (j.title + ' ' + j.company + ' ' + (j.category || '') + ' ' + (j.description || '')).toLowerCase();
+        if (!searchText.includes(query)) return false;
+      }
+      return isWithinTime(j);
     });
     filtered.sort((a, b) => {
       const da = a.postedDate || a.scrapedAt || '';
@@ -362,6 +447,7 @@
       if (skillRes.ok) skillData = await skillRes.json();
       filtered = [...allJobs];
       renderPills();
+      renderTimeFilters();
       applyFilters();
     } catch (err) {
       jobList.innerHTML = '<div class="job-card" style="text-align:center;color:var(--text-secondary);">Error al cargar datos: ' + err.message + '</div>';
