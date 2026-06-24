@@ -449,10 +449,14 @@
   function updateCardUI(job) {
     const st = getTrackStatus(job);
     const key = getJobKey(job);
+    const borderClass = getCardBorderClass(job);
     const cards = jobList.querySelectorAll('.job-card');
     for (const card of cards) {
       const idx = parseInt(card.dataset.idx);
       if (getJobKey(filtered[idx]) !== getJobKey(job)) continue;
+      card.className = 'job-card' + (borderClass ? ' ' + borderClass : '');
+      // Re-add data-idx attribute since className reset it
+      card.dataset.idx = idx;
       card.querySelectorAll('.track-btn').forEach(btn => {
         const a = btn.dataset.action;
         btn.classList.toggle('active',
@@ -534,6 +538,14 @@
     return `<button class="track-btn track-interested${intClass}" data-action="interested" title="Me interesa">♡</button><button class="track-btn track-applied${appClass}" data-action="applied" title="Aplicada">✓</button><button class="track-btn track-disliked${disClass}" data-action="disliked" title="No me gusta">👎</button>`;
   }
 
+  function getCardBorderClass(job) {
+    const t = trackedJobs[getJobKey(job)];
+    if (!t || !(t.interested || t.applied || t.disliked)) return '';
+    if (t.disliked) return 'card-disliked';
+    if (t.applied) return 'card-applied';
+    return 'card-interested';
+  }
+
   function renderJobCards(jobs) {
     if (jobs.length === 0) {
       jobList.innerHTML = '<div class="job-card" style="text-align:center;color:var(--text-secondary);">No se encontraron vacantes</div>';
@@ -545,6 +557,7 @@
       const descPreview = truncateText((j.description || '').replace(/^About the job\s*/i, ''), 120);
       const applyLabel = j.easyApply ? 'Postulación rápida' : 'Sitio externo';
       const applyClass = j.easyApply ? 'apply-easy' : 'apply-external';
+      const borderClass = getCardBorderClass(j);
       const skills = j.skills && j.skills.length ? j.skills : [];
       let skillsHtml = '';
       if (skills.length > 0) {
@@ -559,7 +572,7 @@
       }
 
       html += `
-        <div class="job-card" data-idx="${idx}">
+        <div class="job-card${borderClass ? ' ' + borderClass : ''}" data-idx="${idx}">
           <div class="job-card-header">
             <div class="job-card-title">${j.title || 'Sin título'} ${langBadge(j.language)}</div>
             <div class="card-actions">
@@ -590,6 +603,9 @@
     jobList.querySelectorAll('.track-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        btn.classList.remove('track-btn-animate');
+        void btn.offsetWidth;
+        btn.classList.add('track-btn-animate');
         const card = btn.closest('.job-card');
         const idx = parseInt(card.dataset.idx);
         toggleTrack(filtered[idx], btn.dataset.action);
