@@ -446,6 +446,33 @@
     setTimeout(() => overlay.querySelector('textarea').focus(), 100);
   }
 
+  function updateCardUI(job) {
+    const st = getTrackStatus(job);
+    const key = getJobKey(job);
+    const cards = jobList.querySelectorAll('.job-card');
+    for (const card of cards) {
+      const idx = parseInt(card.dataset.idx);
+      if (getJobKey(filtered[idx]) !== getJobKey(job)) continue;
+      card.querySelectorAll('.track-btn').forEach(btn => {
+        const a = btn.dataset.action;
+        btn.classList.toggle('active',
+          (a === 'interested' && st.interested) ||
+          (a === 'applied' && st.applied) ||
+          (a === 'disliked' && st.disliked)
+        );
+      });
+      const t = trackedJobs[key];
+      const existing = card.querySelector('.dislike-reason');
+      if (t?.disliked && t?.dislikeReason) {
+        if (existing) existing.textContent = '👎 ' + escHtml(t.dislikeReason);
+        else card.insertAdjacentHTML('beforeend', `<div class="dislike-reason">👎 ${escHtml(t.dislikeReason)}</div>`);
+      } else if (existing) {
+        existing.remove();
+      }
+      break;
+    }
+  }
+
   function toggleTrack(job, status) {
     const key = getJobKey(job);
     const existing = trackedJobs[key] || {};
@@ -473,7 +500,7 @@
           entry.trackedAt = new Date().toISOString();
           trackedJobs[key] = entry;
           saveTrackedJobs();
-          applyFilters();
+          updateCardUI(job);
           renderTrackingFilters();
         });
         return;
@@ -486,8 +513,11 @@
       trackedJobs[key] = existing;
     }
     saveTrackedJobs();
-    applyFilters();
+    updateCardUI(job);
     renderTrackingFilters();
+    if (showInterested || showApplied || !hideDisliked) {
+      applyFilters();
+    }
   }
 
   function getTrackStatus(job) {
