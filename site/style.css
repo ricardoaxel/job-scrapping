@@ -1129,7 +1129,7 @@ main {
 }
 
 .cv-section h3 {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1185,7 +1185,7 @@ main {
 }
 
 .modal-skills h3 {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1246,7 +1246,7 @@ main {
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
-  border: 1.5px dashed var(--border);
+  border: 1.5px solid var(--border);
   background: var(--surface);
   color: var(--text);
   transition: all 0.15s ease;
