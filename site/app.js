@@ -284,7 +284,6 @@
         }
       }
     } catch (e) {}
-    applyFilters();
   }
 
   function toggleTrack(job, status) {
@@ -605,10 +604,11 @@
       allJobs = await jobsRes.json();
       if (skillRes.ok) skillData = await skillRes.json();
       filtered = [...allJobs];
+      await loadTrackedJobs();
       renderPills();
       renderTimeFilters();
       renderTrackingFilters();
-      await loadTrackedJobs();
+      applyFilters();
     } catch (err) {
       jobList.innerHTML = '<div class="job-card" style="text-align:center;color:var(--text-secondary);">Error al cargar datos: ' + err.message + '</div>';
     }
