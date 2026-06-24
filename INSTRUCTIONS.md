@@ -58,7 +58,7 @@ For each of the 8 categories, create a tailored Markdown CV in `cvs/Generated/<C
 
 **Education & Languages**: unchanged from base-cv.md.
 
-**Naming**: `CV_Valeria_Paez_Reyes_<Category>.md` (Category with spaces replaced by `_`)
+**Naming**: `CV_Valeria_Paez_Reyes_<Category>.md` (Category with spaces replaced by `_`). Spanish versions: add `_es` suffix before `.md`.
 
 ## 5. Generar CV General (sin discriminación por categoría)
 
@@ -88,7 +88,34 @@ Output files land in each category folder alongside the MD.
 - Para regenerar solo el General tras editar `base-cv.md`: copia el MD y corre `generate_all_cvs.py`.
 - `generate_all_cvs.py` procesa todos los folders que tengan `.md`; si un folder tiene solo DOCX/PDF sin `.md`, se salta.
 
-## 7. CV Source of Truth
+## 7. Lenguaje de CVs (ES/EN)
+
+- `generate_cv.py` soporta `--lang es` para usar headers en español y sufijo `_es` en los archivos generados
+- `generate_all_cvs.py` detecta archivos `_es.md` en los folders y pasa `--lang es` automáticamente
+- `filter.py` detecta idioma de cada trabajo (campo `"language": "es"` o `"en"`) usando análisis de caracteres y palabras clave
+- El sitio web muestra los CVs que coinciden con el idioma del trabajo
+
+## 8. Dashboard Web (GitHub Pages)
+
+El sitio es una SPA en `site/` (index.html + style.css + app.js) desplegada en GitHub Pages:
+
+- **URL**: `https://ricardoaxel.github.io/job-scrapping/`
+- **Paginación**: 20 jobs por página
+- **Búsqueda**: por texto en título/empresa/descripción
+- **Filtros**: pills por categoría
+- **Modal**: detalle del trabajo + botones de descarga de CV que coinciden con el idioma del trabajo
+- **Badge**: muestra ES/EN en cada tarjeta de trabajo
+- **Deploy**: GitHub Actions (`.github/workflows/deploy.yml`) — copia `site/`, `filtered_jobs.json`, `skill_per_category.json`, `cvs/Generated/` a `_site/` y despliega a Pages
+- **Path dinámico**: `app.js` usa `BASE = window.location.pathname` para rutas correctas bajo `/job-scrapping/`
+
+## 9. Archivos Sensibles (`.gitignore`)
+
+El repositorio es público, así que `.gitignore` excluye:
+- `linkedin-state.json` — sesión de LinkedIn (contiene `li_at` token)
+- `node_modules/` — dependencias de Playwright
+- `.DS_Store` — archivos del sistema macOS
+
+## 10. CV Source of Truth
 
 - `cvs/base-cv.md` — Valeria maintains this manually in English. All generated CVs derive from it.
 - Contact info is parsed from the preamble (name, location, email, LinkedIn).

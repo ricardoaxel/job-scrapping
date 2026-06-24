@@ -247,6 +247,7 @@
 
   let showInterested = false;
   let hideApplied = false;
+  let hideDisliked = true;
 
   function getJobKey(job) {
     return job.url || (job.title + job.company);
@@ -271,9 +272,15 @@
       } else {
         existing.applied = true;
       }
+    } else if (status === 'disliked') {
+      if (existing.disliked) {
+        delete existing.disliked;
+      } else {
+        existing.disliked = true;
+      }
     }
     existing.trackedAt = new Date().toISOString();
-    if (!existing.interested && !existing.applied) {
+    if (!existing.interested && !existing.applied && !existing.disliked) {
       delete trackedJobs[key];
     } else {
       trackedJobs[key] = existing;
@@ -285,14 +292,15 @@
   function getTrackStatus(job) {
     const key = getJobKey(job);
     const t = trackedJobs[key];
-    return { interested: !!t?.interested, applied: !!t?.applied };
+    return { interested: !!t?.interested, applied: !!t?.applied, disliked: !!t?.disliked };
   }
 
   function trackBtnHtml(job) {
     const st = getTrackStatus(job);
     const intClass = st.interested ? ' active' : '';
     const appClass = st.applied ? ' active' : '';
-    return `<button class="track-btn track-interested${intClass}" data-action="interested" title="Me interesa">♡</button><button class="track-btn track-applied${appClass}" data-action="applied" title="Aplicada">✓</button>`;
+    const disClass = st.disliked ? ' active' : '';
+    return `<button class="track-btn track-interested${intClass}" data-action="interested" title="Me interesa">♡</button><button class="track-btn track-applied${appClass}" data-action="applied" title="Aplicada">✓</button><button class="track-btn track-disliked${disClass}" data-action="disliked" title="No me gusta">👎</button>`;
   }
 
   function renderJobCards(jobs) {
@@ -403,6 +411,7 @@
     let html = `
       <span class="pill${showInterested ? ' active' : ''}" data-filter="interested">Me interesan ♡</span>
       <span class="pill${hideApplied ? ' active' : ''}" data-filter="hideapplied">Ocultar aplicadas</span>
+      <span class="pill${!hideDisliked ? ' active' : ''}" data-filter="hidedisliked">Ver descartadas 👎</span>
     `;
     const el = document.getElementById('tracking-filters');
     if (!el) return;
@@ -412,6 +421,7 @@
         const f = btn.dataset.filter;
         if (f === 'interested') showInterested = !showInterested;
         if (f === 'hideapplied') hideApplied = !hideApplied;
+        if (f === 'hidedisliked') hideDisliked = !hideDisliked;
         currentPage = 1;
         renderTrackingFilters();
         applyFilters();
@@ -435,6 +445,10 @@
       if (hideApplied) {
         const st = getTrackStatus(j);
         if (st.applied) return false;
+      }
+      if (hideDisliked) {
+        const st = getTrackStatus(j);
+        if (st.disliked) return false;
       }
       return true;
     });
