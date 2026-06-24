@@ -253,6 +253,19 @@
       const descPreview = truncateText((j.description || '').replace(/^About the job\s*/i, ''), 120);
       const applyLabel = j.easyApply ? 'Postulación rápida' : 'Sitio externo';
       const applyClass = j.easyApply ? 'apply-easy' : 'apply-external';
+      const skills = j.skills && j.skills.length ? j.skills : [];
+      let skillsHtml = '';
+      if (skills.length > 0) {
+        const shown = skills.slice(0, 3);
+        const extra = skills.length - 3;
+        skillsHtml = '<div class="skill-pills">';
+        shown.forEach(s => {
+          skillsHtml += `<span class="skill-pill">${s}</span>`;
+        });
+        if (extra > 0) skillsHtml += `<span class="skill-pill skill-pill-extra">+${extra}</span>`;
+        skillsHtml += '</div>';
+      }
+
       html += `
         <div class="job-card" data-idx="${idx}">
           <div class="job-card-header">
@@ -265,6 +278,7 @@
             ${j.category ? `<span class="job-card-tag">${j.category}</span>` : ''}
             ${`<span class="apply-badge ${applyClass}">${applyLabel}</span>`}
           </div>
+          ${skillsHtml}
           ${descPreview ? `<div style="font-size:0.82rem;color:var(--text-secondary);margin-top:6px;line-height:1.4;">${descPreview}</div>` : ''}
         </div>
       `;
@@ -383,6 +397,15 @@
 
     if (desc) {
       html += `<div class="description">${desc}</div>`;
+    }
+
+    const skills = job.skills && job.skills.length ? job.skills : [];
+    if (skills.length > 0) {
+      html += '<div class="skills-section"><h3>Skills requeridos</h3><div class="skill-pills">';
+      skills.forEach(s => {
+        html += `<span class="skill-pill">${s}</span>`;
+      });
+      html += '</div></div>';
     }
 
     // Form data section
