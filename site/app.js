@@ -35,8 +35,7 @@
   let activeTimeFilter = '';
   let customDateFrom = '';
   let customDateTo = '';
-  let trackedJobs = {};
-  let sheetApiUrl = localStorage.getItem('sheet_api_url') || '';
+  let trackedJobs = JSON.parse(localStorage.getItem('tracked_jobs') || '{}');
 
   function relativeDate(dateStr) {
     if (!dateStr) return 'Fecha no disponible';
@@ -244,7 +243,7 @@
     }
   }
 
-  /* ─── Tracking (Google Sheets API + localStorage fallback) ─── */
+  /* ─── Tracking (localStorage) ─── */
 
   let showInterested = false;
   let hideApplied = false;
@@ -254,28 +253,6 @@
   }
 
   function saveTrackedJobs() {
-    localStorage.setItem('tracked_jobs', JSON.stringify(trackedJobs));
-    if (sheetApiUrl) {
-      fetch(sheetApiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify(trackedJobs)
-      }).catch(() => {});
-    }
-  }
-
-  async function loadTrackedJobs() {
-    const local = localStorage.getItem('tracked_jobs');
-    if (local) trackedJobs = JSON.parse(local);
-    if (sheetApiUrl) {
-      try {
-        const res = await fetch(sheetApiUrl);
-        if (res.ok) {
-          const remote = await res.json();
-          if (remote && typeof remote === 'object') trackedJobs = remote;
-        }
-      } catch (e) {}
-    }
     localStorage.setItem('tracked_jobs', JSON.stringify(trackedJobs));
   }
 
@@ -575,13 +552,6 @@
   });
 
   async function init() {
-    const params = new URLSearchParams(window.location.search);
-    const urlSheet = params.get('sheet');
-    if (urlSheet) {
-      sheetApiUrl = urlSheet;
-      localStorage.setItem('sheet_api_url', sheetApiUrl);
-      history.replaceState(null, '', window.location.pathname);
-    }
     try {
       const [jobsRes, skillRes] = await Promise.all([
         fetch(`${BASE}/data/filtered_jobs.json`),
@@ -591,7 +561,6 @@
       allJobs = await jobsRes.json();
       if (skillRes.ok) skillData = await skillRes.json();
       filtered = [...allJobs];
-      await loadTrackedJobs();
       renderPills();
       renderTimeFilters();
       renderTrackingFilters();
