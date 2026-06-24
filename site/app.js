@@ -1325,9 +1325,6 @@
       });
       html += `</div></div>`;
     }
-    if (job.url) {
-      html += `<div class="form-data-section"><h3>Vista previa (test)</h3><div class="iframe-test"><iframe src="${escHtml(job.url)}" sandbox="allow-scripts allow-forms allow-same-origin" loading="lazy"></iframe><div class="iframe-fallback">${escHtml(job.url)}</div></div></div>`;
-    }
     html += `<div class="form-data-section"><h3>Nota personal</h3><textarea class="job-note-textarea" rows="3" placeholder="Ej: mandé CV personalizado, contacté a reclutador...">${escHtml(entry?.note || '')}</textarea></div>`;
 
     modalBody.innerHTML = html;
