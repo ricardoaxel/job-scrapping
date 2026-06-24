@@ -63,6 +63,28 @@ header .subtitle {
   font-weight: 400;
 }
 
+.ref-cv-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+  font-family: inherit;
+  user-select: none;
+}
+
+.ref-cv-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
 /* MAIN */
 main {
   flex: 1;
@@ -585,6 +607,100 @@ main {
   color: #059669;
   border-color: #a7f3d0;
   border-style: solid;
+}
+
+/* CV VIEWER */
+.cv-viewer {
+  padding: 4px 0;
+}
+
+.cv-viewer-header {
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cv-viewer-header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding-right: 0;
+  margin-bottom: 4px;
+}
+
+.cv-viewer-desc {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.cv-viewer-content h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.cv-viewer-content h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  letter-spacing: -0.01em;
+}
+
+.cv-viewer-content h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 16px;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.cv-viewer-content p {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.cv-viewer-content ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.cv-viewer-content li {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  padding-left: 16px;
+  position: relative;
+  margin-bottom: 4px;
+}
+
+.cv-viewer-content li::before {
+  content: '•';
+  position: absolute;
+  left: 4px;
+  color: var(--accent);
+}
+
+.cv-viewer-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
+}
+
+.cv-viewer-content strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.cv-sep {
+  padding: 0 4px;
+  color: var(--text-tertiary);
 }
 
 /* FOOTER */

@@ -29,6 +29,7 @@
   const modalBody = document.getElementById('modal-body');
   const modalClose = document.getElementById('modal-close');
   const modalBackdrop = document.getElementById('modal-backdrop');
+  const refCvBtn = document.getElementById('ref-cv-btn');
 
   function relativeDate(dateStr) {
     if (!dateStr) return 'Fecha no disponible';
@@ -107,6 +108,78 @@
   function langBadge(lang) {
     if (lang === 'es') return '<span class="lang-badge lang-es">ES</span>';
     return '<span class="lang-badge lang-en">EN</span>';
+  }
+
+  function formatInline(text) {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\|/g, '<span class="cv-sep">|</span>');
+  }
+
+  function renderMarkdown(md) {
+    const lines = md.split('\n');
+    let html = '';
+    let inList = false;
+    lines.forEach(line => {
+      const t = line.trim();
+      if (t.startsWith('# ') && !t.startsWith('## ')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<h1>${formatInline(t.slice(2))}</h1>`;
+        return;
+      }
+      if (t.startsWith('## ')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<h2>${formatInline(t.slice(3))}</h2>`;
+        return;
+      }
+      if (t.startsWith('### ')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<h3>${formatInline(t.slice(4))}</h3>`;
+        return;
+      }
+      if (t.startsWith('- ')) {
+        if (!inList) { html += '<ul>'; inList = true; }
+        html += `<li>${formatInline(t.slice(2))}</li>`;
+        return;
+      }
+      if (t === '---') {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += '<hr>';
+        return;
+      }
+      if (t === '') {
+        if (inList) { html += '</ul>'; inList = false; }
+        return;
+      }
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<p>${formatInline(t)}</p>`;
+    });
+    if (inList) html += '</ul>';
+    return html;
+  }
+
+  async function openRefCv() {
+    try {
+      const res = await fetch(`${BASE}/data/base-cv.md`);
+      if (!res.ok) throw new Error('No encontrado');
+      const md = await res.text();
+      const content = renderMarkdown(md);
+      modalBody.innerHTML = `
+        <div class="cv-viewer">
+          <div class="cv-viewer-header">
+            <h2>CV base de referencia</h2>
+            <span class="cv-viewer-desc">Información fuente para generar todos los CVs por categoría</span>
+          </div>
+          <div class="cv-viewer-content">${content}</div>
+        </div>
+      `;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    } catch (err) {
+      modalBody.innerHTML = `<div class="cv-viewer"><p style="color:var(--text-secondary);text-align:center;">Error al cargar CV base: ${err.message}</p></div>`;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   function renderJobCards(jobs) {
@@ -264,6 +337,8 @@
     modal.classList.add('hidden');
     document.body.style.overflow = '';
   }
+
+  refCvBtn.addEventListener('click', openRefCv);
 
   modalClose.addEventListener('click', closeModal);
   modalBackdrop.addEventListener('click', closeModal);
