@@ -21,12 +21,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Prepare site
         run: |
+          VERSION="v$(git rev-list --count HEAD)"
           mkdir -p _site/data _site/cvs
           cp filtered_jobs.json _site/data/
           cp cvs/skill_per_category.json _site/data/
           cp cvs/base-cv.md cvs/base-cv-es.md _site/data/
           cp -r cvs/Generated/* _site/cvs/
-          cp site/* _site/
+          sed "s/id=\"version\">dev</id=\"version\">$VERSION</" site/index.html > _site/index.html
+          cp site/*.css site/*.js _site/
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
