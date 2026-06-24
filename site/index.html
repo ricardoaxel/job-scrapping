@@ -14,10 +14,19 @@
   </header>
 
   <main>
-    <div class="controls">
-      <input type="text" id="search" placeholder="Buscar por título, empresa, categoría..." autocomplete="off">
-      <div id="category-filters" class="category-pills"></div>
-      <div id="time-filters" class="time-filters"></div>
+    <div class="filters-card">
+      <div class="filter-group">
+        <span class="filter-label">Buscar</span>
+        <input type="text" id="search" placeholder="Título, empresa, categoría..." autocomplete="off">
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Categoría</span>
+        <div id="category-filters" class="pills-row"></div>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Publicación</span>
+        <div id="time-filters"></div>
+      </div>
     </div>
 
     <div id="stats" class="stats"></div>

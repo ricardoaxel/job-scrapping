@@ -112,24 +112,24 @@
       { key: '3d', label: '3 días' },
       { key: '7d', label: '7 días' },
     ];
-    let html = '<div class="time-pills">';
+    let html = '<div class="pills-row">';
     presets.forEach(p => {
       const active = activeTimeFilter === p.key ? ' active' : '';
-      html += `<span class="time-pill${active}" data-time="${p.key}">${p.label}</span>`;
+      html += `<span class="pill${active}" data-time="${p.key}">${p.label}</span>`;
     });
     const active = activeTimeFilter === 'custom' ? ' active' : '';
-    html += `<span class="time-pill${active}" data-time="custom">Personalizado</span>`;
+    html += `<span class="pill${active}" data-time="custom">Personalizado</span>`;
     html += '</div>';
 
     if (activeTimeFilter === 'custom') {
       html += '<div class="date-range">';
-      html += `<label>Desde: <input type="date" id="date-from" value="${customDateFrom}"></label>`;
-      html += `<label>Hasta: <input type="date" id="date-to" value="${customDateTo}"></label>`;
+      html += `<label>Desde <input type="date" id="date-from" value="${customDateFrom}"></label>`;
+      html += `<label>Hasta <input type="date" id="date-to" value="${customDateTo}"></label>`;
       html += '</div>';
     }
 
     timeFilters.innerHTML = html;
-    timeFilters.querySelectorAll('.time-pill').forEach(el => {
+    timeFilters.querySelectorAll('.pill').forEach(el => {
       el.addEventListener('click', () => {
         activeTimeFilter = el.dataset.time;
         customDateFrom = '';
@@ -389,7 +389,7 @@
     let dataHtml = '<div class="form-data-section"><h3>Datos para formularios</h3><div class="form-data-grid">';
     Object.entries(profileData).forEach(([label, value]) => {
       const escaped = value.replace(/"/g, '&quot;');
-      dataHtml += `<button class="form-data-pill" data-value="${escaped}"><span class="pill-label">${label}</span><span class="pill-value">${escaped}</span></button>`;
+      dataHtml += `<button class="form-data-pill" data-value="${escaped}" data-label="${label}"><span class="pill-label">${label}</span><span class="pill-value">${escaped}</span></button>`;
     });
     dataHtml += '</div></div>';
     html += dataHtml;
@@ -399,19 +399,16 @@
     modalBody.querySelectorAll('.form-data-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         const value = btn.dataset.value;
-        const labelEl = btn.querySelector('.pill-label');
-        const valueEl = btn.querySelector('.pill-value');
-        const origLabel = labelEl.textContent;
         navigator.clipboard.writeText(value).then(() => {
-          labelEl.textContent = '¡Copiado!';
           btn.classList.add('copied');
-          setTimeout(() => {
-            labelEl.textContent = origLabel;
-            btn.classList.remove('copied');
-          }, 1500);
+          setTimeout(() => btn.classList.remove('copied'), 1500);
         }).catch(() => {
-          labelEl.textContent = 'Error';
-          setTimeout(() => labelEl.textContent = origLabel, 1500);
+          btn.classList.add('copied');
+          btn.querySelector('.pill-label').textContent = 'Error';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.querySelector('.pill-label').textContent = btn.dataset.label;
+          }, 1500);
         });
       });
     });
