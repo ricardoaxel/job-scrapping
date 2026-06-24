@@ -399,17 +399,38 @@
       }
     }
 
-    // Last 7 days data
-    const days = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      const ds = d.toISOString().slice(0, 10);
-      const count = applied.filter(a => a.appliedAt.slice(0, 10) === ds).length;
-      const label = i === 0 ? 'Hoy' : d.toLocaleDateString('es-MX', { weekday: 'short' });
-      days.push({ label, count, fullDate: ds });
+    // 3-month calendar heatmap
+    const calStart = new Date(now);
+    calStart.setMonth(now.getMonth() - 3);
+    calStart.setDate(1);
+    calStart.setHours(0, 0, 0, 0);
+    const calCells = [];
+    const cell = new Date(calStart);
+    while (cell <= now) {
+      const ds = cell.toISOString().slice(0, 10);
+      const c = applied.filter(a => a.appliedAt.slice(0, 10) === ds).length;
+      calCells.push({ date: ds, count: c });
+      cell.setDate(cell.getDate() + 1);
     }
-    const maxCount = Math.max(...days.map(d => d.count), 1);
+    const maxC = Math.max(...calCells.map(c => c.count), 1);
+    const monthLabels = [];
+    let lastMonth = -1;
+    calCells.forEach((c, i) => {
+      const m = new Date(c.date + 'T12:00:00').getMonth();
+      if (m !== lastMonth) {
+        monthLabels.push({ index: i, label: new Date(c.date + 'T12:00:00').toLocaleDateString('es-MX', { month: 'short' }) });
+        lastMonth = m;
+      }
+    });
+    const calHtml = monthLabels.map(m => `<span class="cal-month-label">${m.label}</span>`).join('');
+    const cellHtml = calCells.map(c => {
+      const pct = maxC > 0 ? Math.round((c.count / maxC) * 4) : 0;
+      const level = c.count === 0 ? 0 : Math.min(pct + 1, 4);
+      const dateObj = new Date(c.date + 'T12:00:00');
+      const label = dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      return `<span class="cal-cell cal-l${level}" title="${c.count} ${c.count === 1 ? 'aplicación' : 'aplicaciones'} el ${label}"></span>`;
+    }).join('');
+    const todayIndex = calCells.findIndex(c => c.date === today);
 
     // Per-day history
     const dayGroups = {};
@@ -424,17 +445,6 @@
       if (j) jobKeyToData[k] = j;
     });
 
-    const barHtml = days.map(d => {
-      const pct = (d.count / maxCount) * 100;
-      return `
-        <div class="stat-bar-row">
-          <span class="stat-bar-label">${d.label}</span>
-          <div class="stat-bar-track">
-            <div class="stat-bar-fill" style="width:${pct}%"></div>
-          </div>
-          <span class="stat-bar-count">${d.count}</span>
-        </div>`;
-    }).join('');
 
     let historyHtml = '';
     Object.entries(dayGroups).sort().reverse().forEach(([date, jobs]) => {
@@ -462,8 +472,18 @@
         <div class="stat-card"><div class="stat-card-num">${streak}${streak > 0 ? ' 🔥' : ''}</div><div class="stat-card-label">Racha (días)</div></div>
       </div>
       <div class="stat-section">
-        <div class="stat-section-title">Últimos 7 días</div>
-        ${barHtml}
+        <div class="stat-section-title">Calendario de actividad</div>
+        <div class="cal-months">${calHtml}</div>
+        <div class="cal-grid">${cellHtml}</div>
+        <div class="cal-legend">
+          <span>Menos</span>
+          <span class="cal-cell cal-l0"></span>
+          <span class="cal-cell cal-l1"></span>
+          <span class="cal-cell cal-l2"></span>
+          <span class="cal-cell cal-l3"></span>
+          <span class="cal-cell cal-l4"></span>
+          <span>Más</span>
+        </div>
       </div>
       <div class="stat-section">
         <div class="stat-section-title">Historial por día</div>
@@ -637,6 +657,27 @@
       } else if (existing) {
         existing.remove();
       }
+      // Update stage badge
+      const existingStage = card.querySelector('.stage-badge');
+      if (t?.stage) {
+        if (existingStage) {
+          existingStage.textContent = t.stage;
+          existingStage.className = 'stage-badge stage-' + t.stage.toLowerCase();
+        } else {
+          card.querySelector('.job-card-company')?.insertAdjacentHTML('beforeend', ` <span class="stage-badge stage-${t.stage.toLowerCase()}">${escHtml(t.stage)}</span>`);
+        }
+      } else if (existingStage) {
+        existingStage.remove();
+      }
+      // Update note icon
+      const existingNoteIcon = card.querySelector('.card-note-icon');
+      if (t?.note) {
+        if (!existingNoteIcon) {
+          card.querySelector('.job-card-title')?.insertAdjacentHTML('beforeend', '<span class="card-note-icon" title="Tiene nota">📝</span>');
+        }
+      } else if (existingNoteIcon) {
+        existingNoteIcon.remove();
+      }
       break;
     }
   }
@@ -655,10 +696,12 @@
     } else if (status === 'applied') {
       if (existing.applied) {
         delete existing.applied;
+        delete existing.stage;
       } else {
         delete existing.disliked;
         delete existing.dislikeReason;
         existing.applied = true;
+        existing.stage = 'Enviada';
       }
     } else if (status === 'disliked') {
       if (existing.disliked) {
@@ -679,7 +722,8 @@
           checkPokemonUnlock();
           renderTrackingFilters();
           applyFilters();
-          if (statsViewVisible) renderStats();
+        if (statsViewVisible) renderStats();
+        updateCardUI(job);
         });
         return;
       }
@@ -919,6 +963,25 @@
     }, 1500);
   }
 
+  function showGoalCelebration(count, goal) {
+    const overlay = document.createElement('div');
+    overlay.className = 'goal-celebration';
+    overlay.innerHTML = `
+      <div class="goal-celebration-bg"></div>
+      <div class="goal-celebration-content">
+        <div class="goal-celebration-emoji">🏆</div>
+        <div class="goal-celebration-title">¡Meta cumplida!</div>
+        <div class="goal-celebration-sub">✓ ${count} de ${goal} aplicadas hoy</div>
+      </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('goal-celebration-show'));
+    setTimeout(() => {
+      overlay.classList.remove('goal-celebration-show');
+      overlay.classList.add('goal-celebration-hide');
+      setTimeout(() => overlay.remove(), 400);
+    }, 2500);
+  }
+
   function updateProgressBadge(animate) {
     const count = getTodayAppliedCount();
     const autoGoal = getAutoGoal();
@@ -929,7 +992,7 @@
     if (!el) return;
     const pct = goal > 0 ? Math.min(Math.round((count / goal) * 100), 100) : 0;
     const emoji = getProgressEmoji(pct);
-    const milestoneTexts = { 25: 'Wuju, ya llevas buen progreso 🎉', 50: 'Ya vamos por la mitad 💪', 75: 'Te falta nada 🔥', 100: '¡Meta cumplida! 🏆' };
+    const milestoneTexts = { 25: 'Wuju, ya llevas buen progreso 🎉', 50: 'Ya vamos por la mitad 💪', 75: 'Te falta nada 🔥' };
     Object.keys(milestoneTexts).forEach(m => {
       const threshold = parseInt(m);
       if (pct >= threshold && lastMilestone < threshold) {
@@ -937,6 +1000,10 @@
         lastMilestone = threshold;
       }
     });
+    if (pct >= 100 && lastMilestone < 100) {
+      showGoalCelebration(count, goal);
+      lastMilestone = 100;
+    }
     if (pct < 25) lastMilestone = 0;
     const infoText = isManual
       ? 'Meta manual: valor fijo definido por ti, ignora dislikes'
@@ -945,7 +1012,7 @@
       <div class="progress-emoji">${emoji}</div>
       <div class="progress-info">
         <div class="progress-count">✓ ${count}/<span class="progress-goal">${goal}</span> aplicadas hoy
-          <span class="progress-mode-info" title="${infoText}">ℹ️</span>
+          <span class="progress-mode-info" data-tooltip="${infoText}">ℹ️</span>
           <label class="toggle-wrap" title="${isManual ? 'Cambiar a automática' : 'Cambiar a manual'}">
             <input type="checkbox" class="toggle-input"${isManual ? ' checked' : ''}>
             <span class="toggle-slider"></span>
@@ -1017,16 +1084,17 @@
         skillsHtml += '</div>';
       }
 
+      const tData = trackedJobs[getJobKey(j)];
       html += `
         <div class="job-card${borderClass ? ' ' + borderClass : ''}" data-idx="${idx}">
           <div class="job-card-header">
-            <div class="job-card-title">${j.title || 'Sin título'} ${langBadge(j.language)}</div>
+            <div class="job-card-title">${j.title || 'Sin título'} ${langBadge(j.language)}${tData?.note ? '<span class="card-note-icon" title="Tiene nota">📝</span>' : ''}</div>
             <div class="card-actions">
               ${trackBtnHtml(j)}
               ${j.url ? `<a href="${j.url}" target="_blank" class="card-link" title="Ver en LinkedIn">🔗</a>` : ''}
             </div>
           </div>
-          <div class="job-card-company">${j.company || ''}${j.location ? ' &middot; ' + j.location : ''}</div>
+          <div class="job-card-company">${j.company || ''}${j.location ? ' &middot; ' + j.location : ''}${tData?.stage ? `<span class="stage-badge stage-${escHtml(tData.stage).toLowerCase()}">${escHtml(tData.stage)}</span>` : ''}</div>
           <div class="job-card-meta">
             <span>${dateStr}</span>
             ${j.category ? `<span class="job-card-tag">${j.category}</span>` : ''}
@@ -1238,6 +1306,20 @@
     dataHtml += '</div></div>';
     html += dataHtml;
 
+    // Stage + Note section
+    const key = getJobKey(job);
+    const entry = trackedJobs[key] || {};
+    const STAGES = ['Enviada', 'Screening', 'Entrevista', 'Oferta', 'Rechazada'];
+    if (entry?.applied) {
+      html += `<div class="form-data-section"><h3>Etapa del proceso</h3><div class="stage-pills">`;
+      STAGES.forEach(s => {
+        const active = entry.stage === s ? ' active' : '';
+        html += `<span class="pill stage-pill${active}" data-stage="${s}">${s}</span>`;
+      });
+      html += `</div></div>`;
+    }
+    html += `<div class="form-data-section"><h3>Nota personal</h3><textarea class="job-note-textarea" rows="3" placeholder="Ej: mandé CV personalizado, contacté a reclutador...">${escHtml(entry?.note || '')}</textarea></div>`;
+
     modalBody.innerHTML = html;
 
     modalBody.querySelectorAll('.form-data-pill').forEach(btn => {
@@ -1256,6 +1338,33 @@
         });
       });
     });
+
+    modalBody.querySelectorAll('.stage-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const newStage = pill.dataset.stage;
+        const e = trackedJobs[getJobKey(job)] || {};
+        e.stage = newStage;
+        trackedJobs[getJobKey(job)] = e;
+        saveTrackedJobs();
+        modalBody.querySelectorAll('.stage-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        if (statsViewVisible) renderStats();
+        updateCardUI(job);
+      });
+    });
+    const noteT = modalBody.querySelector('.job-note-textarea');
+    if (noteT) {
+      let tmr;
+      noteT.addEventListener('input', () => {
+        clearTimeout(tmr);
+        tmr = setTimeout(() => {
+          const e = trackedJobs[getJobKey(job)] || {};
+          e.note = noteT.value;
+          trackedJobs[getJobKey(job)] = e;
+          saveTrackedJobs();
+        }, 400);
+      });
+    }
 
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
