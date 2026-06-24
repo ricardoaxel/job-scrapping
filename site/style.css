@@ -1085,6 +1085,8 @@ main {
   background: var(--bg);
   border-radius: 10px;
   border: 1px solid var(--border);
+  flex-shrink: 0;
+  width: auto;
 }
 .actions-track-group .track-btn {
   font-size: 0.9rem;
