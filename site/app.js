@@ -7,6 +7,19 @@
   const PER_PAGE = 20;
   let activeCategory = '';
 
+  const profileData = {
+    'Nombre completo': 'Valeria Páez',
+    'Nombre(s)': 'Valeria',
+    'Ap. Paterno': 'Páez',
+    'Ap. Materno': 'Reyes',
+    'Correo': 'valppaezreyes@gmail.com',
+    'LinkedIn': 'https://linkedin.com/in/valeria-paez-reyes',
+    'Ubicación': 'Ciudad de México, México',
+    'Educación máxima': 'Licenciatura en Marketing',
+    'Inglés': 'B2',
+    'Años de experiencia': '2'
+  };
+
   const searchInput = document.getElementById('search');
   const categoryFilters = document.getElementById('category-filters');
   const statsEl = document.getElementById('stats');
@@ -109,7 +122,10 @@
       const applyClass = j.easyApply ? 'apply-easy' : 'apply-external';
       html += `
         <div class="job-card" data-idx="${idx}">
-          <div class="job-card-title">${j.title || 'Sin título'} ${langBadge(j.language)}</div>
+          <div class="job-card-header">
+            <div class="job-card-title">${j.title || 'Sin título'} ${langBadge(j.language)}</div>
+            ${j.url ? `<a href="${j.url}" target="_blank" class="card-link" title="Ver en LinkedIn">🔗</a>` : ''}
+          </div>
           <div class="job-card-company">${j.company || ''}${j.location ? ' &middot; ' + j.location : ''}</div>
           <div class="job-card-meta">
             <span>${dateStr}</span>
@@ -122,7 +138,8 @@
     });
     jobList.innerHTML = html;
     jobList.querySelectorAll('.job-card').forEach(el => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.card-link')) return;
         const idx = parseInt(el.dataset.idx);
         openModal(filtered[idx]);
       });
@@ -210,7 +227,35 @@
       html += `<div class="description">${desc}</div>`;
     }
 
+    // Form data section
+    let dataHtml = '<div class="form-data-section"><h3>Datos para formularios</h3><div class="form-data-grid">';
+    Object.entries(profileData).forEach(([label, value]) => {
+      const escaped = value.replace(/"/g, '&quot;');
+      dataHtml += `<button class="form-data-pill" data-value="${escaped}">${label}</button>`;
+    });
+    dataHtml += '</div></div>';
+    html += dataHtml;
+
     modalBody.innerHTML = html;
+
+    modalBody.querySelectorAll('.form-data-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.value;
+        const label = btn.textContent;
+        navigator.clipboard.writeText(value).then(() => {
+          btn.textContent = '¡Copiado!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = label;
+            btn.classList.remove('copied');
+          }, 1500);
+        }).catch(() => {
+          btn.textContent = 'Error';
+          setTimeout(() => btn.textContent = label, 1500);
+        });
+      });
+    });
+
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }

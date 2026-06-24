@@ -160,11 +160,32 @@ main {
   transform: translateY(-1px);
 }
 
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
 .job-card-title {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 3px;
   letter-spacing: -0.01em;
+  flex: 1;
+}
+
+.card-link {
+  text-decoration: none;
+  font-size: 0.9rem;
+  opacity: 0.4;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.card-link:hover {
+  opacity: 1;
 }
 
 .job-card-company {
@@ -510,6 +531,60 @@ main {
   white-space: pre-wrap;
   word-break: break-word;
   color: var(--text-secondary);
+}
+
+/* FORM DATA SECTION */
+.form-data-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.form-data-section h3 {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.form-data-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.form-data-pill {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px dashed var(--border);
+  background: var(--surface);
+  color: var(--text);
+  transition: all 0.15s ease;
+  user-select: none;
+  font-family: inherit;
+  line-height: inherit;
+}
+
+.form-data-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+.form-data-pill:active {
+  transform: scale(0.96);
+}
+
+.form-data-pill.copied {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+  border-style: solid;
 }
 
 /* FOOTER */
