@@ -437,10 +437,17 @@
   }
 
   function renderTrackingFilters() {
+    const counts = { interested: 0, applied: 0, disliked: 0 };
+    allJobs.forEach(j => {
+      const st = getTrackStatus(j);
+      if (st.interested) counts.interested++;
+      if (st.applied) counts.applied++;
+      if (st.disliked) counts.disliked++;
+    });
     let html = `
-      <span class="pill${showInterested ? ' active' : ''}" data-filter="interested">Me interesan ♡</span>
-      <span class="pill${hideApplied ? ' active' : ''}" data-filter="hideapplied">Ocultar aplicadas</span>
-      <span class="pill${!hideDisliked ? ' active' : ''}" data-filter="hidedisliked">Ver descartadas 👎</span>
+      <span class="pill${showInterested ? ' active' : ''}" data-filter="interested">♡ ${counts.interested}</span>
+      <span class="pill${hideApplied ? ' active' : ''}" data-filter="hideapplied">✓ ${counts.applied}</span>
+      <span class="pill${!hideDisliked ? ' active' : ''}" data-filter="hidedisliked">👎 ${counts.disliked}</span>
     `;
     const el = document.getElementById('tracking-filters');
     if (!el) return;
