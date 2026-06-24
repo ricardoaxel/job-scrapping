@@ -252,7 +252,7 @@
   /* ─── Tracking ─── */
 
   let showInterested = false;
-  let hideApplied = false;
+  let showApplied = false;
   let hideDisliked = true;
 
   const firebaseConfig = {
@@ -337,6 +337,7 @@
           <input type="checkbox" class="notes-check"${n.resolved ? ' checked' : ''}>
           <span class="notes-text">${escHtml(n.text)}</span>
           <span class="notes-date">${dateStr}</span>
+          <button class="notes-delete" title="Eliminar nota">&times;</button>
         </div>
       `;
     });
@@ -350,6 +351,14 @@
           saveNotes();
           renderNotes();
         }
+      });
+    });
+    notesList.querySelectorAll('.notes-delete').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.closest('.notes-item').dataset.id;
+        notes = notes.filter(n => n.id !== id);
+        saveNotes();
+        renderNotes();
       });
     });
   }
@@ -457,6 +466,7 @@
           trackedJobs[key] = entry;
           saveTrackedJobs();
           applyFilters();
+          renderTrackingFilters();
         });
         return;
       }
@@ -469,6 +479,7 @@
     }
     saveTrackedJobs();
     applyFilters();
+    renderTrackingFilters();
   }
 
   function getTrackStatus(job) {
@@ -600,7 +611,7 @@
     });
     let html = `
       <span class="pill${showInterested ? ' active' : ''}" data-filter="interested">♡ ${counts.interested}</span>
-      <span class="pill${hideApplied ? ' active' : ''}" data-filter="hideapplied">✓ ${counts.applied}</span>
+      <span class="pill${showApplied ? ' active' : ''}" data-filter="showapplied">✓ ${counts.applied}</span>
       <span class="pill${!hideDisliked ? ' active' : ''}" data-filter="hidedisliked">👎 ${counts.disliked}</span>
     `;
     const el = document.getElementById('tracking-filters');
@@ -610,7 +621,7 @@
       btn.addEventListener('click', () => {
         const f = btn.dataset.filter;
         if (f === 'interested') showInterested = !showInterested;
-        if (f === 'hideapplied') hideApplied = !hideApplied;
+        if (f === 'showapplied') showApplied = !showApplied;
         if (f === 'hidedisliked') hideDisliked = !hideDisliked;
         currentPage = 1;
         renderTrackingFilters();
@@ -632,9 +643,9 @@
         const st = getTrackStatus(j);
         if (!st.interested) return false;
       }
-      if (hideApplied) {
+      if (showApplied) {
         const st = getTrackStatus(j);
-        if (st.applied) return false;
+        if (!st.applied) return false;
       }
       if (hideDisliked) {
         const st = getTrackStatus(j);
