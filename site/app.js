@@ -389,7 +389,7 @@
     let dataHtml = '<div class="form-data-section"><h3>Datos para formularios</h3><div class="form-data-grid">';
     Object.entries(profileData).forEach(([label, value]) => {
       const escaped = value.replace(/"/g, '&quot;');
-      dataHtml += `<button class="form-data-pill" data-value="${escaped}">${label}</button>`;
+      dataHtml += `<button class="form-data-pill" data-value="${escaped}"><span class="pill-label">${label}</span><span class="pill-value">${escaped}</span></button>`;
     });
     dataHtml += '</div></div>';
     html += dataHtml;
@@ -399,17 +399,19 @@
     modalBody.querySelectorAll('.form-data-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         const value = btn.dataset.value;
-        const label = btn.textContent;
+        const labelEl = btn.querySelector('.pill-label');
+        const valueEl = btn.querySelector('.pill-value');
+        const origLabel = labelEl.textContent;
         navigator.clipboard.writeText(value).then(() => {
-          btn.textContent = '¡Copiado!';
+          labelEl.textContent = '¡Copiado!';
           btn.classList.add('copied');
           setTimeout(() => {
-            btn.textContent = label;
+            labelEl.textContent = origLabel;
             btn.classList.remove('copied');
           }, 1500);
         }).catch(() => {
-          btn.textContent = 'Error';
-          setTimeout(() => btn.textContent = label, 1500);
+          labelEl.textContent = 'Error';
+          setTimeout(() => labelEl.textContent = origLabel, 1500);
         });
       });
     });
