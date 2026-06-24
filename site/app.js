@@ -267,6 +267,105 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  /* ─── Auth ─── */
+  const AUTH_KEY = 'auth_pikachu';
+  const authOverlay = document.getElementById('auth-overlay');
+  const authInput = document.getElementById('auth-input');
+  const authBtn = document.getElementById('auth-btn');
+  const authError = document.getElementById('auth-error');
+
+  if (localStorage.getItem(AUTH_KEY)) {
+    authOverlay.classList.add('authed');
+  }
+
+  authBtn.addEventListener('click', () => {
+    if (authInput.value === 'pikachu') {
+      localStorage.setItem(AUTH_KEY, '1');
+      authOverlay.classList.add('authed');
+    } else {
+      authError.textContent = 'Contraseña incorrecta';
+      authInput.value = '';
+      authInput.focus();
+    }
+  });
+  authInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') authBtn.click();
+  });
+
+  /* ─── Notes ─── */
+  let notes = [];
+  const notesBtn = document.getElementById('notes-btn');
+  const notesPanel = document.getElementById('notes-panel');
+  const notesList = document.getElementById('notes-list');
+  const notesInput = document.getElementById('notes-input');
+  const notesAddBtn = document.getElementById('notes-add-btn');
+  const NOTES_DOC = db.collection('notes').doc('data');
+
+  notesBtn.addEventListener('click', () => {
+    notesPanel.classList.toggle('hidden');
+  });
+
+  async function loadNotes() {
+    try {
+      const snap = await NOTES_DOC.get();
+      if (snap.exists) {
+        notes = snap.data().notes || [];
+      }
+    } catch (e) {}
+    renderNotes();
+  }
+
+  function renderNotes() {
+    if (!notes.length) {
+      notesList.innerHTML = '<div style="color:var(--text-tertiary);font-size:0.8rem;padding:4px 0;">Sin notas aún</div>';
+      return;
+    }
+    let html = '';
+    notes.slice().reverse().forEach(n => {
+      const d = new Date(n.createdAt);
+      const dateStr = d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      html += `
+        <div class="notes-item${n.resolved ? ' resolved' : ''}" data-id="${n.id}">
+          <input type="checkbox" class="notes-check"${n.resolved ? ' checked' : ''}>
+          <span class="notes-text">${escHtml(n.text)}</span>
+          <span class="notes-date">${dateStr}</span>
+        </div>
+      `;
+    });
+    notesList.innerHTML = html;
+    notesList.querySelectorAll('.notes-check').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const id = cb.closest('.notes-item').dataset.id;
+        const note = notes.find(n => n.id === id);
+        if (note) {
+          note.resolved = cb.checked;
+          saveNotes();
+          renderNotes();
+        }
+      });
+    });
+  }
+
+  async function saveNotes() {
+    try {
+      await NOTES_DOC.set({ notes });
+    } catch (e) {}
+  }
+
+  notesAddBtn.addEventListener('click', () => {
+    const text = notesInput.value.trim();
+    if (!text) return;
+    notes.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      text,
+      resolved: false,
+      createdAt: new Date().toISOString()
+    });
+    notesInput.value = '';
+    saveNotes();
+    renderNotes();
+  });
+
   function getJobKey(job) {
     return job.url || (job.title + job.company);
   }
@@ -659,6 +758,7 @@
       if (skillRes.ok) skillData = await skillRes.json();
       filtered = [...allJobs];
       await loadTrackedJobs();
+      await loadNotes();
       renderPills();
       renderTimeFilters();
       renderTrackingFilters();
