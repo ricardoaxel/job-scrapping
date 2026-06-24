@@ -1069,14 +1069,24 @@ main {
   font-weight: 600;
 }
 
-/* ACTIONS ROW */
+/* ─── Modal header row ─── */
+.modal-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modal-header-row .meta-line {
+  margin-bottom: 0;
+}
 .modal-body .actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 24px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 .actions-track-group {
   display: inline-flex;
@@ -1941,6 +1951,8 @@ footer a:hover {
   }
   .modal-body .company-line { font-size: 0.88rem; }
   .modal-body .meta-line { gap: 8px; font-size: 0.78rem; }
+  .modal-header-row { flex-direction: column; align-items: stretch; gap: 10px; }
+  .modal-header-row .actions { justify-content: flex-start; }
   .modal-body .actions { gap: 8px; }
   .actions-track-group { align-self: flex-start; }
   .btn-linkedin { width: 100%; justify-content: center; }

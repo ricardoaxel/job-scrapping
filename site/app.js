@@ -1260,14 +1260,16 @@
     let html = `
       <h2>${job.title || 'Sin título'} ${langBadge(jobLang)}</h2>
       <div class="company-line">${job.company || ''}${job.location ? ' &middot; ' + job.location : ''}</div>
-      <div class="meta-line">
+      <div class="modal-header-row">
+        <div class="meta-line">
         <span>📅 ${dateStr}</span>
         ${cat ? `<span class="tag">${cat}</span>` : ''}
         ${`<span class="apply-badge ${applyClass}">${applyLabel}</span>`}
       </div>
-      <div class="actions">
+        <div class="actions">
         <div class="actions-track-group">${trackBtnHtml(job)}</div>
         ${job.url ? `<a href="${job.url}" target="_blank" class="btn btn-linkedin">🔗 Ver en LinkedIn</a>` : ''}
+      </div>
       </div>
     `;
 
