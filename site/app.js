@@ -1356,6 +1356,12 @@
             (a === 'disliked' && st.disliked)
           );
         });
+        const mc = document.querySelector('.modal-content');
+        mc.classList.remove('modal-border-interested', 'modal-border-applied', 'modal-border-disliked');
+        const newSt = getTrackStatus(job);
+        if (newSt.disliked) mc.classList.add('modal-border-disliked');
+        else if (newSt.applied) mc.classList.add('modal-border-applied');
+        else if (newSt.interested) mc.classList.add('modal-border-interested');
       });
     });
 
