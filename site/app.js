@@ -1276,7 +1276,7 @@
     if (cat && cvLinks.length > 0) {
       html += `
         <div class="cv-section">
-          <h3>CV recomendado para esta vacante</h3>
+          <div class="cv-section-title">CV recomendado para esta vacante</div>
           <div class="cv-links">
       `;
       cvLinks.forEach(l => {
@@ -1291,7 +1291,7 @@
 
     const skills = job.skills && job.skills.length ? job.skills : [];
     if (skills.length > 0) {
-      html += '<div class="modal-skills"><h3>Skills requeridos</h3><ul>';
+      html += '<div class="modal-skills-section"><div class="modal-skills-title">Skills</div><ul class="modal-skills-list">';
       skills.forEach(s => {
         html += `<li>${s}</li>`;
       });
@@ -1299,7 +1299,7 @@
     }
 
     // Form data section
-    let dataHtml = '<div class="form-data-section"><h3>Datos para formularios</h3><div class="form-data-grid">';
+    let dataHtml = '<div class="form-data-section"><div class="form-data-title">Datos para formularios</div><div class="form-data-grid">';
     Object.entries(profileData).forEach(([label, value]) => {
       const escaped = value.replace(/"/g, '&quot;');
       dataHtml += `<button class="form-data-pill" data-value="${escaped}" data-label="${label}"><span class="pill-label">${label}</span><span class="pill-value">${escaped}</span></button>`;
@@ -1312,14 +1312,14 @@
     const entry = trackedJobs[key] || {};
     const STAGES = ['Enviada', 'Screening', 'Entrevista', 'Oferta', 'Rechazada'];
     if (entry?.applied) {
-      html += `<div class="form-data-section"><h3>Etapa del proceso</h3><div class="stage-pills">`;
+      html += `<div class="stage-section"><div class="stage-title">Etapa del proceso</div><div class="stage-pills">`;
       STAGES.forEach(s => {
         const active = entry.stage === s ? ' active' : '';
         html += `<span class="pill stage-pill${active}" data-stage="${s}">${s}</span>`;
       });
       html += `</div></div>`;
     }
-    html += `<div class="form-data-section"><h3>Nota personal</h3><textarea class="job-note-textarea" rows="3" placeholder="Ej: mandé CV personalizado, contacté a reclutador...">${escHtml(entry?.note || '')}</textarea></div>`;
+    html += `<div class="note-section"><div class="note-title">Nota personal</div><textarea class="job-note-textarea" rows="3" placeholder="Ej: mandé CV personalizado, contacté a reclutador...">${escHtml(entry?.note || '')}</textarea></div>`;
 
     modalBody.innerHTML = html;
 
