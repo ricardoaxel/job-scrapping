@@ -1266,8 +1266,8 @@
         ${`<span class="apply-badge ${applyClass}">${applyLabel}</span>`}
       </div>
       <div class="actions">
-        ${trackBtnHtml(job)}
-        ${job.url ? `<a href="${job.url}" target="_blank" class="btn btn-primary">🔗 Ver en LinkedIn</a>` : ''}
+        <div class="actions-track-group">${trackBtnHtml(job)}</div>
+        ${job.url ? `<a href="${job.url}" target="_blank" class="btn btn-linkedin">🔗 Ver en LinkedIn</a>` : ''}
       </div>
     `;
 
@@ -1386,11 +1386,19 @@
       });
     }
 
+    const mc = document.querySelector('.modal-content');
+    const st = getTrackStatus(job);
+    mc.classList.remove('modal-border-interested', 'modal-border-applied', 'modal-border-disliked');
+    if (st.disliked) mc.classList.add('modal-border-disliked');
+    else if (st.applied) mc.classList.add('modal-border-applied');
+    else if (st.interested) mc.classList.add('modal-border-interested');
+
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }
 
   function closeModal() {
+    document.querySelector('.modal-content')?.classList.remove('modal-border-interested', 'modal-border-applied', 'modal-border-disliked');
     modal.classList.add('hidden');
     document.body.style.overflow = '';
   }
