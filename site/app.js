@@ -1266,7 +1266,7 @@
         ${`<span class="apply-badge ${applyClass}">${applyLabel}</span>`}
       </div>
       <div class="actions">
-        <div class="actions-track">${trackBtnHtml(job)}</div>
+        ${trackBtnHtml(job)}
         ${job.url ? `<a href="${job.url}" target="_blank" class="btn btn-primary">🔗 Ver en LinkedIn</a>` : ''}
       </div>
     `;
