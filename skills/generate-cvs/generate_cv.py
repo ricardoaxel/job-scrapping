@@ -2,6 +2,11 @@
 import os, re, sys, subprocess, argparse
 from docx import Document
 
+LANG = "en"  # will be set from CLI
+
+HEADERS_EN = ["Professional Summary", "Professional Experience", "Education", "Skills", "Competencies", "Languages"]
+HEADERS_ES = ["Resumen Profesional", "Experiencia Profesional", "Educación", "Habilidades", "Competencias", "Idiomas"]
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 TEMPLATE = os.path.join(ROOT, "cvs", "WordTemplate.docx")
 OUTPUT_DIR = os.path.join(ROOT, "cvs", "Generated")
@@ -66,17 +71,17 @@ def parse_md(filepath):
     for line in lines:
         raw = line
         lower = line.strip().lower().rstrip(":")
-        if lower in ("## professional summary", "## summary"):
+        if lower in ("## professional summary", "## summary", "## resumen profesional", "## resumen"):
             current = "summary"; continue
-        elif lower in ("## professional experience", "## experience"):
+        elif lower in ("## professional experience", "## experience", "## experiencia profesional", "## experiencia"):
             current = "experience"; exp_block = None; continue
-        elif lower == "## education":
+        elif lower in ("## education", "## educación"):
             current = "education"; continue
-        elif lower == "## skills":
+        elif lower in ("## skills", "## habilidades", "## aptitudes"):
             current = "skills"; continue
-        elif lower == "## competencies":
+        elif lower in ("## competencies", "## competencias"):
             current = "competencies"; continue
-        elif lower == "## languages":
+        elif lower in ("## languages", "## idiomas"):
             current = "languages"; continue
 
         s = line.strip()
@@ -233,14 +238,15 @@ def generate_docx(md_path, category):
         set_run(paras[m["contact"]], "")
 
     # Headers
+    headers = HEADERS_ES if LANG == "es" else HEADERS_EN
     for key in ["summary_header", "exp_header", "edu_header", "skills_header", "comp_header", "lang_header"]:
         paras[m[key]].paragraph_format.keep_with_next = True
-    set_run(paras[m["summary_header"]], "Professional Summary")
-    set_run(paras[m["exp_header"]], "Professional Experience")
-    set_run(paras[m["edu_header"]], "Education")
-    set_run(paras[m["skills_header"]], "Skills")
-    set_run(paras[m["comp_header"]], "Competencies")
-    set_run(paras[m["lang_header"]], "Languages")
+    set_run(paras[m["summary_header"]], headers[0])
+    set_run(paras[m["exp_header"]], headers[1])
+    set_run(paras[m["edu_header"]], headers[2])
+    set_run(paras[m["skills_header"]], headers[3])
+    set_run(paras[m["comp_header"]], headers[4])
+    set_run(paras[m["lang_header"]], headers[5])
 
     # Summary
     if sections["summary"]:
@@ -291,7 +297,8 @@ def generate_docx(md_path, category):
     cat_dir = os.path.join(OUTPUT_DIR, category)
     os.makedirs(cat_dir, exist_ok=True)
     safe = category.replace(" ", "_").replace("/", "_")
-    out_name = f"CV_Valeria_Paez_Reyes_{safe}.docx"
+    suffix = "_es" if LANG == "es" else ""
+    out_name = f"CV_Valeria_Paez_Reyes_{safe}{suffix}.docx"
     out_path = os.path.join(cat_dir, out_name)
     doc.save(out_path)
     print(f"✅ DOCX: {out_path}")
@@ -392,17 +399,21 @@ def generate_pdf(md_path, category):
     cat_dir = os.path.join(OUTPUT_DIR, category)
     os.makedirs(cat_dir, exist_ok=True)
     safe = category.replace(" ", "_").replace("/", "_")
-    base = os.path.join(cat_dir, f"CV_Valeria_Paez_Reyes_{safe}")
+    suffix = "_es" if LANG == "es" else ""
+    base = os.path.join(cat_dir, f"CV_Valeria_Paez_Reyes_{safe}{suffix}")
     generate_pdf_simple(md_path, base + "_simple.pdf")
     generate_pdf_styled(md_path, base + "_styled.pdf")
 
 
 def main():
+    global LANG
     parser = argparse.ArgumentParser()
     parser.add_argument("--md", required=True)
     parser.add_argument("--category", required=True)
+    parser.add_argument("--lang", default="en", choices=["en", "es"])
     parser.add_argument("--pdf", action="store_true", default=True)
     args = parser.parse_args()
+    LANG = args.lang
     if not os.path.exists(args.md):
         print(f"MD not found: {args.md}"); sys.exit(1)
     docx_path = generate_docx(args.md, args.category)

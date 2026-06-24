@@ -3,6 +3,30 @@ import json, re, sys
 JOBS_PATH = "/Users/ashel/Documents/Programming/job-scrapping/jobs.json"
 OUTPUT_PATH = "/Users/ashel/Documents/Programming/job-scrapping/filtered_jobs.json"
 
+
+def detect_language(job):
+    title = job.get("title", "")
+    desc = job.get("description", "")
+    text = (title + " " + (desc or "")).lower()
+
+    es_chars = len(re.findall(r'[ñáéíóú¿¡]', text))
+
+    es_words = len(re.findall(
+        r'\b(el|la|los|las|que|para|por|con|del|una|entre|sobre|tiene|este|esta|como|más|pero|porque|cuando|donde|todo|años|experiencia|vacante|empresa|salario|puesto|requisitos|responsabilidades|beneficios|postular|aplicar|contratación|tiempo|completo|medio|remoto|híbrido|modalidad|desarrollador|coordinador|analista|asistente|asociate|especialista|gerente|lider|practicante|becario|lunes|martes|miércoles|jueves|viernes|sábado|domingo|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|nuestro|nuestra|tus|tus|será|estar|puede|debe|fecha|tipo|área|nivel|industria|educación|habilidades|idiomas|inglés|español|portugués|nativo|intermedio|avanzado)\b',
+        text))
+
+    en_words = len(re.findall(
+        r'\b(the|and|for|with|this|that|from|your|will|have|about|what|you|our|their|are|can|all|has|not|but|its|more|than|also|very|just|years|experience|job|company|salary|position|requirements|responsibilities|benefits|apply|hiring|full|time|part|remote|hybrid|manager|associate|specialist|coordinator|analyst|assistant|intern|trainee|graduate|developer|engineer|lead|senior|junior|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|must|should|will|able|work|team|skills|language|english|spanish|portuguese|native|intermediate|advanced|fluent)\b',
+        text))
+
+    if es_words > en_words:
+        return "es"
+    if en_words > es_words:
+        return "en"
+    if es_chars >= 2:
+        return "es"
+    return "en"
+
 with open(JOBS_PATH) as f:
     jobs = json.load(f)
 
@@ -171,6 +195,13 @@ for j in jobs:
         unique.append(j)
 
 print(f"After dedup: {len(unique)} (removed {len(jobs) - len(unique)})", file=sys.stderr)
+
+# ─── 6. Language detection ─────────────────────────────────────
+for j in unique:
+    j["language"] = detect_language(j)
+count_en = sum(1 for j in unique if j["language"] == "en")
+count_es = sum(1 for j in unique if j["language"] == "es")
+print(f"Language: {count_en} EN, {count_es} ES", file=sys.stderr)
 
 # ─── Save / Output ─────────────────────────────────────────────
 result = json.dumps(unique, indent=2, ensure_ascii=False)

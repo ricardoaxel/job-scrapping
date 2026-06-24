@@ -41,22 +41,19 @@
     return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  function normalizeCategory(cat) {
-    return cat.toLowerCase().trim();
-  }
-
   function cvBasePath(category) {
     const folder = category;
     const file = category.replace(/ /g, '_');
     return `/cvs/${folder}/CV_Valeria_Paez_Reyes_${file}`;
   }
 
-  function getCvLinks(category) {
-    const base = cvBasePath(category);
+  function getCvLinks(category, lang) {
+    const suffix = lang === 'es' ? '_es' : '';
+    const base = cvBasePath(category) + suffix;
     return [
-      { label: 'CV Simple (PDF)', url: base + '_simple.pdf', icon: '📄' },
-      { label: 'CV Styled (PDF)', url: base + '_styled.pdf', icon: '🎨' },
-      { label: 'CV (DOCX)', url: base + '.docx', icon: '📝' },
+      { label: `CV Simple (PDF)`, url: base + '_simple.pdf', icon: '📄' },
+      { label: `CV Styled (PDF)`, url: base + '_styled.pdf', icon: '🎨' },
+      { label: `CV (DOCX)`, url: base + '.docx', icon: '📝' },
     ];
   }
 
@@ -93,6 +90,11 @@
     return text.substring(0, max) + '...';
   }
 
+  function langBadge(lang) {
+    if (lang === 'es') return '<span class="lang-badge lang-es">ES</span>';
+    return '<span class="lang-badge lang-en">EN</span>';
+  }
+
   function renderJobCards(jobs) {
     if (jobs.length === 0) {
       jobList.innerHTML = '<div class="job-card" style="text-align:center;color:var(--text-secondary);">No se encontraron vacantes</div>';
@@ -104,7 +106,7 @@
       const descPreview = truncateText((j.description || '').replace(/^About the job\s*/i, ''), 120);
       html += `
         <div class="job-card" data-idx="${idx}">
-          <div class="job-card-title">${j.title || 'Sin título'}</div>
+          <div class="job-card-title">${j.title || 'Sin título'} ${langBadge(j.language)}</div>
           <div class="job-card-company">${j.company || ''}${j.location ? ' &middot; ' + j.location : ''}</div>
           <div class="job-card-meta">
             <span>${dateStr}</span>
@@ -168,12 +170,11 @@
     const dateStr = relativeDate(job.postedDate || job.scrapedAt);
     const desc = (job.description || '').replace(/^About the job\s*/i, '').trim();
     const cat = job.category || '';
-    const cvLinks = cat ? getCvLinks(cat) : [];
-
-    const genLinks = getCvLinks('General');
+    const jobLang = job.language || 'en';
+    const otherLang = jobLang === 'es' ? 'en' : 'es';
 
     let html = `
-      <h2>${job.title || 'Sin título'}</h2>
+      <h2>${job.title || 'Sin título'} ${langBadge(jobLang)}</h2>
       <div class="company-line">${job.company || ''}${job.location ? ' &middot; ' + job.location : ''}</div>
       <div class="meta-line">
         <span>📅 ${dateStr}</span>
@@ -184,24 +185,29 @@
       </div>
     `;
 
-    if (cvLinks.length > 0) {
+    const primaryLinks = getCvLinks(cat, jobLang);
+    const secondaryLinks = getCvLinks(cat, otherLang);
+
+    if (cat && primaryLinks.length > 0) {
+      const langLabel = jobLang === 'es' ? '🇪🇸 Español' : '🇬🇧 English';
       html += `
         <div class="cv-section">
-          <h3>📄 CVs recomendados para esta vacante</h3>
+          <h3>📄 CVs recomendados (${langLabel})</h3>
           <div class="cv-links">
       `;
-      cvLinks.forEach(l => {
+      primaryLinks.forEach(l => {
         html += `<a href="${l.url}" class="btn" target="_blank">${l.icon} ${l.label}</a>`;
       });
       html += `</div></div>`;
     }
 
+    const otherLangLabel = otherLang === 'es' ? '🇪🇸 Español' : '🇬🇧 English';
     html += `
       <div class="cv-section">
-        <h3>📄 CV General (completo)</h3>
+        <h3>📄 CVs recomendados (${otherLangLabel})</h3>
         <div class="cv-links">
     `;
-    genLinks.forEach(l => {
+    secondaryLinks.forEach(l => {
       html += `<a href="${l.url}" class="btn" target="_blank">${l.icon} ${l.label}</a>`;
     });
     html += `</div></div>`;

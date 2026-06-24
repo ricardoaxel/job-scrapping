@@ -24,6 +24,8 @@ node scripts/scraper.js
 
 **Manual review always recommended** — the filter is a heuristic; check for edge cases.
 
+**Language detection**: `filter.py` automatically detects if each job is in Spanish or English (field `"language": "es"` or `"en"`) based on character and word analysis. 24 EN / 14 ES in current dataset.
+
 ## 3. Reconstruir Skills por Categoría
 
 ```bash
@@ -39,6 +41,8 @@ Run this after every scrape to keep skills up to date.
 ## 4. Generar CVs por Categoría (AI step)
 
 For each of the 8 categories, create a tailored Markdown CV in `cvs/Generated/<Category>/`.
+
+**Spanish versions**: create `*_es.md` files alongside English ones. Use Spanish headers: `## Resumen Profesional`, `## Experiencia Profesional`, `## Educación`, `## Habilidades`, `## Competencias`, `## Idiomas`.
 
 ### Rules (from `skills/generate-cvs/skill.md`):
 
@@ -102,6 +106,7 @@ Output files land in each category folder alongside the MD.
 | `scripts/generate_all_cvs.py` | Batch format all category CVs |
 | `scripts/generate_cv.py` | Single CV formatter (MD → DOCX + 2 PDFs) |
 | `cvs/base-cv.md` | Master CV (English, manual) |
+| `cvs/base-cv-es.md` | Master CV (Spanish, manual) |
 | `cvs/WordTemplate.docx` | DOCX formatting template (Spanish original) |
 | `cvs/skill_per_category.json` | Skills/tools/methodologies per category (8 categories) |
 | `linkedin-state.json` | Browser session (sensitive — do not commit) |
