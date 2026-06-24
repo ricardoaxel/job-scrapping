@@ -22,9 +22,14 @@
     if (isNaN(d.getTime())) return 'Fecha no disponible';
     const now = new Date();
     const diff = now - d;
+    const hours = Math.floor(diff / 3600000);
+    if (diff < 0) return 'Recién publicado';
+    if (hours < 1) {
+      const mins = Math.floor(diff / 60000);
+      return `Hace ${mins} ${mins === 1 ? 'minuto' : 'minutos'}`;
+    }
+    if (hours < 24) return `Hace ${hours} ${hours === 1 ? 'hora' : 'horas'}`;
     const days = Math.floor(diff / 86400000);
-    if (days < 0) return 'Recién publicado';
-    if (days === 0) return 'Hoy';
     if (days === 1) return 'Ayer';
     if (days < 7) return `Hace ${days} días`;
     if (days < 30) {
