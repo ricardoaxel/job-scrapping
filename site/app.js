@@ -1,4 +1,5 @@
 (function () {
+  const BASE = (window.location.pathname.replace(/\/$/, '') || '');
   let allJobs = [];
   let skillData = {};
   let filtered = [];
@@ -44,7 +45,7 @@
   function cvBasePath(category) {
     const folder = category;
     const file = category.replace(/ /g, '_');
-    return `/cvs/${folder}/CV_Valeria_Paez_Reyes_${file}`;
+    return `${BASE}/cvs/${folder}/CV_Valeria_Paez_Reyes_${file}`;
   }
 
   function getCvLinks(category, lang) {
@@ -226,8 +227,8 @@
   async function init() {
     try {
       const [jobsRes, skillRes] = await Promise.all([
-        fetch('data/filtered_jobs.json'),
-        fetch('data/skill_per_category.json')
+        fetch(`${BASE}/data/filtered_jobs.json`),
+        fetch(`${BASE}/data/skill_per_category.json`)
       ]);
       if (!jobsRes.ok) throw new Error('Error al cargar vacantes');
       allJobs = await jobsRes.json();
