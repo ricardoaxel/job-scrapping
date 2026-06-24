@@ -30,11 +30,17 @@
   const modalClose = document.getElementById('modal-close');
   const modalBackdrop = document.getElementById('modal-backdrop');
   const refCvBtn = document.getElementById('ref-cv-btn');
+  const ghTokenBtn = document.getElementById('gh-token-btn');
   const timeFilters = document.getElementById('time-filters');
 
   let activeTimeFilter = '';
   let customDateFrom = '';
   let customDateTo = '';
+  let ghToken = sessionStorage.getItem('gh_token') || '';
+  let ghSha = '';
+  let trackedJobs = {};
+  const REPO = 'ricardoaxel/job-scrapping';
+  const TRACKED_PATH = 'data/tracked_jobs.json';
 
   function relativeDate(dateStr) {
     if (!dateStr) return 'Fecha no disponible';
@@ -242,6 +248,114 @@
     }
   }
 
+  /* ─── Tracking (GitHub API) ─── */
+
+  function getJobKey(job) {
+    return job.url || (job.title + job.company);
+  }
+
+  function updateTokenUI() {
+    if (ghToken) {
+      ghTokenBtn.textContent = '✅';
+      ghTokenBtn.title = 'GitHub conectado';
+    } else {
+      ghTokenBtn.textContent = '🔑';
+      ghTokenBtn.title = 'Conectar GitHub para guardar tu progreso';
+    }
+  }
+
+  function promptToken() {
+    const token = prompt(
+      ghToken
+        ? 'Token actual: ' + ghToken.slice(0, 8) + '...\n\n¿Quieres cambiarlo? Pega el nuevo token de GitHub (PAT) o deja vacío para desconectar.'
+        : 'Pega tu token de GitHub (Fine-Grained PAT) con permisos de lectura/escritura en contents.\n\nCrea uno en: github.com/settings/tokens?type=beta',
+      ghToken
+    );
+    if (token === null) return;
+    if (token.trim() === '') {
+      ghToken = '';
+      sessionStorage.removeItem('gh_token');
+      trackedJobs = {};
+      updateTokenUI();
+      applyFilters();
+      return;
+    }
+    ghToken = token.trim();
+    sessionStorage.setItem('gh_token', ghToken);
+    updateTokenUI();
+    loadTrackedJobs();
+  }
+
+  async function loadTrackedJobs() {
+    if (!ghToken) return;
+    try {
+      const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${TRACKED_PATH}`, {
+        headers: { Authorization: `Bearer ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
+      });
+      if (!res.ok) {
+        if (res.status === 404) {
+          trackedJobs = {};
+          ghSha = '';
+        } else if (res.status === 401) {
+          ghToken = '';
+          sessionStorage.removeItem('gh_token');
+          updateTokenUI();
+        }
+        return;
+      }
+      const data = await res.json();
+      ghSha = data.sha;
+      const content = JSON.parse(atob(data.content));
+      trackedJobs = content || {};
+      applyFilters();
+    } catch (e) {
+      console.warn('Error loading tracked jobs:', e);
+    }
+  }
+
+  async function syncTrackedJobs() {
+    if (!ghToken) return;
+    const content = btoa(JSON.stringify(trackedJobs, null, 2));
+    try {
+      await fetch(`https://api.github.com/repos/${REPO}/contents/${TRACKED_PATH}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${ghToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Update tracked jobs',
+          content,
+          sha: ghSha || undefined
+        })
+      });
+    } catch (e) {
+      console.warn('Error syncing tracked jobs:', e);
+    }
+  }
+
+  function toggleTrack(job, status) {
+    const key = getJobKey(job);
+    const existing = trackedJobs[key];
+    if (existing && existing.status === status) {
+      delete trackedJobs[key];
+    } else {
+      trackedJobs[key] = { status, trackedAt: new Date().toISOString() };
+    }
+    syncTrackedJobs();
+    applyFilters();
+  }
+
+  function getTrackStatus(job) {
+    const key = getJobKey(job);
+    const t = trackedJobs[key];
+    return t ? t.status : '';
+  }
+
+  function trackBtnHtml(job) {
+    const st = getTrackStatus(job);
+    const intClass = st === 'interested' ? ' active' : '';
+    const appClass = st === 'applied' ? ' active' : '';
+    return `<button class="track-btn track-interested${intClass}" data-action="interested" title="Me interesa">♡</button><button class="track-btn track-applied${appClass}" data-action="applied" title="Aplicada">✓</button>`;
+  }
+
   function renderJobCards(jobs) {
     if (jobs.length === 0) {
       jobList.innerHTML = '<div class="job-card" style="text-align:center;color:var(--text-secondary);">No se encontraron vacantes</div>';
@@ -270,7 +384,10 @@
         <div class="job-card" data-idx="${idx}">
           <div class="job-card-header">
             <div class="job-card-title">${j.title || 'Sin título'} ${langBadge(j.language)}</div>
-            ${j.url ? `<a href="${j.url}" target="_blank" class="card-link" title="Ver en LinkedIn">🔗</a>` : ''}
+            <div class="card-actions">
+              ${ghToken ? trackBtnHtml(j) : ''}
+              ${j.url ? `<a href="${j.url}" target="_blank" class="card-link" title="Ver en LinkedIn">🔗</a>` : ''}
+            </div>
           </div>
           <div class="job-card-company">${j.company || ''}${j.location ? ' &middot; ' + j.location : ''}</div>
           <div class="job-card-meta">
@@ -286,9 +403,17 @@
     jobList.innerHTML = html;
     jobList.querySelectorAll('.job-card').forEach(el => {
       el.addEventListener('click', (e) => {
-        if (e.target.closest('.card-link')) return;
+        if (e.target.closest('.card-link') || e.target.closest('.track-btn')) return;
         const idx = parseInt(el.dataset.idx);
         openModal(filtered[idx]);
+      });
+    });
+    jobList.querySelectorAll('.track-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const card = btn.closest('.job-card');
+        const idx = parseInt(card.dataset.idx);
+        toggleTrack(filtered[idx], btn.dataset.action);
       });
     });
   }
@@ -446,6 +571,7 @@
   }
 
   refCvBtn.addEventListener('click', openRefCv);
+  ghTokenBtn.addEventListener('click', promptToken);
 
   modalClose.addEventListener('click', closeModal);
   modalBackdrop.addEventListener('click', closeModal);
@@ -470,7 +596,9 @@
       filtered = [...allJobs];
       renderPills();
       renderTimeFilters();
+      updateTokenUI();
       applyFilters();
+      if (ghToken) loadTrackedJobs();
     } catch (err) {
       jobList.innerHTML = '<div class="job-card" style="text-align:center;color:var(--text-secondary);">Error al cargar datos: ' + err.message + '</div>';
     }

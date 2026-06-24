@@ -24,6 +24,7 @@ jobs:
           mkdir -p _site/data _site/cvs
           cp filtered_jobs.json _site/data/
           cp cvs/skill_per_category.json _site/data/
+          cp data/tracked_jobs.json _site/data/
           cp cvs/base-cv.md cvs/base-cv-es.md _site/data/
           cp -r cvs/Generated/* _site/cvs/
           cp site/* _site/

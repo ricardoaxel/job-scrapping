@@ -267,6 +267,44 @@ main {
   opacity: 1;
 }
 
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.track-btn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0.35;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+  font-family: inherit;
+}
+
+.track-btn:hover {
+  opacity: 0.8;
+  background: var(--accent-light);
+}
+
+.track-btn.active {
+  opacity: 1;
+}
+
+.track-btn.track-interested.active {
+  color: #e11d48;
+}
+
+.track-btn.track-applied.active {
+  color: #059669;
+}
+
 .job-card-company {
   font-size: 0.88rem;
   color: var(--text-secondary);
@@ -902,6 +940,9 @@ footer a:hover {
     margin-top: 10px;
     padding: 5px 13px;
     font-size: 0.72rem;
+  }
+  #gh-token-btn {
+    font-size: 0.8rem;
   }
   main { padding: 12px 10px; }
   .filters-card {
