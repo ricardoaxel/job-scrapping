@@ -1018,3 +1018,66 @@ footer a:hover {
 
   footer { padding: 14px 12px; font-size: 0.72rem; }
 }
+
+.dislike-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dislike-dialog {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+}
+
+.dislike-dialog p {
+  margin: 0 0 12px 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dislike-dialog textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  resize: vertical;
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
+  min-height: 60px;
+}
+.dislike-dialog textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.dislike-dialog-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  justify-content: flex-end;
+}
+
+.dislike-dialog-actions .btn {
+  font-size: 0.82rem;
+  padding: 7px 16px;
+}
+

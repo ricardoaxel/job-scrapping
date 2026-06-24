@@ -286,6 +286,36 @@
     } catch (e) {}
   }
 
+  function showDislikeDialog(onSave) {
+    const overlay = document.createElement('div');
+    overlay.className = 'dislike-overlay';
+    overlay.innerHTML = `
+      <div class="dislike-dialog">
+        <p>¿Por qué no te gusta esta vacante?</p>
+        <textarea placeholder="Motivo (opcional)" rows="2"></textarea>
+        <div class="dislike-dialog-actions">
+          <button class="btn" id="dislike-skip">Omitir</button>
+          <button class="btn btn-primary" id="dislike-save">Guardar motivo</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    function close(reason) {
+      overlay.remove();
+      onSave(reason);
+    }
+
+    overlay.querySelector('#dislike-skip').addEventListener('click', () => close(''));
+    overlay.querySelector('#dislike-save').addEventListener('click', () => {
+      close(overlay.querySelector('textarea').value.trim());
+    });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) close('');
+    });
+    setTimeout(() => overlay.querySelector('textarea').focus(), 100);
+  }
+
   function toggleTrack(job, status) {
     const key = getJobKey(job);
     const existing = trackedJobs[key] || {};
@@ -304,8 +334,18 @@
     } else if (status === 'disliked') {
       if (existing.disliked) {
         delete existing.disliked;
+        delete existing.dislikeReason;
       } else {
-        existing.disliked = true;
+        showDislikeDialog((reason) => {
+          const entry = trackedJobs[key] || {};
+          entry.disliked = true;
+          entry.dislikeReason = reason || '';
+          entry.trackedAt = new Date().toISOString();
+          trackedJobs[key] = entry;
+          saveTrackedJobs();
+          applyFilters();
+        });
+        return;
       }
     }
     existing.trackedAt = new Date().toISOString();
