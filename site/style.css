@@ -516,19 +516,24 @@ main {
 
 .track-btn.active {
   opacity: 1;
+  background: var(--accent-light);
+  transform: scale(1.15);
 }
 
 .track-btn.track-interested.active {
   color: #e11d48;
+  background: #fef2f2;
 }
 
 .track-btn.track-applied.active {
   color: #059669;
+  background: #f0fdf4;
 }
 
 .track-btn.track-disliked.active {
   color: #6b7280;
-  opacity: 0.6;
+  opacity: 1;
+  background: #f3f4f6;
 }
 
 .job-card-company {
