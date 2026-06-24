@@ -1833,6 +1833,17 @@ footer a:hover {
 }
 
 /* ─── Note textarea in modal ─── */
+.hint-icon {
+  cursor: help;
+  font-size: 0.65rem;
+  vertical-align: middle;
+  margin-left: 4px;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.hint-icon:hover {
+  opacity: 1;
+}
 .job-note-textarea {
   width: 100%;
   padding: 10px 12px;
