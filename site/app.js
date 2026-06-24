@@ -249,7 +249,7 @@
     }
   }
 
-  /* ─── Tracking (localStorage) ─── */
+  /* ─── Tracking ─── */
 
   let showInterested = false;
   let hideApplied = false;
@@ -266,6 +266,14 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+
+  if (window.location.search.includes('reset=1')) {
+    trackedJobs = {};
+    localStorage.removeItem('tracked_jobs');
+    db.collection('tracked').doc('jobs').delete().catch(() => {});
+    db.collection('notes').doc('data').delete().catch(() => {});
+    window.history.replaceState(null, '', window.location.pathname);
+  }
 
   /* ─── Auth ─── */
   const AUTH_KEY = 'auth_pikachu';
