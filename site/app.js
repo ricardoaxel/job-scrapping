@@ -774,6 +774,22 @@
     applyFilters();
   });
 
+  document.getElementById('reset-filters-btn').addEventListener('click', () => {
+    activeCategory = '';
+    activeTimeFilter = '';
+    customDateFrom = '';
+    customDateTo = '';
+    showInterested = false;
+    showApplied = false;
+    hideDisliked = true;
+    searchInput.value = '';
+    currentPage = 1;
+    renderPills();
+    renderTimeFilters();
+    renderTrackingFilters();
+    applyFilters();
+  });
+
   async function init() {
     try {
       const [jobsRes, skillRes] = await Promise.all([

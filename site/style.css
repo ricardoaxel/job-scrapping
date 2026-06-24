@@ -322,6 +322,26 @@ main {
   color: var(--text-tertiary);
 }
 
+.reset-filters-btn {
+  display: block;
+  margin: 12px auto 0;
+  padding: 5px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-tertiary);
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.reset-filters-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
 #search {
   width: 100%;
   padding: 9px 14px;
