@@ -36,7 +36,7 @@
   let activeTimeFilter = '';
   let customDateFrom = '';
   let customDateTo = '';
-  let ghToken = sessionStorage.getItem('gh_token') || '';
+  let ghToken = localStorage.getItem('gh_token') || '';
   let ghSha = '';
   let trackedJobs = {};
   const REPO = 'ricardoaxel/job-scrapping';
@@ -274,14 +274,14 @@
     if (token === null) return;
     if (token.trim() === '') {
       ghToken = '';
-      sessionStorage.removeItem('gh_token');
+      localStorage.removeItem('gh_token');
       trackedJobs = {};
       updateTokenUI();
       applyFilters();
       return;
     }
     ghToken = token.trim();
-    sessionStorage.setItem('gh_token', ghToken);
+    localStorage.setItem('gh_token', ghToken);
     updateTokenUI();
     loadTrackedJobs();
   }
@@ -298,7 +298,7 @@
           ghSha = '';
         } else if (res.status === 401) {
           ghToken = '';
-          sessionStorage.removeItem('gh_token');
+          localStorage.removeItem('gh_token');
           updateTokenUI();
         }
         return;
@@ -589,7 +589,7 @@
     const urlToken = params.get('token');
     if (urlToken) {
       ghToken = urlToken;
-      sessionStorage.setItem('gh_token', ghToken);
+      localStorage.setItem('gh_token', ghToken);
       history.replaceState(null, '', window.location.pathname);
     }
     try {
