@@ -973,11 +973,14 @@ main {
   position: relative;
   background: var(--surface);
   border-radius: var(--radius-xl);
-  max-width: 860px;
+  max-width: 960px;
   width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  padding: 32px;
+  max-height: 90vh;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
   box-shadow: var(--shadow-lg);
   animation: modalIn 0.2s ease;
 }
@@ -1006,21 +1009,23 @@ main {
 
 .modal-close {
   position: absolute;
-  top: 14px;
-  right: 18px;
+  top: 12px;
+  right: 12px;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
-  font-size: 1.3rem;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid var(--border);
+  font-size: 1.2rem;
   cursor: pointer;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   border-radius: 50%;
   transition: all 0.15s ease;
   line-height: 1;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
 }
 
 .modal-close:hover {
@@ -1949,11 +1954,14 @@ footer a:hover {
   }
 
   .modal-content {
-    padding: 20px 14px;
     max-height: 94vh;
+    height: 94vh;
     border-radius: var(--radius);
     margin: 0 4px;
   }
+  .modal-split { flex-direction: column; }
+  .modal-left { padding: 20px 14px; }
+  .modal-right { width: 100%; border-left: none; border-top: 1px solid var(--border); min-height: 200px; }
   .modal-close {
     top: 10px;
     right: 12px;
@@ -1961,7 +1969,38 @@ footer a:hover {
     height: 28px;
     font-size: 1.1rem;
   }
-  .modal-body h2 {
+.modal-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+.modal-split {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+.modal-left {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 24px 32px 32px;
+  min-width: 0;
+}
+.modal-right {
+  width: 420px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+.iframe-wrapper {
+  flex: 1;
+  display: flex;
+}
+.iframe-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
     font-size: 1.05rem;
     padding-right: 32px;
   }

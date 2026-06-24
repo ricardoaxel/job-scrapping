@@ -1257,7 +1257,7 @@
     const applyLabel = job.easyApply ? 'Postulación rápida' : 'Sitio externo';
     const applyClass = job.easyApply ? 'apply-easy' : 'apply-external';
 
-    let html = `
+    let html = `<div class="modal-split"><div class="modal-left">
       <h2>${job.title || 'Sin título'} ${langBadge(jobLang)}</h2>
       <div class="company-line">${job.company || ''}${job.location ? ' &middot; ' + job.location : ''}</div>
       <div class="modal-header-row">
@@ -1326,6 +1326,7 @@
       html += `</div></div>`;
     }
     html += `<div class="form-data-section"><h3>Nota personal</h3><textarea class="job-note-textarea" rows="3" placeholder="Ej: mandé CV personalizado, contacté a reclutador...">${escHtml(entry?.note || '')}</textarea></div>`;
+    html += `</div><div class="modal-right"><div class="iframe-wrapper"><iframe src="${escHtml(job.url || '')}" sandbox="allow-scripts allow-forms allow-same-origin" loading="lazy"></iframe></div></div></div>`;
 
     modalBody.innerHTML = html;
 
