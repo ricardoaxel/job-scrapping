@@ -171,6 +171,12 @@
     return '<span class="lang-badge lang-en">EN</span>';
   }
 
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
   function formatInline(text) {
     return text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -413,6 +419,7 @@
           </div>
           ${skillsHtml}
           ${descPreview ? `<div style="font-size:0.82rem;color:var(--text-secondary);margin-top:6px;line-height:1.4;">${descPreview}</div>` : ''}
+          ${(() => { const t = trackedJobs[getJobKey(j)]; return t?.disliked && t?.dislikeReason ? `<div class="dislike-reason">👎 ${escHtml(t.dislikeReason)}</div>` : ''; })()}
         </div>
       `;
     });

@@ -365,6 +365,16 @@ main {
   border-color: var(--border);
 }
 
+.dislike-reason {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(107,114,128,0.08);
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
 .skill-pill:hover {
   background: #dcfce7;
   border-color: #86efac;
