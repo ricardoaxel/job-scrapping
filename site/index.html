@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vacantes para Valeria</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Vacantes para Valeria</h1>
+    <p class="subtitle">Ofertas de marketing filtradas para tu perfil</p>
+  </header>
+
+  <main>
+    <div class="controls">
+      <input type="text" id="search" placeholder="Buscar por título, empresa, categoría..." autocomplete="off">
+      <div id="category-filters" class="category-pills"></div>
+    </div>
+
+    <div id="stats" class="stats"></div>
+
+    <div id="job-list" class="job-list"></div>
+
+    <div id="pagination" class="pagination"></div>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Proyecto personal &middot; <a href="https://linkedin.com/in/valeria-paez-reyes" target="_blank">Valeria Páez</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

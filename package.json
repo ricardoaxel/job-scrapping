@@ -1,0 +1,15 @@
+{
+  "name": "job-scrapping",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "login": "node scripts/login.js",
+    "start": "MODE=full node scripts/scraper.js",
+    "test": "MODE=test node scripts/scraper.js",
+    "full": "MODE=full node scripts/scraper.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
