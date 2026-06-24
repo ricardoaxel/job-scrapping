@@ -105,6 +105,8 @@
     jobs.forEach((j, idx) => {
       const dateStr = relativeDate(j.postedDate || j.scrapedAt);
       const descPreview = truncateText((j.description || '').replace(/^About the job\s*/i, ''), 120);
+      const applyLabel = j.easyApply ? 'Postulación rápida' : 'Sitio externo';
+      const applyClass = j.easyApply ? 'apply-easy' : 'apply-external';
       html += `
         <div class="job-card" data-idx="${idx}">
           <div class="job-card-title">${j.title || 'Sin título'} ${langBadge(j.language)}</div>
@@ -112,6 +114,7 @@
           <div class="job-card-meta">
             <span>${dateStr}</span>
             ${j.category ? `<span class="job-card-tag">${j.category}</span>` : ''}
+            ${`<span class="apply-badge ${applyClass}">${applyLabel}</span>`}
           </div>
           ${descPreview ? `<div style="font-size:0.82rem;color:var(--text-secondary);margin-top:6px;line-height:1.4;">${descPreview}</div>` : ''}
         </div>
@@ -173,12 +176,16 @@
     const cat = job.category || '';
     const jobLang = job.language || 'en';
 
+    const applyLabel = job.easyApply ? 'Postulación rápida' : 'Sitio externo';
+    const applyClass = job.easyApply ? 'apply-easy' : 'apply-external';
+
     let html = `
       <h2>${job.title || 'Sin título'} ${langBadge(jobLang)}</h2>
       <div class="company-line">${job.company || ''}${job.location ? ' &middot; ' + job.location : ''}</div>
       <div class="meta-line">
         <span>📅 ${dateStr}</span>
         ${cat ? `<span class="tag">${cat}</span>` : ''}
+        ${`<span class="apply-badge ${applyClass}">${applyLabel}</span>`}
       </div>
       <div class="actions">
         ${job.url ? `<a href="${job.url}" target="_blank" class="btn btn-primary">🔗 Ver en LinkedIn</a>` : ''}
