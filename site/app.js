@@ -249,12 +249,42 @@
   let hideApplied = false;
   let hideDisliked = true;
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyANT112Y6OIzN-TUeldWFNQ9n9jniqhxXo",
+    authDomain: "job-search-9d700.firebaseapp.com",
+    projectId: "job-search-9d700",
+    storageBucket: "job-search-9d700.firebasestorage.app",
+    messagingSenderId: "159264431826",
+    appId: "1:159264431826:web:896b0c8b8484d860c2570b",
+    measurementId: "G-LMKTVF7TCE"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
   function getJobKey(job) {
     return job.url || (job.title + job.company);
   }
 
   function saveTrackedJobs() {
     localStorage.setItem('tracked_jobs', JSON.stringify(trackedJobs));
+    db.collection('tracked').doc('jobs').set({ data: trackedJobs, updatedAt: new Date().toISOString() })
+      .catch(() => {});
+  }
+
+  async function loadTrackedJobs() {
+    const local = localStorage.getItem('tracked_jobs');
+    if (local) trackedJobs = JSON.parse(local);
+    try {
+      const snap = await db.collection('tracked').doc('jobs').get();
+      if (snap.exists) {
+        const remote = snap.data().data;
+        if (remote && typeof remote === 'object') {
+          trackedJobs = remote;
+          localStorage.setItem('tracked_jobs', JSON.stringify(trackedJobs));
+        }
+      }
+    } catch (e) {}
+    applyFilters();
   }
 
   function toggleTrack(job, status) {
@@ -578,7 +608,7 @@
       renderPills();
       renderTimeFilters();
       renderTrackingFilters();
-      applyFilters();
+      await loadTrackedJobs();
     } catch (err) {
       jobList.innerHTML = '<div class="job-card" style="text-align:center;color:var(--text-secondary);">Error al cargar datos: ' + err.message + '</div>';
     }
