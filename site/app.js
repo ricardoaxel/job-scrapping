@@ -190,7 +190,7 @@
     if (cat && cvLinks.length > 0) {
       html += `
         <div class="cv-section">
-          <h3>📄 CV recomendado para esta vacante</h3>
+          <h3>CV recomendado para esta vacante</h3>
           <div class="cv-links">
       `;
       cvLinks.forEach(l => {
