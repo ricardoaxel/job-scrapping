@@ -31,8 +31,17 @@
   const modalBackdrop = document.getElementById('modal-backdrop');
   const refCvBtn = document.getElementById('ref-cv-btn');
   const timeFilters = document.getElementById('time-filters');
+  const progressBadge = document.createElement('div');
+  progressBadge.id = 'progress-badge';
+  document.body.appendChild(progressBadge);
+
+  const pokemonContainer = document.createElement('div');
+  pokemonContainer.id = 'pokemon-container';
+  document.querySelector('header').appendChild(pokemonContainer);
 
   let activeTimeFilter = '';
+  let prevAppliedCount = 0;
+  let lastMilestone = 0;
   let customDateFrom = '';
   let customDateTo = '';
   let trackedJobs = JSON.parse(localStorage.getItem('tracked_jobs') || '{}');
@@ -253,7 +262,8 @@
 
   let showInterested = false;
   let showApplied = false;
-  let hideDisliked = true;
+  let showDisliked = false;
+  let statsViewVisible = false;
 
   const firebaseConfig = {
     apiKey: "AIzaSyANT112Y6OIzN-TUeldWFNQ9n9jniqhxXo",
@@ -314,6 +324,160 @@
   notesBtn.addEventListener('click', () => {
     notesPanel.classList.toggle('hidden');
   });
+
+  const statsBtn = document.getElementById('stats-btn');
+  statsBtn.addEventListener('click', () => {
+    if (statsViewVisible) {
+      showMainView();
+    } else {
+      showStatsView();
+    }
+  });
+
+  function showMainView() {
+    statsViewVisible = false;
+    document.querySelector('main').style.display = '';
+    document.getElementById('stats-view').classList.add('hidden');
+    statsBtn.textContent = '📊 Stats';
+    applyFilters();
+  }
+
+  function showStatsView() {
+    statsViewVisible = true;
+    document.querySelector('main').style.display = 'none';
+    document.getElementById('stats-view').classList.remove('hidden');
+    statsBtn.textContent = '💼 Vacantes';
+    renderStats();
+  }
+
+  function findJobByKey(key) {
+    return allJobs.find(j => getJobKey(j) === key) || null;
+  }
+
+  function renderStats() {
+    const container = document.getElementById('stats-content');
+    if (!allJobs.length) {
+      container.innerHTML = '<div class="stats-empty">Cargando datos...</div>';
+      return;
+    }
+    // Collect applied jobs with their trackedAt dates
+    const applied = [];
+    Object.entries(trackedJobs).forEach(([key, entry]) => {
+      if (entry.applied && entry.trackedAt) {
+        const job = findJobByKey(key);
+        if (job) applied.push({ job, appliedAt: entry.trackedAt });
+      }
+    });
+    applied.sort((a, b) => b.appliedAt.localeCompare(a.appliedAt));
+
+    const total = applied.length;
+    const now = new Date();
+    const today = now.toISOString().slice(0, 10);
+    const todayCount = applied.filter(a => a.appliedAt.slice(0, 10) === today).length;
+
+    // This week (Mon-Sun)
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay() + 1);
+    weekStart.setHours(0,0,0,0);
+    const weekCount = applied.filter(a => new Date(a.appliedAt) >= weekStart).length;
+
+    // Streak — allows today to be 0, counts consecutive days before today
+    let streak = 0;
+    const check = new Date(now);
+    let skippedToday = false;
+    const todayDs = now.toISOString().slice(0, 10);
+    while (true) {
+      const ds = check.toISOString().slice(0, 10);
+      if (applied.some(a => a.appliedAt.slice(0, 10) === ds)) {
+        streak++;
+        check.setDate(check.getDate() - 1);
+      } else if (ds === todayDs && streak === 0) {
+        skippedToday = true;
+        check.setDate(check.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    // Last 7 days data
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const ds = d.toISOString().slice(0, 10);
+      const count = applied.filter(a => a.appliedAt.slice(0, 10) === ds).length;
+      const label = i === 0 ? 'Hoy' : d.toLocaleDateString('es-MX', { weekday: 'short' });
+      days.push({ label, count, fullDate: ds });
+    }
+    const maxCount = Math.max(...days.map(d => d.count), 1);
+
+    // Per-day history
+    const dayGroups = {};
+    applied.forEach(a => {
+      const d = a.appliedAt.slice(0, 10);
+      if (!dayGroups[d]) dayGroups[d] = [];
+      dayGroups[d].push(a.job);
+    });
+    const jobKeyToData = {};
+    Object.entries(trackedJobs).forEach(([k]) => {
+      const j = findJobByKey(k);
+      if (j) jobKeyToData[k] = j;
+    });
+
+    const barHtml = days.map(d => {
+      const pct = (d.count / maxCount) * 100;
+      return `
+        <div class="stat-bar-row">
+          <span class="stat-bar-label">${d.label}</span>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="stat-bar-count">${d.count}</span>
+        </div>`;
+    }).join('');
+
+    let historyHtml = '';
+    Object.entries(dayGroups).sort().reverse().forEach(([date, jobs]) => {
+      const d = new Date(date + 'T12:00:00');
+      const dateLabel = d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      const isToday = date === today;
+      historyHtml += `<div class="stat-day-header${isToday ? ' stat-today' : ''}">${isToday ? 'Hoy' : dateLabel} (${jobs.length})</div>`;
+      jobs.forEach(j => {
+        const key = getJobKey(j);
+        const applyLabel = j.easyApply ? 'Postulación rápida' : 'Sitio externo';
+        historyHtml += `<div class="stat-job-row" data-jobkey="${escHtml(key)}" role="button" tabindex="0">
+          <span class="stat-job-title">${escHtml(j.title || 'Sin título')}</span>
+          <span class="stat-job-company">${escHtml(j.company || '')}</span>
+          <span class="stat-job-meta">${escHtml(j.category || '')} &middot; ${applyLabel}</span>
+          ${j.url ? `<a href="${j.url}" target="_blank" class="stat-job-link" onclick="event.stopPropagation()">🔗</a>` : ''}
+        </div>`;
+      });
+    });
+
+    container.innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-card-num">${total}</div><div class="stat-card-label">Total aplicadas</div></div>
+        <div class="stat-card"><div class="stat-card-num">${todayCount}</div><div class="stat-card-label">Hoy</div></div>
+        <div class="stat-card"><div class="stat-card-num">${weekCount}</div><div class="stat-card-label">Esta semana</div></div>
+        <div class="stat-card"><div class="stat-card-num">${streak}${streak > 0 ? ' 🔥' : ''}</div><div class="stat-card-label">Racha (días)</div></div>
+      </div>
+      <div class="stat-section">
+        <div class="stat-section-title">Últimos 7 días</div>
+        ${barHtml}
+      </div>
+      <div class="stat-section">
+        <div class="stat-section-title">Historial por día</div>
+        ${historyHtml || '<div class="stats-empty">Sin aplicaciones aún</div>'}
+      </div>`;
+    container.querySelectorAll('.stat-job-row').forEach(el => {
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.stat-job-link')) return;
+        const key = el.dataset.jobkey;
+        const job = jobKeyToData[key];
+        if (job) openModal(job);
+      });
+    });
+  }
 
   async function loadNotes() {
     const local = localStorage.getItem('notes_data');
@@ -484,12 +648,16 @@
       if (existing.interested) {
         delete existing.interested;
       } else {
+        delete existing.disliked;
+        delete existing.dislikeReason;
         existing.interested = true;
       }
     } else if (status === 'applied') {
       if (existing.applied) {
         delete existing.applied;
       } else {
+        delete existing.disliked;
+        delete existing.dislikeReason;
         existing.applied = true;
       }
     } else if (status === 'disliked') {
@@ -497,6 +665,8 @@
         delete existing.disliked;
         delete existing.dislikeReason;
       } else {
+        delete existing.interested;
+        delete existing.applied;
         showDislikeDialog((reason) => {
           const entry = trackedJobs[key] || {};
           entry.disliked = true;
@@ -505,7 +675,11 @@
           trackedJobs[key] = entry;
           saveTrackedJobs();
           updateCardUI(job);
+          updateProgressBadge(false);
+          checkPokemonUnlock();
           renderTrackingFilters();
+          applyFilters();
+          if (statsViewVisible) renderStats();
         });
         return;
       }
@@ -518,10 +692,13 @@
     }
     saveTrackedJobs();
     updateCardUI(job);
+    const newCount = getTodayAppliedCount();
+    updateProgressBadge(newCount > prevAppliedCount);
+    prevAppliedCount = newCount;
+    checkPokemonUnlock();
     renderTrackingFilters();
-    if (showInterested || showApplied || !hideDisliked) {
-      applyFilters();
-    }
+    applyFilters();
+    if (statsViewVisible) renderStats();
   }
 
   function getTrackStatus(job) {
@@ -544,6 +721,275 @@
     if (t.disliked) return 'card-disliked';
     if (t.applied) return 'card-applied';
     return 'card-interested';
+  }
+
+  function getTotalAppliedCount() {
+    let count = 0;
+    Object.values(trackedJobs).forEach(entry => {
+      if (entry.applied) count++;
+    });
+    return count;
+  }
+
+  function getTodayAppliedCount() {
+    const today = new Date().toISOString().slice(0, 10);
+    let count = 0;
+    Object.values(trackedJobs).forEach(entry => {
+      if (entry.applied && entry.trackedAt && entry.trackedAt.slice(0, 10) === today) {
+        count++;
+      }
+    });
+    return count;
+  }
+
+  function getAutoGoal() {
+    const now = new Date();
+    return allJobs.filter(j => {
+      const d = j.postedDate || j.scrapedAt;
+      if (!d) return false;
+      const diff = now - new Date(d);
+      if (diff < 0 || diff > 24 * 3600000) return false;
+      const t = trackedJobs[getJobKey(j)];
+      return !(t?.disliked);
+    }).length;
+  }
+
+  const TYPE_COLORS = {
+    fire: '#f08030', water: '#6890f0', grass: '#78c850', electric: '#f8d030',
+    ice: '#98d8d8', fighting: '#c03028', poison: '#a040a0', ground: '#e0c068',
+    flying: '#a890f0', psychic: '#f85888', bug: '#a8b820', rock: '#b8a038',
+    ghost: '#705898', dragon: '#7038f8', dark: '#705848', steel: '#b8b8d0',
+    fairy: '#f0b6bc', normal: '#a8a878'
+  };
+  let pokemonData = JSON.parse(localStorage.getItem('pokemon_data') || 'null');
+  // clear old-format cache
+  if (pokemonData && pokemonData[0] && typeof pokemonData[0].name === 'string' && !pokemonData[0].sprite) {
+    localStorage.removeItem('pokemon_data');
+    localStorage.removeItem('pokemon_collection');
+    pokemonData = null;
+  }
+
+  async function fetchPokemonList() {
+    if (pokemonData && pokemonData.length >= 151) return;
+    try {
+      const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151&offset=0');
+      const json = await res.json();
+      pokemonData = json.results.map((p, i) => ({
+        id: i + 1,
+        name: p.name.charAt(0).toUpperCase() + p.name.slice(1),
+        sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png`,
+        color: null
+      }));
+      localStorage.setItem('pokemon_data', JSON.stringify(pokemonData));
+      checkPokemonUnlock();
+      renderPokemon();
+      fetchPokemonTypes();
+    } catch (e) {
+      pokemonData = null;
+    }
+  }
+
+  async function fetchPokemonTypes() {
+    for (const p of pokemonData) {
+      if (!p.color) {
+        try {
+          const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${p.id}`);
+          const data = await res.json();
+          const typeName = data.types[0]?.type?.name;
+          p.color = TYPE_COLORS[typeName] || '#a8a8a8';
+          localStorage.setItem('pokemon_data', JSON.stringify(pokemonData));
+        } catch (e) {}
+      }
+    }
+  }
+
+  function checkPokemonUnlock() {
+    const total = getTotalAppliedCount();
+    const collection = JSON.parse(localStorage.getItem('pokemon_collection') || '[]');
+    const earned = Math.floor(total / 5);
+    if (!pokemonData || !pokemonData.length) return;
+    let changed = false;
+    let hadNew = false;
+    // remove excess (if total went down)
+    while (collection.length > Math.min(earned, pokemonData.length)) {
+      collection.pop();
+      changed = true;
+    }
+    // add new
+    while (collection.length < Math.min(earned, pokemonData.length)) {
+      const available = [];
+      pokemonData.forEach((p, i) => {
+        if (!collection.some(c => c.index === i)) available.push(i);
+      });
+      if (!available.length) break;
+      const pick = available[Math.floor(Math.random() * available.length)];
+      collection.push({ index: pick, unlockedAt: Date.now() });
+      changed = true;
+      hadNew = true;
+    }
+    if (changed) {
+      localStorage.setItem('pokemon_collection', JSON.stringify(collection));
+      if (hadNew) {
+        const newest = collection.slice().sort((a, b) => b.unlockedAt - a.unlockedAt)[0];
+        const p = newest ? pokemonData[newest.index] : null;
+        if (p) showPokemonReveal(p, () => renderPokemon());
+        else renderPokemon();
+      } else {
+        renderPokemon();
+      }
+    }
+  }
+
+  function renderPokemon() {
+    const container = document.getElementById('pokemon-container');
+    if (!container) return;
+    const collection = JSON.parse(localStorage.getItem('pokemon_collection') || '[]');
+    if (!pokemonData || !collection.length) {
+      container.style.display = 'none';
+      return;
+    }
+    const sorted = collection.slice().sort((a, b) => b.unlockedAt - a.unlockedAt);
+    let html = '';
+    let first = true;
+    sorted.forEach(c => {
+      const p = pokemonData[c.index];
+      if (!p) return;
+      const cls = first ? ' pokemon-badge-new' : '';
+      first = false;
+      html += `<span class="pokemon-badge${cls}" title="${p.name}"><img src="${p.sprite}" alt="${p.name}" loading="lazy"></span>`;
+    });
+    container.style.display = '';
+    container.innerHTML = html;
+    const newBadge = container.querySelector('.pokemon-badge-new');
+    if (newBadge) {
+      setTimeout(() => newBadge.classList.remove('pokemon-badge-new'), 800);
+    }
+  }
+
+  function showToast(text, emoji, duration) {
+    duration = duration || 2800;
+    const container = document.getElementById('toast-container') || (() => {
+      const el = document.createElement('div');
+      el.id = 'toast-container';
+      document.body.appendChild(el);
+      return el;
+    })();
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = (emoji ? emoji + ' ' : '') + text;
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('toast-show'));
+    setTimeout(() => {
+      toast.classList.remove('toast-show');
+      toast.classList.add('toast-hide');
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+
+  function getProgressEmoji(pct) {
+    if (pct === 0) return '🌅';
+    if (pct < 25) return '🌱';
+    if (pct < 50) return '🔥';
+    if (pct < 75) return '🚀';
+    if (pct < 100) return '🎯';
+    return '🏆';
+  }
+
+  function showPokemonReveal(pokemon, onDone) {
+    const overlay = document.createElement('div');
+    overlay.className = 'pokemon-reveal';
+    overlay.innerHTML = `
+      <div class="pokemon-reveal-bg"></div>
+      <div class="pokemon-reveal-content">
+        <div class="pokemon-reveal-label">¡Nuevo pokemon conseguido! 🎉</div>
+        <div class="pokemon-reveal-sprite">
+          <img src="${pokemon.sprite}" alt="${pokemon.name}">
+        </div>
+        <div class="pokemon-reveal-name">${pokemon.name}</div>
+      </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('pokemon-reveal-show'));
+    setTimeout(() => {
+      overlay.classList.remove('pokemon-reveal-show');
+      overlay.classList.add('pokemon-reveal-hide');
+      setTimeout(() => {
+        overlay.remove();
+        if (onDone) onDone();
+      }, 400);
+    }, 1500);
+  }
+
+  function updateProgressBadge(animate) {
+    const count = getTodayAppliedCount();
+    const autoGoal = getAutoGoal();
+    const customGoal = parseInt(localStorage.getItem('daily_goal'));
+    const isManual = customGoal > 0;
+    const goal = isManual ? customGoal : autoGoal;
+    const el = document.getElementById('progress-badge');
+    if (!el) return;
+    const pct = goal > 0 ? Math.min(Math.round((count / goal) * 100), 100) : 0;
+    const emoji = getProgressEmoji(pct);
+    const milestoneTexts = { 25: 'Wuju, ya llevas buen progreso 🎉', 50: 'Ya vamos por la mitad 💪', 75: 'Te falta nada 🔥', 100: '¡Meta cumplida! 🏆' };
+    Object.keys(milestoneTexts).forEach(m => {
+      const threshold = parseInt(m);
+      if (pct >= threshold && lastMilestone < threshold) {
+        showToast(milestoneTexts[m], '', 2200);
+        lastMilestone = threshold;
+      }
+    });
+    if (pct < 25) lastMilestone = 0;
+    const infoText = isManual
+      ? 'Meta manual: valor fijo definido por ti, ignora dislikes'
+      : 'Meta automática: vacantes nuevas del día (24h) sin dislikes';
+    el.innerHTML = `
+      <div class="progress-emoji">${emoji}</div>
+      <div class="progress-info">
+        <div class="progress-count">✓ ${count}/<span class="progress-goal">${goal}</span> aplicadas hoy
+          <span class="progress-mode-info" title="${infoText}">ℹ️</span>
+          <label class="toggle-wrap" title="${isManual ? 'Cambiar a automática' : 'Cambiar a manual'}">
+            <input type="checkbox" class="toggle-input"${isManual ? ' checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    el.querySelector('.progress-goal')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!isManual) {
+        localStorage.setItem('daily_goal', goal);
+      }
+      const input = prompt(`Nueva meta diaria${isManual ? '' : ' (vacantes del día: ' + autoGoal + ')'}:`, goal);
+      if (input === null) {
+        if (!isManual) localStorage.removeItem('daily_goal');
+        return;
+      }
+      const val = parseInt(input);
+      if (val > 0) {
+        localStorage.setItem('daily_goal', val);
+      } else {
+        localStorage.removeItem('daily_goal');
+      }
+      updateProgressBadge(false);
+    });
+    el.querySelector('.toggle-input')?.addEventListener('change', (e) => {
+      e.stopPropagation();
+      if (e.target.checked) {
+        const input = prompt(`Meta manual (vacantes del día: ${autoGoal}):`, autoGoal);
+        const val = parseInt(input);
+        if (val > 0) {
+          localStorage.setItem('daily_goal', val);
+        }
+      } else {
+        localStorage.removeItem('daily_goal');
+      }
+      updateProgressBadge(false);
+    });
+    el.querySelector('.progress-mode-info')?.addEventListener('click', (e) => e.stopPropagation());
+    if (animate && count > 0) {
+      el.classList.remove('progress-animate');
+      void el.offsetWidth;
+      el.classList.add('progress-animate');
+    }
   }
 
   function renderJobCards(jobs) {
@@ -663,20 +1109,30 @@
       if (st.applied) counts.applied++;
       if (st.disliked) counts.disliked++;
     });
-    let html = `
-      <span class="pill${showInterested ? ' active' : ''}" data-filter="interested">♡ ${counts.interested}</span>
-      <span class="pill${showApplied ? ' active' : ''}" data-filter="showapplied">✓ ${counts.applied}</span>
-      <span class="pill${!hideDisliked ? ' active' : ''}" data-filter="hidedisliked">👎 ${counts.disliked}</span>
-    `;
+    if (!counts.interested) showInterested = false;
+    if (!counts.applied) showApplied = false;
+    if (!counts.disliked) showDisliked = false;
+    const pills = [
+      { key: 'interested', label: '♡', count: counts.interested, active: showInterested },
+      { key: 'showapplied', label: '✓', count: counts.applied, active: showApplied },
+      { key: 'showdisliked', label: '👎', count: counts.disliked, active: showDisliked },
+    ];
+    let html = '';
+    pills.forEach(p => {
+      const activeClass = p.active ? ' active' : '';
+      const disabledClass = p.count === 0 ? ' pill-disabled' : '';
+      html += `<span class="pill${activeClass}${disabledClass}" data-filter="${p.key}">${p.label} ${p.count}</span>`;
+    });
     const el = document.getElementById('tracking-filters');
     if (!el) return;
     el.innerHTML = html;
     el.querySelectorAll('.pill').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (btn.classList.contains('pill-disabled')) return;
         const f = btn.dataset.filter;
         if (f === 'interested') showInterested = !showInterested;
         if (f === 'showapplied') showApplied = !showApplied;
-        if (f === 'hidedisliked') hideDisliked = !hideDisliked;
+        if (f === 'showdisliked') showDisliked = !showDisliked;
         currentPage = 1;
         renderTrackingFilters();
         applyFilters();
@@ -697,13 +1153,16 @@
         const st = getTrackStatus(j);
         if (!st.interested) return false;
       }
+      const st = getTrackStatus(j);
       if (showApplied) {
-        const st = getTrackStatus(j);
         if (!st.applied) return false;
+      } else if (st.applied) {
+        return false;
       }
-      if (hideDisliked) {
-        const st = getTrackStatus(j);
-        if (st.disliked) return false;
+      if (showDisliked) {
+        if (!st.disliked) return false;
+      } else if (st.disliked) {
+        return false;
       }
       return true;
     });
@@ -827,7 +1286,7 @@
     customDateTo = '';
     showInterested = false;
     showApplied = false;
-    hideDisliked = true;
+    showDisliked = false;
     searchInput.value = '';
     currentPage = 1;
     renderPills();
@@ -848,6 +1307,19 @@
       filtered = [...allJobs];
       await loadTrackedJobs();
       await loadNotes();
+      fetchPokemonList();
+      prevAppliedCount = getTodayAppliedCount();
+      const initAuto = getAutoGoal();
+      const initCustom = parseInt(localStorage.getItem('daily_goal'));
+      const initGoal = initCustom > 0 ? initCustom : initAuto;
+      const initPct = initGoal > 0 ? Math.min(Math.round((prevAppliedCount / initGoal) * 100), 100) : 0;
+      if (initPct >= 100) lastMilestone = 100;
+      else if (initPct >= 75) lastMilestone = 75;
+      else if (initPct >= 50) lastMilestone = 50;
+      else if (initPct >= 25) lastMilestone = 25;
+      updateProgressBadge(false);
+      checkPokemonUnlock();
+      renderPokemon();
       renderPills();
       renderTimeFilters();
       renderTrackingFilters();

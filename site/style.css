@@ -201,6 +201,166 @@ header .subtitle {
   font-size: 0.82rem;
 }
 
+/* ─── Pokemon container ─── */
+#pokemon-container {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px 0 4px;
+  max-width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+#pokemon-container::-webkit-scrollbar {
+  height: 4px;
+}
+#pokemon-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+#pokemon-container::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+.pokemon-badge {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  transition: transform 0.15s ease;
+  will-change: transform;
+}
+.pokemon-badge img {
+  width: 44px;
+  height: 44px;
+  image-rendering: pixelated;
+  display: block;
+}
+.pokemon-badge:hover {
+  transform: scale(1.25);
+  z-index: 1;
+}
+
+@keyframes pokemon-pop {
+  0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  50% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+  70% { transform: scale(0.9) rotate(-5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.pokemon-badge-new {
+  animation: pokemon-pop 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  will-change: transform, opacity;
+}
+
+/* ─── Toast notifications ─── */
+#toast-container {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 24px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(12px) scale(0.95);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+.toast-show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.toast-hide {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.95);
+}
+
+/* ─── Pokemon reveal overlay ─── */
+.pokemon-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.pokemon-reveal-show {
+  opacity: 1;
+}
+.pokemon-reveal-hide {
+  opacity: 0;
+}
+.pokemon-reveal-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(8px);
+}
+.pokemon-reveal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  transform: scale(0.5);
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+.pokemon-reveal-show .pokemon-reveal-content {
+  transform: scale(1);
+}
+.pokemon-reveal-label {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  letter-spacing: 0.02em;
+}
+.pokemon-reveal-sprite {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 40px rgba(255,255,255,0.2)) drop-shadow(0 8px 32px rgba(0,0,0,0.3));
+  animation: reveal-glow 1.5s ease-in-out infinite alternate;
+}
+.pokemon-reveal-sprite img {
+  width: 120px;
+  height: 120px;
+  image-rendering: pixelated;
+  display: block;
+}
+@keyframes reveal-glow {
+  from { box-shadow: 0 0 40px rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.3); }
+  to { box-shadow: 0 0 80px rgba(255,255,255,0.25), 0 8px 32px rgba(0,0,0,0.3); }
+}
+.pokemon-reveal-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  letter-spacing: 0.04em;
+}
+
 /* ─── Auth overlay ─── */
 
 .auth-overlay {
@@ -394,6 +554,12 @@ main {
   border-color: var(--accent);
 }
 
+.pill-disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
 .date-range {
   display: flex;
   flex-wrap: wrap;
@@ -550,7 +716,7 @@ main {
   border-color: #fecdd3;
 }
 .job-card.card-interested:hover {
-  border-color: #e11d48;
+  border-color: #fb7185;
 }
 
 .job-card.card-applied {
@@ -561,10 +727,10 @@ main {
 }
 
 .job-card.card-disliked {
-  border-color: #e5e7eb;
+  border-color: #fde68a;
 }
 .job-card.card-disliked:hover {
-  border-color: #9ca3af;
+  border-color: #f59e0b;
 }
 
 .job-card-company {
@@ -1200,6 +1366,315 @@ footer a:hover {
   text-decoration: underline;
 }
 
+/* ─── Progress Badge ─── */
+#progress-badge {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 50;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: default;
+  user-select: none;
+  transition: transform 0.2s ease;
+  max-width: 260px;
+}
+#progress-badge:hover {
+  transform: scale(1.02);
+}
+.progress-emoji {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.progress-info {
+  flex: 1;
+  min-width: 0;
+}
+.progress-count {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+.progress-goal {
+  cursor: pointer;
+  color: var(--accent);
+  border-bottom: 1.5px dashed var(--accent);
+  transition: all 0.15s ease;
+}
+.progress-goal:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent-hover);
+}
+.progress-mode-icon {
+  font-size: 0.75rem;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-left: 3px;
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+  display: inline-block;
+}
+.progress-mode-icon:hover {
+  opacity: 1;
+}
+.progress-mode-info {
+  cursor: help;
+  font-size: 0.7rem;
+  vertical-align: middle;
+  margin-left: 4px;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+}
+.progress-mode-info:hover {
+  opacity: 1;
+}
+.toggle-wrap {
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  height: 16px;
+  vertical-align: middle;
+  cursor: pointer;
+  margin-left: 4px;
+}
+.toggle-wrap input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 16px;
+  transition: background 0.2s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 2px;
+  bottom: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+.toggle-wrap input:checked + .toggle-slider {
+  background: var(--accent);
+}
+.toggle-wrap input:checked + .toggle-slider::before {
+  transform: translateX(12px);
+}
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #059669, #10b981);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+@keyframes progress-shake-sparkle {
+  0% { transform: translateX(0) scale(1); box-shadow: 0 0 0 0 rgba(5,150,105,0.3), var(--shadow-lg); }
+  10% { transform: translateX(-6px) scale(1.03); }
+  20% { transform: translateX(6px) scale(1.05); box-shadow: 0 0 40px 12px rgba(5,150,105,0.15), var(--shadow-lg); }
+  30% { transform: translateX(-5px) scale(1.03); }
+  40% { transform: translateX(5px) scale(1.05); }
+  50% { transform: translateX(-3px) scale(1.07); box-shadow: 0 0 60px 24px rgba(5,150,105,0.1), var(--shadow-lg); }
+  60% { transform: translateX(3px) scale(1.03); }
+  70% { transform: translateX(-2px) scale(1); }
+  80% { transform: translateX(2px); }
+  90% { transform: translateX(-1px); box-shadow: var(--shadow-lg); }
+  100% { transform: translateX(0) scale(1); }
+}
+#progress-badge.progress-animate {
+  animation: progress-shake-sparkle 0.6s ease;
+}
+
+@media (max-width: 640px) {
+  #progress-badge {
+    bottom: 14px;
+    right: 14px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+  .progress-emoji { font-size: 1.4rem; }
+  .progress-count { font-size: 0.75rem; }
+}
+
+/* ─── Stats View ─── */
+.stats-view {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+.stats-view.hidden {
+  display: none;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+#stats-content .stat-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 14px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.stat-card-num {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.stat-card-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+.stat-section {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.stat-section-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stat-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.stat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.stat-bar-label {
+  width: 36px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-align: right;
+  flex-shrink: 0;
+}
+.stat-bar-track {
+  flex: 1;
+  height: 22px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #60a5fa);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+.stat-bar-count {
+  width: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.stat-day-header {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 18px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  text-transform: capitalize;
+}
+.stat-day-header:first-child {
+  margin-top: 0;
+}
+.stat-day-header.stat-today {
+  color: var(--accent);
+}
+.stat-job-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.12s ease;
+  cursor: pointer;
+}
+.stat-job-row:hover {
+  background: var(--accent-light);
+}
+.stat-job-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.stat-job-company {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.stat-job-meta {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+.stat-job-link {
+  text-decoration: none;
+  font-size: 0.85rem;
+  margin-left: auto;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+}
+.stat-job-link:hover {
+  opacity: 1;
+}
+.stats-empty {
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 20px 0;
+}
+
 /* RESPONSIVE */
 @media (max-width: 640px) {
   header {
@@ -1212,6 +1687,17 @@ footer a:hover {
     margin-top: 10px;
     padding: 5px 13px;
     font-size: 0.72rem;
+  }
+  #pokemon-container {
+    padding: 6px 0 2px;
+  }
+  .pokemon-badge {
+    width: 40px;
+    height: 40px;
+  }
+  .pokemon-badge img {
+    width: 36px;
+    height: 36px;
   }
   #gh-token-btn {
     font-size: 0.8rem;
@@ -1284,6 +1770,15 @@ footer a:hover {
   .page-info { font-size: 0.78rem; }
 
   footer { padding: 14px 12px; font-size: 0.72rem; }
+
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stat-card { padding: 14px 10px; }
+  .stat-card-num { font-size: 1.4rem; }
+  .stat-card-label { font-size: 0.68rem; }
+  .stat-section { padding: 14px; }
+  .stats-view { padding: 14px 10px 30px; }
+  .stat-bar-label { width: 30px; font-size: 0.68rem; }
+  .stat-bar-track { height: 18px; }
 }
 
 .dislike-overlay {
