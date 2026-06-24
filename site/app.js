@@ -384,7 +384,6 @@
     // Streak — allows today to be 0, counts consecutive days before today
     let streak = 0;
     const check = new Date(now);
-    let skippedToday = false;
     const todayDs = now.toISOString().slice(0, 10);
     while (true) {
       const ds = check.toISOString().slice(0, 10);
@@ -392,7 +391,6 @@
         streak++;
         check.setDate(check.getDate() - 1);
       } else if (ds === todayDs && streak === 0) {
-        skippedToday = true;
         check.setDate(check.getDate() - 1);
       } else {
         break;
@@ -637,7 +635,8 @@
     const cards = jobList.querySelectorAll('.job-card');
     for (const card of cards) {
       const idx = parseInt(card.dataset.idx);
-      if (getJobKey(filtered[idx]) !== getJobKey(job)) continue;
+      const cardJob = filtered[idx];
+      if (!cardJob || getJobKey(cardJob) !== getJobKey(job)) continue;
       card.className = 'job-card' + (borderClass ? ' ' + borderClass : '');
       // Re-add data-idx attribute since className reset it
       card.dataset.idx = idx;
@@ -722,8 +721,7 @@
           checkPokemonUnlock();
           renderTrackingFilters();
           applyFilters();
-        if (statsViewVisible) renderStats();
-        updateCardUI(job);
+          if (statsViewVisible) renderStats();
         });
         return;
       }
