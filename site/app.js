@@ -269,7 +269,9 @@
 
   if (window.location.search.includes('reset=1')) {
     trackedJobs = {};
+    notes = [];
     localStorage.removeItem('tracked_jobs');
+    localStorage.removeItem('notes_data');
     db.collection('tracked').doc('jobs').delete().catch(() => {});
     db.collection('notes').doc('data').delete().catch(() => {});
     window.history.replaceState(null, '', window.location.pathname);
@@ -314,12 +316,17 @@
   });
 
   async function loadNotes() {
+    const local = localStorage.getItem('notes_data');
+    if (local) {
+      try { notes = JSON.parse(local); } catch(e) {}
+    }
     try {
       const snap = await NOTES_DOC.get();
       if (snap.exists) {
         notes = snap.data().notes || [];
+        localStorage.setItem('notes_data', JSON.stringify(notes));
       }
-    } catch (e) {}
+    } catch (e) { console.warn('Firestore notes load failed:', e); }
     renderNotes();
   }
 
@@ -364,9 +371,10 @@
   }
 
   async function saveNotes() {
+    localStorage.setItem('notes_data', JSON.stringify(notes));
     try {
       await NOTES_DOC.set({ notes });
-    } catch (e) {}
+    } catch (e) { console.warn('Firestore notes save failed:', e); }
   }
 
   notesAddBtn.addEventListener('click', () => {
