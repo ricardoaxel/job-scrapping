@@ -1288,7 +1288,11 @@
     }
 
     if (desc) {
-      html += `<div class="description">${desc}</div>`;
+      if (desc.length > 500) {
+        html += `<div class="description" data-full="${escHtml(desc)}">${desc.slice(0, 500)}... <button class="desc-more-btn">Ver más</button></div>`;
+      } else {
+        html += `<div class="description">${desc}</div>`;
+      }
     }
 
     const skills = job.skills && job.skills.length ? job.skills : [];
@@ -1324,6 +1328,12 @@
     html += `<div class="form-data-section"><h3>Nota personal</h3><textarea class="job-note-textarea" rows="3" placeholder="Ej: mandé CV personalizado, contacté a reclutador...">${escHtml(entry?.note || '')}</textarea></div>`;
 
     modalBody.innerHTML = html;
+
+    modalBody.querySelector('.desc-more-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const el = e.target.closest('.description');
+      el.innerHTML = el.dataset.full;
+    });
 
     modalBody.querySelectorAll('.form-data-pill').forEach(btn => {
       btn.addEventListener('click', () => {

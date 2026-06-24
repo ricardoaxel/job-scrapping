@@ -1196,6 +1196,22 @@ main {
   word-break: break-word;
   color: var(--text-secondary);
 }
+.desc-more-btn {
+  display: inline;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+.desc-more-btn:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
 
 /* SKILLS MODAL LIST */
 .modal-skills {
