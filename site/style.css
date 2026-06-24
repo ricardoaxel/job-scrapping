@@ -1073,7 +1073,7 @@ main {
 .modal-body .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 24px;
   align-items: center;
   justify-content: space-between;
@@ -1943,7 +1943,7 @@ footer a:hover {
   }
   .modal-body .company-line { font-size: 0.88rem; }
   .modal-body .meta-line { gap: 8px; font-size: 0.78rem; }
-  .modal-body .actions { flex-direction: column; gap: 8px; }
+  .modal-body .actions { gap: 8px; }
   .actions-track-group { align-self: flex-start; }
   .btn-linkedin { width: 100%; justify-content: center; }
   .cv-section { padding: 14px; margin: 20px 0; }
