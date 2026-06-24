@@ -171,7 +171,6 @@
     const desc = (job.description || '').replace(/^About the job\s*/i, '').trim();
     const cat = job.category || '';
     const jobLang = job.language || 'en';
-    const otherLang = jobLang === 'es' ? 'en' : 'es';
 
     let html = `
       <h2>${job.title || 'Sin título'} ${langBadge(jobLang)}</h2>
@@ -185,32 +184,19 @@
       </div>
     `;
 
-    const primaryLinks = getCvLinks(cat, jobLang);
-    const secondaryLinks = getCvLinks(cat, otherLang);
+    const cvLinks = getCvLinks(cat, jobLang);
 
-    if (cat && primaryLinks.length > 0) {
-      const langLabel = jobLang === 'es' ? '🇪🇸 Español' : '🇬🇧 English';
+    if (cat && cvLinks.length > 0) {
       html += `
         <div class="cv-section">
-          <h3>📄 CVs recomendados (${langLabel})</h3>
+          <h3>📄 CV recomendado para esta vacante</h3>
           <div class="cv-links">
       `;
-      primaryLinks.forEach(l => {
+      cvLinks.forEach(l => {
         html += `<a href="${l.url}" class="btn" target="_blank">${l.icon} ${l.label}</a>`;
       });
       html += `</div></div>`;
     }
-
-    const otherLangLabel = otherLang === 'es' ? '🇪🇸 Español' : '🇬🇧 English';
-    html += `
-      <div class="cv-section">
-        <h3>📄 CVs recomendados (${otherLangLabel})</h3>
-        <div class="cv-links">
-    `;
-    secondaryLinks.forEach(l => {
-      html += `<a href="${l.url}" class="btn" target="_blank">${l.icon} ${l.label}</a>`;
-    });
-    html += `</div></div>`;
 
     if (desc) {
       html += `<div class="description">${desc}</div>`;
