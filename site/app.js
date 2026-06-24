@@ -585,6 +585,13 @@
   });
 
   async function init() {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    if (urlToken) {
+      ghToken = urlToken;
+      sessionStorage.setItem('gh_token', ghToken);
+      history.replaceState(null, '', window.location.pathname);
+    }
     try {
       const [jobsRes, skillRes] = await Promise.all([
         fetch(`${BASE}/data/filtered_jobs.json`),
