@@ -311,6 +311,7 @@
   const notesAddBtn = document.getElementById('notes-add-btn');
   const NOTES_DOC = db.collection('notes').doc('data');
   const POKEMON_DOC = db.collection('tracked').doc('pokemon');
+  const SETTINGS_DOC = db.collection('tracked').doc('settings');
 
   notesBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -650,6 +651,18 @@
         if (remote && typeof remote === 'object') {
           trackedJobs = remote;
           localStorage.setItem('tracked_jobs', JSON.stringify(trackedJobs));
+        }
+      }
+    } catch (e) {}
+  }
+
+  async function loadSettings() {
+    try {
+      const snap = await SETTINGS_DOC.get();
+      if (snap.exists) {
+        const data = snap.data();
+        if (data.daily_goal) {
+          localStorage.setItem('daily_goal', String(data.daily_goal));
         }
       }
     } catch (e) {}
@@ -1103,6 +1116,7 @@
       const input = prompt(`Nueva meta diaria${isManual ? '' : ' (vacantes del día: ' + autoGoal + ')'}:`, goal);
       if (input === null) {
         if (!isManual) localStorage.removeItem('daily_goal');
+        syncGoal();
         return;
       }
       const val = parseInt(input);
@@ -1111,6 +1125,7 @@
       } else {
         localStorage.removeItem('daily_goal');
       }
+      syncGoal();
       updateProgressBadge(false);
     });
     el.querySelector('.toggle-input')?.addEventListener('change', (e) => {
@@ -1124,6 +1139,7 @@
       } else {
         localStorage.removeItem('daily_goal');
       }
+      syncGoal();
       updateProgressBadge(false);
     });
     el.querySelector('.progress-mode-info')?.addEventListener('click', (e) => e.stopPropagation());
@@ -1131,6 +1147,15 @@
       el.classList.remove('progress-animate');
       void el.offsetWidth;
       el.classList.add('progress-animate');
+    }
+  }
+
+  function syncGoal() {
+    const val = localStorage.getItem('daily_goal');
+    if (val) {
+      SETTINGS_DOC.set({ daily_goal: parseInt(val) }).catch(() => {});
+    } else {
+      SETTINGS_DOC.set({ daily_goal: null }).catch(() => {});
     }
   }
 
@@ -1532,6 +1557,7 @@
       if (skillRes.ok) skillData = await skillRes.json();
       filtered = [...allJobs];
       await loadTrackedJobs();
+      await loadSettings();
       await loadPokemonFromFirestore();
       await loadNotes();
       fetchPokemonList();
