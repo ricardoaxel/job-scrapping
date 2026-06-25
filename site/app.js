@@ -470,6 +470,26 @@
       });
     });
 
+    // Pie chart data (filtered by date range)
+    const pieFrom = localStorage.getItem('stats_pie_from') || new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+    const pieTo = localStorage.getItem('stats_pie_to') || new Date().toISOString().slice(0, 10);
+    let pieApplied = 0, pieDisliked = 0;
+    Object.entries(trackedJobs).forEach(([, entry]) => {
+      if (!entry.trackedAt) return;
+      const d = entry.trackedAt.slice(0, 10);
+      if (d < pieFrom || d > pieTo) return;
+      if (entry.applied) pieApplied++;
+      if (entry.disliked) pieDisliked++;
+    });
+    const pieTotal = allJobs.filter(j => {
+      const d = j.postedDate || j.scrapedAt;
+      return d && d.slice(0, 10) >= pieFrom && d.slice(0, 10) <= pieTo;
+    }).length;
+    const piePending = Math.max(0, pieTotal - pieApplied - pieDisliked);
+    const totalPie = pieApplied + pieDisliked + piePending || 1;
+    const aPct = (pieApplied / totalPie * 100).toFixed(1);
+    const dPct = (pieDisliked / totalPie * 100).toFixed(1);
+    const pPct = (piePending / totalPie * 100).toFixed(1);
     const gradient = `conic-gradient(#059669 0% ${aPct}%, #dc2626 ${aPct}% ${+aPct + +dPct}%, #d1d5db ${+aPct + +dPct}% 100%)`;
 
     container.innerHTML = `
