@@ -1866,6 +1866,65 @@ footer a:hover {
   border-color: var(--accent);
 }
 
+/* ─── Pie chart ─── */
+.pie-range {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.pie-range label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+.pie-range input[type="date"] {
+  padding: 4px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+}
+.pie-range input[type="date"]:focus {
+  border-color: var(--accent);
+}
+.pie-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.pie-chart {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pie-legend div {
+  font-size: 0.85rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pie-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 /* ─── Calendar heatmap ─── */
 .cal-months {
   display: flex;
@@ -2014,6 +2073,8 @@ footer a:hover {
   .stat-card-label { font-size: 0.68rem; }
   .stat-section { padding: 14px; }
   .stats-view { padding: 14px 10px 30px; }
+  .pie-chart { width: 100px; height: 100px; }
+  .pie-legend div { font-size: 0.78rem; }
   .cal-cell { width: 10px; height: 10px; }
   .stage-badge { font-size: 0.55rem; padding: 1px 6px; }
   .goal-celebration-emoji { font-size: 3.5rem; }

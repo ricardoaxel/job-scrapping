@@ -470,6 +470,8 @@
       });
     });
 
+    const gradient = `conic-gradient(#059669 0% ${aPct}%, #dc2626 ${aPct}% ${+aPct + +dPct}%, #d1d5db ${+aPct + +dPct}% 100%)`;
+
     container.innerHTML = `
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-card-num">${total}</div><div class="stat-card-label">Total aplicadas</div></div>
@@ -477,6 +479,21 @@
         <div class="stat-card"><div class="stat-card-num">${weekCount}</div><div class="stat-card-label">Esta semana</div></div>
         <div class="stat-card"><div class="stat-card-num">${streak}${streak > 0 ? ' 🔥' : ''}</div><div class="stat-card-label">Racha (días)</div></div>
         <div class="stat-card"><div class="stat-card-num">${totalDisliked}</div><div class="stat-card-label">Descartadas</div></div>
+      </div>
+      <div class="stat-section">
+        <div class="stat-section-title">Salud de las vacantes</div>
+        <div class="pie-range">
+          <label>Desde <input type="date" class="pie-date-from" value="${pieFrom}"></label>
+          <label>Hasta <input type="date" class="pie-date-to" value="${pieTo}"></label>
+        </div>
+        <div class="pie-row">
+          <div class="pie-chart" style="background:${gradient}"></div>
+          <div class="pie-legend">
+            <div><span class="pie-dot" style="background:#059669"></span> Aplicadas: ${pieApplied}</div>
+            <div><span class="pie-dot" style="background:#dc2626"></span> Descartadas: ${pieDisliked}</div>
+            <div><span class="pie-dot" style="background:#d1d5db"></span> Pendientes: ${piePending}</div>
+          </div>
+        </div>
       </div>
       <div class="stat-section">
         <div class="stat-section-title">Calendario de actividad</div>
@@ -503,6 +520,14 @@
         const job = jobKeyToData[key];
         if (job) openModal(job);
       });
+    });
+    container.querySelector('.pie-date-from')?.addEventListener('change', (e) => {
+      localStorage.setItem('stats_pie_from', e.target.value);
+      renderStats();
+    });
+    container.querySelector('.pie-date-to')?.addEventListener('change', (e) => {
+      localStorage.setItem('stats_pie_to', e.target.value);
+      renderStats();
     });
   }
 
