@@ -178,14 +178,18 @@ async function scrapeJobsForQuery(query, page) {
   const seen = new Set();
   let allJobs = [];
 
+  function baseUrl(url) {
+    try { return new URL(url).origin + new URL(url).pathname; } catch { return url; }
+  }
+
   for (const query of QUERIES) {
     console.log(`\n--- ${query} ---`);
     try { await context.pages(); } catch { break; }
     const jobs = await scrapeJobsForQuery(query, page);
     let nuevos = 0;
     for (const job of jobs) {
-      if (!seen.has(job.url)) {
-        seen.add(job.url);
+      if (!seen.has(baseUrl(job.url))) {
+        seen.add(baseUrl(job.url));
         allJobs.push(job);
         nuevos++;
       }
@@ -215,11 +219,11 @@ async function scrapeJobsForQuery(query, page) {
       cumulative = JSON.parse(fs.readFileSync(filteredPath, "utf-8"));
     } catch {}
   }
-  const urls = new Set(cumulative.map((j) => j.url));
+  const urls = new Set(cumulative.map((j) => baseUrl(j.url)));
   let appended = 0;
   for (const job of todayFiltered) {
-    if (!urls.has(job.url)) {
-      urls.add(job.url);
+    if (!urls.has(baseUrl(job.url))) {
+      urls.add(baseUrl(job.url));
       cumulative.push(job);
       appended++;
     }
