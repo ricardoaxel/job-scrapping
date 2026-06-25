@@ -171,6 +171,7 @@ STAFFING_COMPANIES = [
     # spam companies
     "omnicom",
     "omnicom media mexico",
+    "tinuiti",
     # generic staffing keywords
     "outsourcing",
     "staffing",
