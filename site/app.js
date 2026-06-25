@@ -567,6 +567,8 @@
   }
 
   function renderNotes() {
+    const unresolved = notes.filter(n => !n.resolved).length;
+    notesBtn.textContent = '📝 Notas' + (unresolved ? ` (${unresolved})` : '');
     if (!notes.length) {
       notesList.innerHTML = '<div style="color:var(--text-tertiary);font-size:0.8rem;padding:4px 0;">Sin notas aún</div>';
       return;
