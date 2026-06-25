@@ -387,6 +387,7 @@
     weekStart.setDate(now.getDate() - now.getDay() + 1);
     weekStart.setHours(0,0,0,0);
     const weekCount = applied.filter(a => new Date(a.appliedAt) >= weekStart).length;
+    const totalDisliked = Object.values(trackedJobs).filter(e => e.disliked).length;
 
     // Streak — allows today to be 0, counts consecutive days before today
     let streak = 0;
@@ -475,6 +476,7 @@
         <div class="stat-card"><div class="stat-card-num">${todayCount}</div><div class="stat-card-label">Hoy</div></div>
         <div class="stat-card"><div class="stat-card-num">${weekCount}</div><div class="stat-card-label">Esta semana</div></div>
         <div class="stat-card"><div class="stat-card-num">${streak}${streak > 0 ? ' 🔥' : ''}</div><div class="stat-card-label">Racha (días)</div></div>
+        <div class="stat-card"><div class="stat-card-num">${totalDisliked}</div><div class="stat-card-label">Descartadas</div></div>
       </div>
       <div class="stat-section">
         <div class="stat-section-title">Calendario de actividad</div>
