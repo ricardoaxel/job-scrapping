@@ -490,7 +490,7 @@
     const aPct = (pieApplied / totalPie * 100).toFixed(1);
     const dPct = (pieDisliked / totalPie * 100).toFixed(1);
     const pPct = (piePending / totalPie * 100).toFixed(1);
-    const gradient = `conic-gradient(#059669 0% ${aPct}%, #dc2626 ${aPct}% ${+aPct + +dPct}%, #d1d5db ${+aPct + +dPct}% 100%)`;
+    const gradient = `conic-gradient(#22c55e 0% ${aPct}%, #ef4444 ${aPct}% ${+aPct + +dPct}%, #9ca3af ${+aPct + +dPct}% 100%)`;
 
     container.innerHTML = `
       <div class="stats-grid">
@@ -509,9 +509,9 @@
         <div class="pie-row">
           <div class="pie-chart" style="background:${gradient}"></div>
           <div class="pie-legend">
-            <div><span class="pie-dot" style="background:#059669"></span> Aplicadas: ${pieApplied}</div>
-            <div><span class="pie-dot" style="background:#dc2626"></span> Descartadas: ${pieDisliked}</div>
-            <div><span class="pie-dot" style="background:#d1d5db"></span> Pendientes: ${piePending}</div>
+            <div><span class="pie-dot" style="background:#22c55e"></span> Aplicadas: ${pieApplied}</div>
+            <div><span class="pie-dot" style="background:#ef4444"></span> Descartadas: ${pieDisliked}</div>
+            <div><span class="pie-dot" style="background:#9ca3af"></span> Pendientes: ${piePending}</div>
           </div>
         </div>
       </div>
