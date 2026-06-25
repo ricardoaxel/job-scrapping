@@ -1204,8 +1204,8 @@
       btn.addEventListener('click', () => {
         if (btn.classList.contains('pill-disabled')) return;
         const f = btn.dataset.filter;
-        if (f === 'interested') { showInterested = !showInterested; showApplied = false; showDisliked = false; }
-        if (f === 'showapplied') { showApplied = !showApplied; showInterested = false; showDisliked = false; }
+        if (f === 'interested') { showInterested = !showInterested; showDisliked = false; }
+        if (f === 'showapplied') { showApplied = !showApplied; showDisliked = false; }
         if (f === 'showdisliked') { showDisliked = !showDisliked; showInterested = false; showApplied = false; }
         currentPage = 1;
         renderTrackingFilters();
