@@ -1494,9 +1494,8 @@ footer a:hover {
   font-weight: 700;
   color: var(--text);
   margin-bottom: 6px;
-  white-space: normal;
+  white-space: nowrap;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 2px;
 }
