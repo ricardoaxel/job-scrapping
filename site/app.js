@@ -321,8 +321,15 @@
   const notesAddBtn = document.getElementById('notes-add-btn');
   const NOTES_DOC = db.collection('notes').doc('data');
 
-  notesBtn.addEventListener('click', () => {
+  notesBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     notesPanel.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (notesPanel.classList.contains('hidden')) return;
+    if (notesPanel.contains(e.target) || notesBtn.contains(e.target)) return;
+    notesPanel.classList.add('hidden');
   });
 
   const statsBtn = document.getElementById('stats-btn');
