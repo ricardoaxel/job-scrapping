@@ -1494,7 +1494,11 @@ footer a:hover {
   font-weight: 700;
   color: var(--text);
   margin-bottom: 6px;
-  white-space: nowrap;
+  white-space: normal;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
 }
 .progress-goal {
   cursor: pointer;
