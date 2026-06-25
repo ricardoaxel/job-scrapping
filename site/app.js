@@ -1043,7 +1043,7 @@
     el.innerHTML = `
       <div class="progress-emoji">${emoji}</div>
       <div class="progress-info">
-        <div class="progress-count">✓ ${count}/<span class="progress-goal">${goal}</span> aplicadas hoy
+        <div class="progress-count">✓ ${count}/<span class="progress-goal">${goal}</span> aplicadas hoy <span class="progress-mode-label">${isManual ? 'Meta manual' : 'Meta a nuevas vacantes del día'}</span>
           <span class="progress-mode-info" data-tooltip="${infoText}">ℹ️</span>
           <label class="toggle-wrap" title="${isManual ? 'Cambiar a automática' : 'Cambiar a manual'}">
             <input type="checkbox" class="toggle-input"${isManual ? ' checked' : ''}>

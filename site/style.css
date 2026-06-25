@@ -1532,6 +1532,12 @@ footer a:hover {
   transition: opacity 0.15s;
   display: inline-block;
 }
+.progress-mode-label {
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  margin: 0 2px;
+}
 .progress-mode-info:hover {
   opacity: 1;
 }
