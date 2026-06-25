@@ -168,6 +168,9 @@ STAFFING_COMPANIES = [
     "turing",
     "emma of torre.ai",
     "torre.ai",
+    # spam companies
+    "omnicom",
+    "omnicom media mexico",
     # generic staffing keywords
     "outsourcing",
     "staffing",
