@@ -1057,13 +1057,14 @@
     }
   }
 
-  function renderJobCards(jobs) {
+  function renderJobCards(jobs, startIdx) {
     if (jobs.length === 0) {
       jobList.innerHTML = '<div class="job-card" style="text-align:center;color:var(--text-secondary);">No se encontraron vacantes</div>';
       return;
     }
     let html = '';
     jobs.forEach((j, idx) => {
+      const realIdx = (startIdx || 0) + idx;
       const dateStr = relativeDate(j.postedDate || j.scrapedAt);
       const descPreview = truncateText((j.description || '').replace(/^About the job\s*/i, ''), 120);
       const applyLabel = j.easyApply ? 'Postulación rápida' : 'Sitio externo';
@@ -1084,7 +1085,7 @@
 
       const tData = trackedJobs[getJobKey(j)];
       html += `
-        <div class="job-card${borderClass ? ' ' + borderClass : ''}" data-idx="${idx}">
+        <div class="job-card${borderClass ? ' ' + borderClass : ''}" data-idx="${realIdx}">
           <div class="job-card-header">
             <div class="job-card-title">${j.title || 'Sin título'} ${langBadge(j.language)}${tData?.note ? '<span class="card-note-icon" title="Tiene nota">📝</span>' : ''}</div>
             <div class="card-actions">
@@ -1241,7 +1242,7 @@
     const start = (currentPage - 1) * PER_PAGE;
     const page = filtered.slice(start, start + PER_PAGE);
     statsEl.textContent = total + ' vacante' + (total !== 1 ? 's' : '') + (query ? ' encontradas' : ' disponibles');
-    renderJobCards(page);
+    renderJobCards(page, start);
     renderPagination(total);
   }
 
