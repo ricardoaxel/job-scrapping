@@ -277,16 +277,6 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  if (window.location.search.includes('reset=1')) {
-    trackedJobs = {};
-    notes = [];
-    localStorage.removeItem('tracked_jobs');
-    localStorage.removeItem('notes_data');
-    db.collection('tracked').doc('jobs').delete().catch(() => {});
-    db.collection('notes').doc('data').delete().catch(() => {});
-    window.history.replaceState(null, '', window.location.pathname);
-  }
-
   /* ─── Auth ─── */
   const AUTH_KEY = 'auth_pikachu';
   const authOverlay = document.getElementById('auth-overlay');
@@ -331,6 +321,16 @@
     if (notesPanel.contains(e.target) || notesBtn.contains(e.target)) return;
     notesPanel.classList.add('hidden');
   });
+
+  if (window.location.search.includes('reset=1')) {
+    trackedJobs = {};
+    notes = [];
+    localStorage.removeItem('tracked_jobs');
+    localStorage.removeItem('notes_data');
+    db.collection('tracked').doc('jobs').delete().catch(() => {});
+    db.collection('notes').doc('data').delete().catch(() => {});
+    window.history.replaceState(null, '', window.location.pathname);
+  }
 
   const statsBtn = document.getElementById('stats-btn');
   statsBtn.addEventListener('click', () => {
