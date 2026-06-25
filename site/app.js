@@ -490,7 +490,7 @@
     const aPct = (pieApplied / totalPie * 100).toFixed(1);
     const dPct = (pieDisliked / totalPie * 100).toFixed(1);
     const pPct = (piePending / totalPie * 100).toFixed(1);
-    const gradient = `conic-gradient(#22c55e 0% ${aPct}%, #ef4444 ${aPct}% ${+aPct + +dPct}%, #9ca3af ${+aPct + +dPct}% 100%)`;
+    const gradient = `conic-gradient(#86efac 0% ${aPct}%, #fca5a5 ${aPct}% ${+aPct + +dPct}%, #e5e7eb ${+aPct + +dPct}% 100%)`;
 
     container.innerHTML = `
       <div class="stats-grid">
@@ -509,9 +509,9 @@
         <div class="pie-row">
           <div class="pie-chart" style="background:${gradient}"></div>
           <div class="pie-legend">
-            <div><span class="pie-dot" style="background:#22c55e"></span> Aplicadas: ${pieApplied}</div>
-            <div><span class="pie-dot" style="background:#ef4444"></span> Descartadas: ${pieDisliked}</div>
-            <div><span class="pie-dot" style="background:#9ca3af"></span> Pendientes: ${piePending}</div>
+            <div><span class="pie-dot" style="background:#86efac"></span> Aplicadas: ${pieApplied}</div>
+            <div><span class="pie-dot" style="background:#fca5a5"></span> Descartadas: ${pieDisliked}</div>
+            <div><span class="pie-dot" style="background:#e5e7eb"></span> Pendientes: ${piePending}</div>
           </div>
         </div>
       </div>
@@ -1063,7 +1063,9 @@
     el.innerHTML = `
       <div class="progress-emoji">${emoji}</div>
       <div class="progress-info">
-        <div class="progress-count">✓ ${count}/<span class="progress-goal">${goal}</span> aplicadas hoy <span class="progress-mode-label">${isManual ? 'Meta manual' : 'Meta a nuevas vacantes del día'}</span>
+        <div class="progress-count">✓ ${count}/<span class="progress-goal">${goal}</span> aplicadas hoy</div>
+        <div class="progress-mode-row">
+          <span class="progress-mode-label">${isManual ? 'Meta manual' : 'Meta a nuevas vacantes del día'}</span>
           <span class="progress-mode-info" data-tooltip="${infoText}">ℹ️</span>
           <label class="toggle-wrap" title="${isManual ? 'Cambiar a automática' : 'Cambiar a manual'}">
             <input type="checkbox" class="toggle-input"${isManual ? ' checked' : ''}>
