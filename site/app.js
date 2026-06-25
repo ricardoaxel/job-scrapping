@@ -1223,20 +1223,15 @@
         if (!searchText.includes(query)) return false;
       }
       if (!isWithinTime(j)) return false;
-      if (showInterested) {
-        const st = getTrackStatus(j);
-        if (!st.interested) return false;
-      }
       const st = getTrackStatus(j);
-      if (showApplied) {
-        if (!st.applied) return false;
-      } else if (st.applied) {
-        return false;
-      }
-      if (showDisliked) {
-        if (!st.disliked) return false;
-      } else if (st.disliked) {
-        return false;
+      if (showInterested && !st.interested) return false;
+      if (showApplied && !st.applied) return false;
+      if (showDisliked && !st.disliked) return false;
+      // Default hiding when NO filter is active
+      const hasActiveFilter = showInterested || showApplied || showDisliked;
+      if (!hasActiveFilter) {
+        if (st.applied) return false;
+        if (st.disliked) return false;
       }
       return true;
     });
