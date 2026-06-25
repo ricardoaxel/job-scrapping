@@ -310,6 +310,7 @@
   const notesInput = document.getElementById('notes-input');
   const notesAddBtn = document.getElementById('notes-add-btn');
   const NOTES_DOC = db.collection('notes').doc('data');
+  const POKEMON_DOC = db.collection('tracked').doc('pokemon');
 
   notesBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -654,6 +655,23 @@
     } catch (e) {}
   }
 
+  async function loadPokemonFromFirestore() {
+    try {
+      const local = JSON.parse(localStorage.getItem('pokemon_collection') || '[]');
+      const snap = await POKEMON_DOC.get();
+      if (snap.exists) {
+        const remote = snap.data().collection || [];
+        if (remote.length >= local.length) {
+          localStorage.setItem('pokemon_collection', JSON.stringify(remote));
+        } else {
+          await POKEMON_DOC.set({ collection: local });
+        }
+      } else if (local.length) {
+        await POKEMON_DOC.set({ collection: local });
+      }
+    } catch (e) {}
+  }
+
   function showDislikeDialog(onSave) {
     const overlay = document.createElement('div');
     overlay.className = 'dislike-overlay';
@@ -927,6 +945,7 @@
     }
     if (changed) {
       localStorage.setItem('pokemon_collection', JSON.stringify(collection));
+      POKEMON_DOC.set({ collection }).catch(() => {});
       if (hadNew) {
         const newest = collection.slice().sort((a, b) => b.unlockedAt - a.unlockedAt)[0];
         const p = newest ? pokemonData[newest.index] : null;
@@ -1513,6 +1532,7 @@
       if (skillRes.ok) skillData = await skillRes.json();
       filtered = [...allJobs];
       await loadTrackedJobs();
+      await loadPokemonFromFirestore();
       await loadNotes();
       fetchPokemonList();
       prevAppliedCount = getTodayAppliedCount();
