@@ -57,19 +57,19 @@ header {
   gap: 16px;
 }
 .header-left {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   justify-content: flex-start;
   padding-top: 20px;
   min-width: 0;
 }
 .header-center {
-  flex: 1;
+  flex: 1 1 auto;
   text-align: center;
-  min-width: 0;
+  padding: 0 8px;
 }
 .header-right {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
   padding-top: 20px;
@@ -2031,18 +2031,15 @@ footer a:hover {
     flex-direction: column;
     align-items: center;
   }
-  .header-left, .header-right {
-    padding-top: 0;
+  .header-left, .header-right, .header-center {
     flex: none;
+    padding-top: 0;
   }
   .header-left {
     align-self: flex-start;
   }
   .header-right {
     align-self: flex-end;
-  }
-  .header-center {
-    flex: none;
   }
   header h1 { font-size: 1.1rem; }
   header .subtitle { font-size: 0.75rem; }
