@@ -59,6 +59,11 @@ Personal job-scraping + CV generation pipeline for Valeria, with a bilingual web
 - ✅ `updateCardUI` could crash if `filtered[idx]` was undefined (fixed with guard)
 - ✅ Modal CSS used `.modal-body` class selector but HTML had `id="modal-body"` (fixed with class)
 
+## Critical Rules (MUST follow)
+- **ALL user data MUST be global**: tracked jobs, notes, pokemon collection, daily goal — everything goes to Firestore AND localStorage (cache). Never store user data only in localStorage. This is a single-user app that syncs across devices.
+- Data-only changes (cron) use `data:` prefix. Feature/fix commits use `feat:`/`fix:`.
+- When adding a company to the spam list (`skills/spam-company/skill.md`): add to `filter.py`, then manually mark existing entries as disliked in Firestore via REST API. Do NOT add auto-dislike logic in `app.js`.
+
 ## Commit Conventions
 - `feat:` — features
 - `fix:` — bug fixes

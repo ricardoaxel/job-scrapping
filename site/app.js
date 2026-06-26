@@ -39,6 +39,10 @@
   pokemonContainer.id = 'pokemon-container';
   document.querySelector('header').appendChild(pokemonContainer);
 
+  const totalAppliedBadge = document.createElement('div');
+  totalAppliedBadge.id = 'total-applied-badge';
+  document.querySelector('header').insertBefore(totalAppliedBadge, pokemonContainer);
+
   let activeTimeFilter = '';
   let prevAppliedCount = 0;
   let lastMilestone = 0;
@@ -828,6 +832,7 @@
     renderTrackingFilters();
     applyFilters();
     if (statsViewVisible) renderStats();
+    updateTotalAppliedBadge();
   }
 
   function getTrackStatus(job) {
@@ -869,6 +874,13 @@
       }
     });
     return count;
+  }
+
+  function updateTotalAppliedBadge() {
+    const el = document.getElementById('total-applied-badge');
+    if (!el) return;
+    const count = getTotalAppliedCount();
+    el.innerHTML = `✓ ${count}`;
   }
 
   function getAutoGoal() {
@@ -1307,6 +1319,7 @@
         applyFilters();
       });
     });
+    updateTotalAppliedBadge();
   }
 
   function applyFilters() {
@@ -1577,6 +1590,7 @@
       renderTimeFilters();
       renderTrackingFilters();
       applyFilters();
+      updateTotalAppliedBadge();
     } catch (err) {
       jobList.innerHTML = '<div class="job-card" style="text-align:center;color:var(--text-secondary);">Error al cargar datos: ' + err.message + '</div>';
     }

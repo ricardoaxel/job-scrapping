@@ -203,13 +203,14 @@ header .subtitle {
 
 /* ─── Pokemon container ─── */
 #pokemon-container {
-  display: flex;
+  display: inline-flex;
   gap: 6px;
   overflow-x: auto;
   padding: 10px 0 4px;
   max-width: 100%;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+  vertical-align: middle;
 }
 #pokemon-container::-webkit-scrollbar {
   height: 4px;
@@ -242,6 +243,20 @@ header .subtitle {
 .pokemon-badge:hover {
   transform: scale(1.25);
   z-index: 1;
+}
+
+#total-applied-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #059669;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 @keyframes pokemon-pop {
@@ -1989,6 +2004,10 @@ footer a:hover {
   }
   #pokemon-container {
     padding: 6px 0 2px;
+  }
+  #total-applied-badge {
+    font-size: 0.65rem;
+    padding: 2px 8px;
   }
   .pokemon-badge {
     width: 40px;
