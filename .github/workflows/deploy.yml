@@ -30,7 +30,7 @@ jobs:
           cp cvs/base-cv.md cvs/base-cv-es.md _site/data/
           cp -r cvs/Generated/* _site/cvs/
           sed "s/id=\"version\">dev</id=\"version\">$VERSION</" site/index.html > _site/index.html
-          cp site/*.css site/*.js _site/
+          cp site/favicon.svg site/*.css site/*.js _site/
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
