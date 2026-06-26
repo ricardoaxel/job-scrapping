@@ -57,8 +57,11 @@ header {
   gap: 16px;
 }
 .header-left {
-  flex-shrink: 0;
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
   padding-top: 20px;
+  min-width: 0;
 }
 .header-center {
   flex: 1;
@@ -66,8 +69,11 @@ header {
   min-width: 0;
 }
 .header-right {
-  flex-shrink: 0;
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
   padding-top: 20px;
+  min-width: 0;
 }
 header h1 {
   font-size: 1.4rem;
@@ -225,10 +231,18 @@ header .subtitle {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding: 14px 0 8px;
+  padding: 14px 4px 8px;
   max-width: 100%;
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: transparent transparent;
+  width: fit-content;
+}
+#pokemon-container::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}
+#pokemon-container:hover::-webkit-scrollbar {
+  height: 4px;
 }
 #pokemon-container::-webkit-scrollbar {
   height: 4px;
@@ -2019,12 +2033,16 @@ footer a:hover {
   }
   .header-left, .header-right {
     padding-top: 0;
+    flex: none;
   }
   .header-left {
     align-self: flex-start;
   }
   .header-right {
     align-self: flex-end;
+  }
+  .header-center {
+    flex: none;
   }
   header h1 { font-size: 1.1rem; }
   header .subtitle { font-size: 0.75rem; }
