@@ -51,7 +51,7 @@ header {
 .header-inner {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   max-width: 960px;
   margin: 0 auto;
   gap: 16px;
@@ -60,7 +60,6 @@ header {
   flex: 0 0 auto;
   display: flex;
   justify-content: flex-start;
-  padding-top: 20px;
   min-width: 0;
 }
 .header-center {
@@ -72,7 +71,6 @@ header {
   flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
-  padding-top: 20px;
   min-width: 0;
 }
 header h1 {
@@ -2033,7 +2031,6 @@ footer a:hover {
   }
   .header-left, .header-right, .header-center {
     flex: none;
-    padding-top: 0;
   }
   .header-left {
     align-self: flex-start;
