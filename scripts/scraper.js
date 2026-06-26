@@ -182,10 +182,27 @@ async function scrapeJobsForQuery(query, page) {
     try { return new URL(url).origin + new URL(url).pathname; } catch { return url; }
   }
 
+  const CATEGORY_TIMEOUT = 7 * 60 * 1000; // 7 minutes per category
+  const results = {};
+
   for (const query of QUERIES) {
     console.log(`\n--- ${query} ---`);
     try { await context.pages(); } catch { break; }
-    const jobs = await scrapeJobsForQuery(query, page);
+    
+    let jobs = [];
+    let hadError = false;
+    const startTime = Date.now();
+    try {
+      jobs = await Promise.race([
+        scrapeJobsForQuery(query, page),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), CATEGORY_TIMEOUT))
+      ]);
+    } catch (err) {
+      hadError = true;
+      const elapsed = Math.round((Date.now() - startTime) / 1000);
+      console.log(`  ⚠️ Error después de ${elapsed}s: ${err.message === 'Timeout' ? 'se excedió el tiempo máximo (7 min)' : err.message.slice(0, 60)}`);
+    }
+    
     let nuevos = 0;
     for (const job of jobs) {
       if (!seen.has(baseUrl(job.url))) {
@@ -195,6 +212,19 @@ async function scrapeJobsForQuery(query, page) {
       }
     }
     console.log(`  ${jobs.length} encontradas, ${nuevos} nuevas`);
+    results[query] = { found: jobs.length, error: hadError };
+  }
+
+  // Summary
+  const errors = Object.entries(results).filter(([, r]) => r.error);
+  if (errors.length > 0) {
+    console.log(`\n⚠️  Error en ${errors.length} categoría${errors.length > 1 ? 's' : ''}:`);
+    errors.forEach(([q]) => console.log(`   - ${q}: 0 encontradas (timeout o error)`));
+    const ok = Object.entries(results).filter(([, r]) => !r.error);
+    console.log(`✅ Categorías exitosas (${ok.length}):`);
+    ok.forEach(([q, r]) => console.log(`   - ${q}: ${r.found} encontradas`));
+  } else {
+    console.log(`\n✅ Todas las categorías completadas sin errores`);
   }
 
   await page.close().catch(() => {});
