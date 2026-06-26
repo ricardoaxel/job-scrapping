@@ -41,7 +41,7 @@
 
   const totalAppliedBadge = document.createElement('div');
   totalAppliedBadge.id = 'total-applied-badge';
-  document.querySelector('header').insertBefore(totalAppliedBadge, pokemonContainer);
+  document.body.appendChild(totalAppliedBadge);
 
   let activeTimeFilter = '';
   let prevAppliedCount = 0;
