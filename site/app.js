@@ -37,11 +37,11 @@
 
   const pokemonContainer = document.createElement('div');
   pokemonContainer.id = 'pokemon-container';
-  document.querySelector('header').appendChild(pokemonContainer);
+  document.getElementById('header-left').appendChild(pokemonContainer);
 
   const totalAppliedBadge = document.createElement('div');
   totalAppliedBadge.id = 'total-applied-badge';
-  document.body.appendChild(totalAppliedBadge);
+  document.getElementById('header-right').appendChild(totalAppliedBadge);
 
   let activeTimeFilter = '';
   let prevAppliedCount = 0;
