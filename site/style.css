@@ -41,35 +41,23 @@ body {
 header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 24px 16px 20px;
+  padding: 28px 16px 20px;
+  text-align: center;
   position: sticky;
   top: 0;
   z-index: 10;
   backdrop-filter: blur(8px);
   background: rgba(255,255,255,0.92);
-  display: flex;
-  justify-content: center;
 }
 .header-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.header-bottom-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  max-width: 960px;
-  width: 100%;
-  gap: 16px;
-}
-.header-left {
-  flex-shrink: 0;
-  padding-top: 18px;
-}
-.header-center {
-  flex: 1;
-  text-align: center;
-  min-width: 0;
-}
-.header-right {
-  flex-shrink: 0;
-  padding-top: 18px;
+  align-items: center;
+  margin-top: 10px;
 }
 header h1 {
   font-size: 1.4rem;
@@ -2015,19 +2003,10 @@ footer a:hover {
     padding: 14px 10px 12px;
     position: static;
   }
-  .header-inner {
+  .header-bottom-row {
     flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-  .header-left, .header-right {
-    padding-top: 0;
-  }
-  .header-left {
-    align-self: flex-start;
-  }
-  .header-right {
-    align-self: flex-end;
+    gap: 6px;
+    align-items: stretch;
   }
   header h1 { font-size: 1.1rem; }
   header .subtitle { font-size: 0.75rem; }
