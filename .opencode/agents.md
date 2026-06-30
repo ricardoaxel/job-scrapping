@@ -77,7 +77,7 @@ Personal job-scraping + CV generation pipeline for Valeria, with a bilingual web
 - Need `fetch-depth: 0` in checkout for accurate version count
 
 ## Local Dev
-- `python3 -m http.server 8001 --bind 127.0.0.1` in project root
+- `python3 -m http.server 8001 --bind 127.0.0.1` in project root (`~/.local/share/job-scrapping/`)
 - Symlinks in `site/data/` and `site/cvs/` replicate deployed structure locally
 - API keys, `li_at` token — do not commit
 

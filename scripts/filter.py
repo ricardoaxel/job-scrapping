@@ -1,7 +1,7 @@
 import json, re, sys
 
-JOBS_PATH = "/Users/ashel/Documents/Programming/job-scrapping/jobs.json"
-OUTPUT_PATH = "/Users/ashel/Documents/Programming/job-scrapping/filtered_jobs.json"
+JOBS_PATH = "/Users/ashel/.local/share/job-scrapping/jobs.json"
+OUTPUT_PATH = "/Users/ashel/.local/share/job-scrapping/filtered_jobs.json"
 
 
 def detect_language(job):
