@@ -58,6 +58,7 @@ Personal job-scraping + CV generation pipeline for Valeria, with a bilingual web
 - ✅ `set -e` in daily_scrape.sh killed script before commit if scraper exited non-zero (fixed with `|| echo ...`)
 - ✅ `updateCardUI` could crash if `filtered[idx]` was undefined (fixed with guard)
 - ✅ Modal CSS used `.modal-body` class selector but HTML had `id="modal-body"` (fixed with class)
+- ✅ Cron git push fails with "Operation not permitted" (macOS TCC blocks ~/Documents/). Fixed with bash function `GIT() { cd / && git --git-dir=... --work-tree=... "$@"; }` — runs git from `/` to bypass CWD restriction.
 
 ## Critical Rules (MUST follow)
 - **ALL user data MUST be global**: tracked jobs, notes, pokemon collection, daily goal — everything goes to Firestore AND localStorage (cache). Never store user data only in localStorage. This is a single-user app that syncs across devices.
