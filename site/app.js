@@ -1437,6 +1437,7 @@
     html += `<div class="form-data-section"><h3>Notas sobre la vacante <span class="hint-icon" title="Agrega cualquier dato extra sobre esta vacante o proceso que quieras registrar (ej. contacto, fecha de entrevista, resultado, etc.)">ℹ️</span></h3><textarea class="job-note-textarea" rows="3" placeholder="Ej: mandé CV personalizado, contacté a reclutador...">${escHtml(entry?.note || '')}</textarea></div>`;
 
     modalBody.innerHTML = html;
+    modalBody.closest('.modal-content')?.scrollTo(0, 0);
 
     modalBody.querySelector('.desc-more-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
