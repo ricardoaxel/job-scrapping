@@ -1255,7 +1255,7 @@
       btn.addEventListener('click', () => {
         currentPage = parseInt(btn.dataset.page);
         applyFilters();
-        document.querySelector('main')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.querySelector('main')?.scrollIntoView({ block: 'start' });
       });
     });
   }
