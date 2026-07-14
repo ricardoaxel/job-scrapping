@@ -411,9 +411,9 @@
       }
     }
 
-    // 3-month calendar heatmap
+    // 2-month calendar heatmap
     const calStart = new Date(now);
-    calStart.setMonth(now.getMonth() - 3);
+    calStart.setMonth(now.getMonth() - 2);
     calStart.setDate(1);
     calStart.setHours(0, 0, 0, 0);
     const calCells = [];

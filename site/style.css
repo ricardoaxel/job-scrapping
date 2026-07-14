@@ -1993,12 +1993,12 @@ footer a:hover {
 .cal-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px;
+  gap: 4px;
 }
 .cal-cell {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
   cursor: default;
 }
 .cal-l0 { background: var(--bg); }
@@ -2015,8 +2015,8 @@ footer a:hover {
   color: var(--text-tertiary);
 }
 .cal-legend .cal-cell {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
 }
 
 /* RESPONSIVE */
@@ -2145,7 +2145,7 @@ footer a:hover {
   .stats-view { padding: 14px 10px 30px; }
   .pie-chart { width: 100px; height: 100px; }
   .pie-legend div { font-size: 0.78rem; }
-  .cal-cell { width: 10px; height: 10px; }
+  .cal-cell { width: 14px; height: 14px; border-radius: 3px; }
   .stage-badge { font-size: 0.55rem; padding: 1px 6px; }
   .goal-celebration-emoji { font-size: 3.5rem; }
   .goal-celebration-title { font-size: 1.4rem; }
