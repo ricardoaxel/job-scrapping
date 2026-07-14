@@ -414,7 +414,7 @@
     // Calendar: traditional month grids for last 2 months
     const dayNames = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
     const getCount = (dateStr) => applied.filter(a => a.appliedAt.slice(0, 10) === dateStr).length;
-    const maxC = Math.max(...(() => { const d = new Date(now); d.setMonth(d.getMonth() - 2); d.setDate(1); const arr = []; while (d <= now) { arr.push(getCount(d.toISOString().slice(0, 10))); d.setDate(d.getDate() + 1); } return arr; })()(), 1);
+    ;const maxC = Math.max(...(() => { const d = new Date(now); d.setMonth(d.getMonth() - 2); d.setDate(1); const arr = []; while (d <= now) { arr.push(getCount(d.toISOString().slice(0, 10))); d.setDate(d.getDate() + 1); } return arr; })(), 1);
 
     let calHtml = '';
     for (let offset = 1; offset >= 0; offset--) {
