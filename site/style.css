@@ -61,6 +61,7 @@ header {
   display: flex;
   justify-content: flex-start;
   min-width: 0;
+  max-width: 180px;
 }
 .header-center {
   flex: 1 1 auto;
@@ -227,20 +228,14 @@ header .subtitle {
 /* ─── Pokemon container ─── */
 #pokemon-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
+  overflow-x: visible;
   padding: 14px 4px 8px;
   max-width: 100%;
+  width: fit-content;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
-  width: fit-content;
-}
-#pokemon-container::-webkit-scrollbar {
-  height: 0;
-  width: 0;
-}
-#pokemon-container:hover::-webkit-scrollbar {
-  height: 4px;
 }
 #pokemon-container::-webkit-scrollbar {
   height: 4px;
