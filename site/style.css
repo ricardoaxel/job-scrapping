@@ -1976,47 +1976,75 @@ footer a:hover {
   flex-shrink: 0;
 }
 
-/* ─── Calendar heatmap ─── */
-.cal-months {
-  display: flex;
-  gap: 2px;
-  margin-bottom: 4px;
-  padding-left: 2px;
+/* ─── Calendar ─── */
+.cal-month-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 14px 0 6px;
+  text-transform: capitalize;
 }
-.cal-month-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+.cal-month-title:first-child {
+  margin-top: 0;
 }
 .cal-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  max-width: 350px;
+}
+.cal-day-header {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 2px 0;
+  text-transform: uppercase;
 }
 .cal-cell {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
+  width: auto;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 6px;
   cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg);
+  transition: background 0.1s ease;
 }
-.cal-l0 { background: var(--bg); }
-.cal-l1 { background: #dbeafe; }
-.cal-l2 { background: #93c5fd; }
-.cal-l3 { background: #3b82f6; }
-.cal-l4 { background: #1e40af; }
+.cal-cell:hover {
+  transform: scale(1.15);
+  z-index: 2;
+}
+.cal-l0 { background: var(--bg); color: var(--text-tertiary); }
+.cal-l1 { background: #dbeafe; color: #1e40af; }
+.cal-l2 { background: #93c5fd; color: #1e3a8a; }
+.cal-l3 { background: #3b82f6; color: #fff; }
+.cal-l4 { background: #1e40af; color: #fff; }
+.cal-today {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.cal-empty {
+  background: transparent !important;
+  aspect-ratio: auto;
+}
 .cal-legend {
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-top: 10px;
-  font-size: 0.65rem;
+  margin-top: 14px;
+  font-size: 0.7rem;
   color: var(--text-tertiary);
 }
 .cal-legend .cal-cell {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
+  aspect-ratio: auto;
 }
 
 /* RESPONSIVE */
@@ -2145,7 +2173,6 @@ footer a:hover {
   .stats-view { padding: 14px 10px 30px; }
   .pie-chart { width: 100px; height: 100px; }
   .pie-legend div { font-size: 0.78rem; }
-  .cal-cell { width: 14px; height: 14px; border-radius: 3px; }
   .stage-badge { font-size: 0.55rem; padding: 1px 6px; }
   .goal-celebration-emoji { font-size: 3.5rem; }
   .goal-celebration-title { font-size: 1.4rem; }

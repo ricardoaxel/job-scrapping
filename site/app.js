@@ -411,38 +411,36 @@
       }
     }
 
-    // 2-month calendar heatmap
-    const calStart = new Date(now);
-    calStart.setMonth(now.getMonth() - 2);
-    calStart.setDate(1);
-    calStart.setHours(0, 0, 0, 0);
-    const calCells = [];
-    const cell = new Date(calStart);
-    while (cell <= now) {
-      const ds = cell.toISOString().slice(0, 10);
-      const c = applied.filter(a => a.appliedAt.slice(0, 10) === ds).length;
-      calCells.push({ date: ds, count: c });
-      cell.setDate(cell.getDate() + 1);
-    }
-    const maxC = Math.max(...calCells.map(c => c.count), 1);
-    const monthLabels = [];
-    let lastMonth = -1;
-    calCells.forEach((c, i) => {
-      const m = new Date(c.date + 'T12:00:00').getMonth();
-      if (m !== lastMonth) {
-        monthLabels.push({ index: i, label: new Date(c.date + 'T12:00:00').toLocaleDateString('es-MX', { month: 'short' }) });
-        lastMonth = m;
+    // Calendar: traditional month grids for last 2 months
+    const dayNames = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+    const getCount = (dateStr) => applied.filter(a => a.appliedAt.slice(0, 10) === dateStr).length;
+    const maxC = Math.max(...(() => { const d = new Date(now); d.setMonth(d.getMonth() - 2); d.setDate(1); const arr = []; while (d <= now) { arr.push(getCount(d.toISOString().slice(0, 10))); d.setDate(d.getDate() + 1); } return arr; })()(), 1);
+
+    let calHtml = '';
+    for (let offset = 1; offset >= 0; offset--) {
+      const monthStart = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() - offset + 1, 0);
+      const monthLabel = monthStart.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+      const firstDay = (monthStart.getDay() + 6) % 7; // Mon=0, Sun=6
+      
+      calHtml += `<div class="cal-month-title">${monthLabel}</div>`;
+      calHtml += `<div class="cal-grid">`;
+      dayNames.forEach(d => { calHtml += `<div class="cal-day-header">${d}</div>`; });
+      for (let i = 0; i < firstDay; i++) {
+        calHtml += `<div class="cal-cell cal-l0 cal-empty"></div>`;
       }
-    });
-    const calHtml = monthLabels.map(m => `<span class="cal-month-label">${m.label}</span>`).join('');
-    const cellHtml = calCells.map(c => {
-      const pct = maxC > 0 ? Math.round((c.count / maxC) * 4) : 0;
-      const level = c.count === 0 ? 0 : Math.min(pct + 1, 4);
-      const dateObj = new Date(c.date + 'T12:00:00');
-      const label = dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      return `<span class="cal-cell cal-l${level}" title="${c.count} ${c.count === 1 ? 'aplicación' : 'aplicaciones'} el ${label}"></span>`;
-    }).join('');
-    const todayIndex = calCells.findIndex(c => c.date === today);
+      for (let d = 1; d <= monthEnd.getDate(); d++) {
+        const dateObj = new Date(monthStart.getFullYear(), monthStart.getMonth(), d);
+        const ds = dateObj.toISOString().slice(0, 10);
+        const c = getCount(ds);
+        const pct = maxC > 0 ? Math.round((c / maxC) * 4) : 0;
+        const level = c === 0 ? 0 : Math.min(pct + 1, 4);
+        const isT = ds === today;
+        const label = dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        calHtml += `<div class="cal-cell cal-l${level}${isT ? ' cal-today' : ''}" title="${c} ${c === 1 ? 'aplicación' : 'aplicaciones'} el ${label}">${d}</div>`;
+      }
+      calHtml += `</div>`;
+    }
 
     // Per-day history
     const dayGroups = {};
@@ -523,8 +521,7 @@
       </div>
       <div class="stat-section">
         <div class="stat-section-title">Calendario de actividad</div>
-        <div class="cal-months">${calHtml}</div>
-        <div class="cal-grid">${cellHtml}</div>
+        ${calHtml}
         <div class="cal-legend">
           <span>Menos</span>
           <span class="cal-cell cal-l0"></span>
