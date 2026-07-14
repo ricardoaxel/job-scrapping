@@ -411,36 +411,58 @@
       }
     }
 
-    // Calendar: traditional month grids for last 2 months
+    // Calendar: 2 months side by side, split cells (applied/disliked)
     const dayNames = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-    const getCount = (dateStr) => applied.filter(a => a.appliedAt.slice(0, 10) === dateStr).length;
-    ;const maxC = Math.max(...(() => { const d = new Date(now); d.setMonth(d.getMonth() - 2); d.setDate(1); const arr = []; while (d <= now) { arr.push(getCount(d.toISOString().slice(0, 10))); d.setDate(d.getDate() + 1); } return arr; })(), 1);
-
-    let calHtml = '';
+    const monthData = [];
+    let maxApp = 0, maxDis = 0;
     for (let offset = 1; offset >= 0; offset--) {
-      const monthStart = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - offset + 1, 0);
-      const monthLabel = monthStart.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
-      const firstDay = (monthStart.getDay() + 6) % 7; // Mon=0, Sun=6
-      
-      calHtml += `<div class="cal-month-title">${monthLabel}</div>`;
-      calHtml += `<div class="cal-grid">`;
-      dayNames.forEach(d => { calHtml += `<div class="cal-day-header">${d}</div>`; });
-      for (let i = 0; i < firstDay; i++) {
-        calHtml += `<div class="cal-cell cal-l0 cal-empty"></div>`;
-      }
-      for (let d = 1; d <= monthEnd.getDate(); d++) {
-        const dateObj = new Date(monthStart.getFullYear(), monthStart.getMonth(), d);
+      const start = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+      const end = new Date(now.getFullYear(), now.getMonth() - offset + 1, 0);
+      const days = [];
+      for (let d = 1; d <= end.getDate(); d++) {
+        const dateObj = new Date(start.getFullYear(), start.getMonth(), d);
         const ds = dateObj.toISOString().slice(0, 10);
-        const c = getCount(ds);
-        const pct = maxC > 0 ? Math.round((c / maxC) * 4) : 0;
-        const level = c === 0 ? 0 : Math.min(pct + 1, 4);
-        const isT = ds === today;
-        const label = dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        calHtml += `<div class="cal-cell cal-l${level}${isT ? ' cal-today' : ''}" title="${c} ${c === 1 ? 'aplicación' : 'aplicaciones'} el ${label}">${d}</div>`;
+        const appliedCount = Object.entries(trackedJobs)
+          .filter(([, e]) => e.applied && e.trackedAt && e.trackedAt.slice(0, 10) === ds).length;
+        const dislikedCount = Object.entries(trackedJobs)
+          .filter(([, e]) => e.disliked && e.trackedAt && e.trackedAt.slice(0, 10) === ds).length;
+        if (appliedCount > maxApp) maxApp = appliedCount;
+        if (dislikedCount > maxDis) maxDis = dislikedCount;
+        days.push({ ds, dateObj, appliedCount, dislikedCount });
       }
-      calHtml += `</div>`;
+      monthData.push({ start, end, days, label: start.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }), firstDay: (start.getDay() + 6) % 7 });
     }
+    maxApp = Math.max(maxApp, 1); maxDis = Math.max(maxDis, 1);
+
+    function cellLevel(count, max) {
+      if (count === 0) return 0;
+      const pct = count / max;
+      if (pct < 0.25) return 1;
+      if (pct < 0.5) return 2;
+      if (pct < 0.75) return 3;
+      return 4;
+    }
+
+    let calHtml = '<div class="cal-months-row">';
+    monthData.forEach(m => {
+      calHtml += `<div class="cal-month-col">
+        <div class="cal-month-title">${m.label}</div>
+        <div class="cal-grid">`;
+      dayNames.forEach(d => { calHtml += `<div class="cal-day-header">${d}</div>`; });
+      for (let i = 0; i < m.firstDay; i++) { calHtml += `<div class="cal-cell cal-empty"></div>`; }
+      m.days.forEach(day => {
+        const appLv = cellLevel(day.appliedCount, maxApp);
+        const disLv = cellLevel(day.dislikedCount, maxDis);
+        const isT = day.ds === today ? ' cal-today' : '';
+        const title = `${day.appliedCount} aplicada${day.appliedCount !== 1 ? 's' : ''}, ${day.dislikedCount} descartada${day.dislikedCount !== 1 ? 's' : ''} el ${day.dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`;
+        calHtml += `<div class="cal-cell${isT}" title="${title}">
+          <div class="cal-half cal-app cal-app-${appLv}"></div>
+          <div class="cal-half cal-dis cal-dis-${disLv}"></div>
+        </div>`;
+      });
+      calHtml += `</div></div>`;
+    });
+    calHtml += '</div>';
 
     // Per-day history
     const dayGroups = {};
@@ -523,13 +545,19 @@
         <div class="stat-section-title">Calendario de actividad</div>
         ${calHtml}
         <div class="cal-legend">
-          <span>Menos</span>
-          <span class="cal-cell cal-l0"></span>
-          <span class="cal-cell cal-l1"></span>
-          <span class="cal-cell cal-l2"></span>
-          <span class="cal-cell cal-l3"></span>
-          <span class="cal-cell cal-l4"></span>
-          <span>Más</span>
+          <span class="cal-legend-label">Aplicadas</span>
+          <span class="cal-half cal-app-0"></span>
+          <span class="cal-half cal-app-1"></span>
+          <span class="cal-half cal-app-2"></span>
+          <span class="cal-half cal-app-3"></span>
+          <span class="cal-half cal-app-4"></span>
+          <span>·</span>
+          <span class="cal-legend-label">Descartadas</span>
+          <span class="cal-half cal-dis-0"></span>
+          <span class="cal-half cal-dis-1"></span>
+          <span class="cal-half cal-dis-2"></span>
+          <span class="cal-half cal-dis-3"></span>
+          <span class="cal-half cal-dis-4"></span>
         </div>
       </div>
       <div class="stat-section">
