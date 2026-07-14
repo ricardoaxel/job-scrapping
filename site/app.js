@@ -455,7 +455,7 @@
         const disLv = cellLevel(day.dislikedCount, maxDis);
         const isT = day.ds === today ? ' cal-today' : '';
         const title = `${day.appliedCount} aplicada${day.appliedCount !== 1 ? 's' : ''}, ${day.dislikedCount} descartada${day.dislikedCount !== 1 ? 's' : ''} el ${day.dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`;
-        calHtml += `<div class="cal-cell${isT}" title="${title}">
+        calHtml += `<div class="cal-cell${isT}" data-tip="${escHtml(title)}">
           <div class="cal-half cal-app cal-app-${appLv}"></div>
           <div class="cal-half cal-dis cal-dis-${disLv}"></div>
         </div>`;
