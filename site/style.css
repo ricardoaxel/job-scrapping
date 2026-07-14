@@ -55,6 +55,7 @@ header {
   max-width: 960px;
   margin: 0 auto;
   gap: 16px;
+  position: relative;
 }
 .header-left {
   flex: 0 0 auto;
@@ -64,15 +65,18 @@ header {
   max-width: 180px;
 }
 .header-center {
-  flex: 1 1 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
-  padding: 0 8px;
+  white-space: nowrap;
 }
 .header-right {
   flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
   min-width: 0;
+  margin-left: auto;
 }
 header h1 {
   font-size: 1.4rem;
@@ -2086,11 +2090,17 @@ footer a:hover {
   .header-left, .header-right, .header-center {
     flex: none;
   }
+  .header-center {
+    position: static;
+    transform: none;
+    white-space: normal;
+  }
   .header-left {
     align-self: flex-start;
   }
   .header-right {
     align-self: flex-end;
+    margin-left: 0;
   }
   header h1 { font-size: 1.1rem; }
   header .subtitle { font-size: 0.75rem; }
