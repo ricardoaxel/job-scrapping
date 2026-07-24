@@ -458,38 +458,58 @@
       }
     }
 
-    // 3-month calendar heatmap
-    const calStart = new Date(now);
-    calStart.setMonth(now.getMonth() - 3);
-    calStart.setDate(1);
-    calStart.setHours(0, 0, 0, 0);
-    const calCells = [];
-    const cell = new Date(calStart);
-    while (cell <= now) {
-      const ds = cell.toISOString().slice(0, 10);
-      const c = applied.filter(a => a.appliedAt.slice(0, 10) === ds).length;
-      calCells.push({ date: ds, count: c });
-      cell.setDate(cell.getDate() + 1);
-    }
-    const maxC = Math.max(...calCells.map(c => c.count), 1);
-    const monthLabels = [];
-    let lastMonth = -1;
-    calCells.forEach((c, i) => {
-      const m = new Date(c.date + 'T12:00:00').getMonth();
-      if (m !== lastMonth) {
-        monthLabels.push({ index: i, label: new Date(c.date + 'T12:00:00').toLocaleDateString('es-MX', { month: 'short' }) });
-        lastMonth = m;
+    // Calendar: 2 months side by side, split cells (applied/disliked)
+    const dayNames = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+    const monthData = [];
+    let maxApp = 0, maxDis = 0;
+    for (let offset = 1; offset >= 0; offset--) {
+      const start = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+      const end = new Date(now.getFullYear(), now.getMonth() - offset + 1, 0);
+      const days = [];
+      for (let d = 1; d <= end.getDate(); d++) {
+        const dateObj = new Date(start.getFullYear(), start.getMonth(), d);
+        const ds = dateObj.toISOString().slice(0, 10);
+        const appliedCount = Object.entries(trackedJobs)
+          .filter(([, e]) => e.applied && e.trackedAt && e.trackedAt.slice(0, 10) === ds).length;
+        const dislikedCount = Object.entries(trackedJobs)
+          .filter(([, e]) => e.disliked && e.trackedAt && e.trackedAt.slice(0, 10) === ds).length;
+        if (appliedCount > maxApp) maxApp = appliedCount;
+        if (dislikedCount > maxDis) maxDis = dislikedCount;
+        days.push({ ds, dateObj, appliedCount, dislikedCount });
       }
+      monthData.push({ start, end, days, label: start.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }), firstDay: (start.getDay() + 6) % 7 });
+    }
+    maxApp = Math.max(maxApp, 1); maxDis = Math.max(maxDis, 1);
+
+    function cellLevel(count, max) {
+      if (count === 0) return 0;
+      const pct = count / max;
+      if (pct < 0.25) return 1;
+      if (pct < 0.5) return 2;
+      if (pct < 0.75) return 3;
+      return 4;
+    }
+
+    let calHtml = '<div class="cal-months-row">';
+    monthData.forEach(m => {
+      calHtml += `<div class="cal-month-col">
+        <div class="cal-month-title">${m.label}</div>
+        <div class="cal-grid">`;
+      dayNames.forEach(d => { calHtml += `<div class="cal-day-header">${d}</div>`; });
+      for (let i = 0; i < m.firstDay; i++) { calHtml += `<div class="cal-cell cal-empty"></div>`; }
+      m.days.forEach(day => {
+        const appLv = cellLevel(day.appliedCount, maxApp);
+        const disLv = cellLevel(day.dislikedCount, maxDis);
+        const isT = day.ds === today ? ' cal-today' : '';
+        const title = `${day.appliedCount} aplicada${day.appliedCount !== 1 ? 's' : ''}, ${day.dislikedCount} descartada${day.dislikedCount !== 1 ? 's' : ''} el ${day.dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`;
+        calHtml += `<div class="cal-cell${isT}" data-tip="${escHtml(title)}">
+          <div class="cal-half cal-app cal-app-${appLv}"></div>
+          <div class="cal-half cal-dis cal-dis-${disLv}"></div>
+        </div>`;
+      });
+      calHtml += `</div></div>`;
     });
-    const calHtml = monthLabels.map(m => `<span class="cal-month-label">${m.label}</span>`).join('');
-    const cellHtml = calCells.map(c => {
-      const pct = maxC > 0 ? Math.round((c.count / maxC) * 4) : 0;
-      const level = c.count === 0 ? 0 : Math.min(pct + 1, 4);
-      const dateObj = new Date(c.date + 'T12:00:00');
-      const label = dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      return `<span class="cal-cell cal-l${level}" title="${c.count} ${c.count === 1 ? 'aplicación' : 'aplicaciones'} el ${label}"></span>`;
-    }).join('');
-    const todayIndex = calCells.findIndex(c => c.date === today);
+    calHtml += '</div>';
 
     // Per-day history
     const dayGroups = {};
@@ -570,16 +590,21 @@
       </div>
       <div class="stat-section">
         <div class="stat-section-title">Calendario de actividad</div>
-        <div class="cal-months">${calHtml}</div>
-        <div class="cal-grid">${cellHtml}</div>
+        ${calHtml}
         <div class="cal-legend">
-          <span>Menos</span>
-          <span class="cal-cell cal-l0"></span>
-          <span class="cal-cell cal-l1"></span>
-          <span class="cal-cell cal-l2"></span>
-          <span class="cal-cell cal-l3"></span>
-          <span class="cal-cell cal-l4"></span>
-          <span>Más</span>
+          <span class="cal-legend-label">Aplicadas</span>
+          <span class="cal-half cal-app-0"></span>
+          <span class="cal-half cal-app-1"></span>
+          <span class="cal-half cal-app-2"></span>
+          <span class="cal-half cal-app-3"></span>
+          <span class="cal-half cal-app-4"></span>
+          <span>·</span>
+          <span class="cal-legend-label">Descartadas</span>
+          <span class="cal-half cal-dis-0"></span>
+          <span class="cal-half cal-dis-1"></span>
+          <span class="cal-half cal-dis-2"></span>
+          <span class="cal-half cal-dis-3"></span>
+          <span class="cal-half cal-dis-4"></span>
         </div>
       </div>
       <div class="stat-section">
@@ -1302,6 +1327,7 @@
       btn.addEventListener('click', () => {
         currentPage = parseInt(btn.dataset.page);
         applyFilters();
+        document.querySelector('main')?.scrollIntoView({ block: 'start' });
       });
     });
   }
@@ -1568,6 +1594,7 @@
     else if (st.interested) mc.classList.add('modal-border-interested');
 
     modal.classList.remove('hidden');
+    document.querySelector('.modal-content')?.scrollTo(0, 0);
     document.body.style.overflow = 'hidden';
   }
 

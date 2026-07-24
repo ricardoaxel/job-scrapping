@@ -55,23 +55,28 @@ header {
   max-width: 960px;
   margin: 0 auto;
   gap: 16px;
+  position: relative;
 }
 .header-left {
   flex: 0 0 auto;
   display: flex;
   justify-content: flex-start;
   min-width: 0;
+  max-width: 180px;
 }
 .header-center {
-  flex: 1 1 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
-  padding: 0 8px;
+  white-space: nowrap;
 }
 .header-right {
   flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
   min-width: 0;
+  margin-left: auto;
 }
 header h1 {
   font-size: 1.4rem;
@@ -227,20 +232,14 @@ header .subtitle {
 /* ─── Pokemon container ─── */
 #pokemon-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
+  overflow-x: visible;
   padding: 14px 4px 8px;
   max-width: 100%;
+  width: fit-content;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
-  width: fit-content;
-}
-#pokemon-container::-webkit-scrollbar {
-  height: 0;
-  width: 0;
-}
-#pokemon-container:hover::-webkit-scrollbar {
-  height: 4px;
 }
 #pokemon-container::-webkit-scrollbar {
   height: 4px;
@@ -2000,47 +1999,106 @@ footer a:hover {
   flex-shrink: 0;
 }
 
-/* ─── Calendar heatmap ─── */
-.cal-months {
+/* ─── Calendar ─── */
+.cal-months-row {
   display: flex;
-  gap: 2px;
-  margin-bottom: 4px;
-  padding-left: 2px;
+  gap: 20px;
+  flex-wrap: wrap;
 }
-.cal-month-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+.cal-month-col {
+  flex: 1;
+  min-width: 200px;
+}
+.cal-month-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: capitalize;
 }
 .cal-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.cal-day-header {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 1px 0;
+  text-transform: uppercase;
 }
 .cal-cell {
-  width: 14px;
-  height: 14px;
+  display: flex;
   border-radius: 3px;
+  overflow: visible;
   cursor: default;
+  outline: 1px solid transparent;
+  transition: transform 0.1s ease;
+  height: 18px;
+  position: relative;
 }
-.cal-l0 { background: var(--bg); }
-.cal-l1 { background: #dbeafe; }
-.cal-l2 { background: #93c5fd; }
-.cal-l3 { background: #3b82f6; }
-.cal-l4 { background: #1e40af; }
+.cal-cell::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #f3f4f6;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 400;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+  line-height: 1.3;
+}
+.cal-cell:hover::after {
+  opacity: 1;
+}
+.cal-empty {
+  visibility: hidden;
+}
+.cal-half {
+  width: 50%;
+  height: 18px;
+}
+.cal-today {
+  outline: 1.5px solid var(--accent);
+}
+/* applied greens */
+.cal-app-0 { background: var(--bg); }
+.cal-app-1 { background: #bbf7d0; }
+.cal-app-2 { background: #4ade80; }
+.cal-app-3 { background: #16a34a; }
+.cal-app-4 { background: #166534; }
+/* disliked oranges */
+.cal-dis-0 { background: var(--bg); }
+.cal-dis-1 { background: #fed7aa; }
+.cal-dis-2 { background: #fb923c; }
+.cal-dis-3 { background: #ea580c; }
+.cal-dis-4 { background: #9a3412; }
 .cal-legend {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 14px;
   font-size: 0.65rem;
   color: var(--text-tertiary);
+  flex-wrap: wrap;
 }
-.cal-legend .cal-cell {
+.cal-legend .cal-half {
   width: 12px;
   height: 12px;
+  border-radius: 2px;
+}
+.cal-legend-label {
+  margin-right: 4px;
 }
 
 /* RESPONSIVE */
@@ -2056,11 +2114,17 @@ footer a:hover {
   .header-left, .header-right, .header-center {
     flex: none;
   }
+  .header-center {
+    position: static;
+    transform: none;
+    white-space: normal;
+  }
   .header-left {
     align-self: flex-start;
   }
   .header-right {
     align-self: flex-end;
+    margin-left: 0;
   }
   header h1 { font-size: 1.1rem; }
   header .subtitle { font-size: 0.75rem; }
@@ -2169,7 +2233,6 @@ footer a:hover {
   .stats-view { padding: 14px 10px 30px; }
   .pie-chart { width: 100px; height: 100px; }
   .pie-legend div { font-size: 0.78rem; }
-  .cal-cell { width: 10px; height: 10px; }
   .stage-badge { font-size: 0.55rem; padding: 1px 6px; }
   .goal-celebration-emoji { font-size: 3.5rem; }
   .goal-celebration-title { font-size: 1.4rem; }
