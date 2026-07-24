@@ -16,7 +16,7 @@ Marketing graduate with hands-on experience in customer-facing support roles, UX
 **Tiendanube** | Mar 2025 – Dec 2025
 
 - Investigated and triaged incoming merchant-reported issues on the e-commerce platform, verifying reproducibility and impact before escalating to product and engineering teams
-- Documented bug findings clearly and consistently using internal ticketing tools, ensuring engineering received vetted, evidence-backed reports rather than unverified noise
+- Documented bug findings clearly and consistently using Jira-style ticketing tools, ensuring engineering received vetted, evidence-backed reports rather than unverified noise
 - Analyzed platform metrics and customer behavior data (Excel, Google Sheets) to identify recurring pain points and patterns, flagging trends to senior specialists for deeper investigation
 - Provided empathetic, warm, and solution-oriented communication to merchants experiencing genuinely frustrating technical issues, often following up on problems that upset them
 - Trained and guided new merchants through platform onboarding, helping them navigate integrations (Meta Ads, Google Ads, GA4, Meta Pixel) and resolve setup friction
@@ -52,13 +52,15 @@ Marketing graduate with hands-on experience in customer-facing support roles, UX
 
 ## Skills
 
-- **Customer Support & Triage:** Zendesk-style ticketing, bug investigation, issue reproduction, escalation workflows, customer onboarding, retention
+- **Customer Support & Triage:** Jira, Zendesk-style ticketing, bug investigation, issue reproduction, escalation workflows, customer onboarding, retention
 - **UX/UI & Product Sensibility:** Figma, wireframing, prototyping, CRO, landing-page optimization, user-flow analysis, mobile app ecosystems (iOS/Android)
 - **Analytics & Reporting:** Google Analytics (GA4), Excel, Google Sheets, metric-driven trend identification
 - **Digital Platforms & Integrations:** Meta Ads, Google Ads, Google Analytics (GA4), Search Console, Meta Pixel, e-commerce platforms
 - **CRM & Automation:** Salesforce, HubSpot, Mailchimp, Klaviyo
+- **Design & Creativity:** Adobe Photoshop, Canva, visual asset creation, brand-aligned design
 - **Communication:** Empathetic written communication, warm tone, flawless spelling and grammar in English and Spanish
 - **Project Management:** Asana, Slack, multi-project coordination, time management, attention to detail
+- **Technical Foundations:** HTML, CSS, Python (basic) — enough to understand, reproduce, and document web-related bugs accurately
 
 ## Competencies
 
