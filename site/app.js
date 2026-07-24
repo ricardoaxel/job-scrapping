@@ -30,6 +30,7 @@
   const modalClose = document.getElementById('modal-close');
   const modalBackdrop = document.getElementById('modal-backdrop');
   const refCvBtn = document.getElementById('ref-cv-btn');
+  const customCvsBtn = document.getElementById('custom-cvs-btn');
   const timeFilters = document.getElementById('time-filters');
   const progressBadge = document.createElement('div');
   progressBadge.id = 'progress-badge';
@@ -260,6 +261,52 @@
       modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
+  }
+
+  /* ─── Custom CVs ─── */
+  const customCvs = [
+    {
+      title: 'Lyft — Associate, Customer Impact',
+      folder: 'Lyft - Customer Impact',
+      file: 'Lyft_-_Customer_Impact',
+      description: 'CV personalizado para el rol de Associate en Customer Impact (Bug Review) de Lyft. Enfatiza experiencia en soporte al cliente, investigación de bugs, comunicación empática y sensibilidad UX/UI.'
+    }
+  ];
+
+  function getCustomCvLinks(cv) {
+    const base = `${BASE}/cvs/${cv.folder}/CV_Valeria_Paez_Reyes_${cv.file}`;
+    return [
+      { label: 'CV Simple (PDF)', url: base + '_simple.pdf', icon: '📄' },
+      { label: 'CV Styled (PDF)', url: base + '_styled.pdf', icon: '🎨' },
+      { label: 'CV (DOCX)', url: base + '.docx', icon: '📝' },
+    ];
+  }
+
+  function openCustomCvs() {
+    let html = `
+      <div class="cv-viewer">
+        <div class="cv-viewer-header">
+          <h2>CVs personalizados</h2>
+          <span class="cv-viewer-desc">Currículums adaptados manualmente para vacantes específicas</span>
+        </div>
+        <div class="cv-viewer-content">
+    `;
+    customCvs.forEach(cv => {
+      const links = getCustomCvLinks(cv);
+      html += `
+        <div class="custom-cv-card">
+          <h3>${escHtml(cv.title)}</h3>
+          <p>${escHtml(cv.description)}</p>
+          <div class="cv-links">
+            ${links.map(l => `<a href="${l.url}" class="btn" target="_blank">${l.icon} ${l.label}</a>`).join('')}
+          </div>
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+    modalBody.innerHTML = html;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
   }
 
   /* ─── Tracking ─── */
@@ -1531,6 +1578,7 @@
   }
 
   refCvBtn.addEventListener('click', openRefCv);
+  customCvsBtn.addEventListener('click', openCustomCvs);
 
   modalClose.addEventListener('click', closeModal);
   modalBackdrop.addEventListener('click', closeModal);

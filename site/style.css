@@ -1233,6 +1233,30 @@ main {
   color: var(--accent);
 }
 
+/* CUSTOM CV CARD */
+.custom-cv-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  transition: box-shadow 0.2s ease;
+}
+.custom-cv-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+.custom-cv-card h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.custom-cv-card p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
 /* DESCRIPTION */
 .modal-body .description {
   font-size: 0.9rem;
