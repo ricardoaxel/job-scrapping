@@ -76,6 +76,14 @@
     return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
+  function toLocalISODate(date) {
+    const d = date ? new Date(date) : new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   function cvBasePath(category) {
     const folder = category;
     const file = category.replace(/ /g, '_');
@@ -432,8 +440,8 @@
 
     const total = applied.length;
     const now = new Date();
-    const today = now.toISOString().slice(0, 10);
-    const todayCount = applied.filter(a => a.appliedAt.slice(0, 10) === today).length;
+    const today = toLocalISODate(now);
+    const todayCount = applied.filter(a => toLocalISODate(a.appliedAt) === today).length;
 
     // This week (Mon-Sun)
     const weekStart = new Date(now);
@@ -445,10 +453,10 @@
     // Streak — allows today to be 0, counts consecutive days before today
     let streak = 0;
     const check = new Date(now);
-    const todayDs = now.toISOString().slice(0, 10);
+    const todayDs = toLocalISODate(now);
     while (true) {
-      const ds = check.toISOString().slice(0, 10);
-      if (applied.some(a => a.appliedAt.slice(0, 10) === ds)) {
+      const ds = toLocalISODate(check);
+      if (applied.some(a => toLocalISODate(a.appliedAt) === ds)) {
         streak++;
         check.setDate(check.getDate() - 1);
       } else if (ds === todayDs && streak === 0) {
@@ -468,11 +476,11 @@
       const days = [];
       for (let d = 1; d <= end.getDate(); d++) {
         const dateObj = new Date(start.getFullYear(), start.getMonth(), d);
-        const ds = dateObj.toISOString().slice(0, 10);
+        const ds = toLocalISODate(dateObj);
         const appliedCount = Object.entries(trackedJobs)
-          .filter(([, e]) => e.applied && e.trackedAt && e.trackedAt.slice(0, 10) === ds).length;
+          .filter(([, e]) => e.applied && e.trackedAt && toLocalISODate(e.trackedAt) === ds).length;
         const dislikedCount = Object.entries(trackedJobs)
-          .filter(([, e]) => e.disliked && e.trackedAt && e.trackedAt.slice(0, 10) === ds).length;
+          .filter(([, e]) => e.disliked && e.trackedAt && toLocalISODate(e.trackedAt) === ds).length;
         if (appliedCount > maxApp) maxApp = appliedCount;
         if (dislikedCount > maxDis) maxDis = dislikedCount;
         days.push({ ds, dateObj, appliedCount, dislikedCount });
@@ -514,7 +522,7 @@
     // Per-day history
     const dayGroups = {};
     applied.forEach(a => {
-      const d = a.appliedAt.slice(0, 10);
+      const d = toLocalISODate(a.appliedAt);
       if (!dayGroups[d]) dayGroups[d] = [];
       dayGroups[d].push(a.job);
     });
@@ -544,19 +552,19 @@
     });
 
     // Pie chart data (filtered by date range)
-    const pieFrom = localStorage.getItem('stats_pie_from') || new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
-    const pieTo = localStorage.getItem('stats_pie_to') || new Date().toISOString().slice(0, 10);
+    const pieFrom = localStorage.getItem('stats_pie_from') || toLocalISODate(new Date(Date.now() - 30 * 86400000));
+    const pieTo = localStorage.getItem('stats_pie_to') || toLocalISODate();
     let pieApplied = 0, pieDisliked = 0;
     Object.entries(trackedJobs).forEach(([, entry]) => {
       if (!entry.trackedAt) return;
-      const d = entry.trackedAt.slice(0, 10);
+      const d = toLocalISODate(entry.trackedAt);
       if (d < pieFrom || d > pieTo) return;
       if (entry.applied) pieApplied++;
       if (entry.disliked) pieDisliked++;
     });
     const pieTotal = allJobs.filter(j => {
       const d = j.postedDate || j.scrapedAt;
-      return d && d.slice(0, 10) >= pieFrom && d.slice(0, 10) <= pieTo;
+      return d && toLocalISODate(d) >= pieFrom && toLocalISODate(d) <= pieTo;
     }).length;
     const piePending = Math.max(0, pieTotal - pieApplied - pieDisliked);
     const totalPie = pieApplied + pieDisliked + piePending || 1;
@@ -938,10 +946,10 @@
   }
 
   function getTodayAppliedCount() {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = toLocalISODate();
     let count = 0;
     Object.values(trackedJobs).forEach(entry => {
-      if (entry.applied && entry.trackedAt && entry.trackedAt.slice(0, 10) === today) {
+      if (entry.applied && entry.trackedAt && toLocalISODate(entry.trackedAt) === today) {
         count++;
       }
     });
