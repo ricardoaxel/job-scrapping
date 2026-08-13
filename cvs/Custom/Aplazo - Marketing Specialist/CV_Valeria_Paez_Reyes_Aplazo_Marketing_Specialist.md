@@ -6,7 +6,7 @@ Ciudad de México, México | valppaezreyes@gmail.com | LinkedIn: linkedin.com/in
 
 ## Professional Summary
 
-Marketing graduate with hands-on experience executing B2B and B2C campaigns, enabling merchant growth, and guarding brand consistency across digital and offline touchpoints. Skilled in coordinating multi-channel marketing campaigns, supporting commercial teams and Key Account Managers, developing sales-enablement materials (pitch decks, digital assets, email communications, co-branded content), and analyzing campaign performance, merchant engagement, and KPIs to deliver data-driven insights. Proficient in Google Analytics (GA4), Meta Ads, Google Ads, Salesforce, HubSpot, Excel, Figma, and Canva, with a proactive approach to using AI tools to streamline operational flows, automate reporting, and improve output quality. Known for strong cross-functional collaboration, attention to detail, and the ability to manage multiple projects under brand guidelines in fast-paced fintech and technology environments.
+Marketing graduate with experience in content creation, digital strategy, brand project management, and paid media across corporate and technology environments. Developed skills in SEM, lead generation, sales enablement, campaign optimization, market research, and multi-channel campaign coordination with partners and merchants. Proficient in Google Analytics (GA4), Meta Ads, Google Ads, Salesforce, Excel, Canva, and Figma, with experience managing multiple projects simultaneously under brand guidelines. Known for strong attention to detail, genuine interest in digital trends, analytical thinking, and ability to collaborate cross-functionally with sales, product, and operations teams. Comfortable using AI tools such as ChatGPT and Claude to improve productivity and output quality.
 
 ---
 
@@ -15,32 +15,34 @@ Marketing graduate with hands-on experience executing B2B and B2C campaigns, ena
 ### Marketing Intern
 **Bridgestone Mobility Solutions (Webfleet)** | Aug 2024 – Jan 2025
 
-- Coordinated multi-channel marketing campaigns with partners and merchants across digital media, paid social, email, print, and events, ensuring timely delivery and brand consistency from planning to post-mortem
-- Created sales-enablement and product materials — including pitch decks, digital assets, and co-branded content — translating technical features into clear value propositions for B2B audiences
-- Managed and segmented Salesforce lead databases to support lead-generation, nurturing, and merchant engagement campaigns with accurate, actionable data
-- Developed email marketing copy in Salesforce Marketing Cloud for monthly webinars and campaigns, tracking KPIs and reporting performance insights to stakeholders
-- Conducted competitor analysis, SEM keyword research in Google Ads and Meta, and campaign ROI reporting in Excel to optimize budget allocation and commercial impact
-- Reviewed social media content grids and marketing materials to ensure alignment with brand voice, visual identity, and messaging guidelines
-- Optimized landing pages with a focus on CRO, UX, and SEO; built interactive prototypes in Figma to support conversion-focused initiatives
-- Supported event marketing logistics including partner activations and trade shows, coordinating materials and timelines across internal and external teams
+- Developed and coordinated multi-channel campaigns with partners, optimizing commercial impact across digital media, paid social, and print advertising
+- Created sales enablement and product materials in collaboration with the marketing team, including coordinating translations through RWS
+- Conducted competitor analysis, SEM keyword research in Google Ads and Meta, and campaign ROI reporting using Excel
+- Managed and segmented Salesforce lead databases for lead generation and nurturing campaigns
+- Produced YouTube content including scriptwriting, supervising editing, publishing, and metadata optimization
+- Created email marketing copy for campaigns in Salesforce Marketing Cloud, including monthly webinars and KPI analysis
+- Optimized landing pages with focus on CRO, UX, and SEO; developed interactive prototypes in Figma
+- Coordinated event marketing initiatives including partner activations, trade shows, and logistics
+- Reviewed social media content grids ensuring alignment with brand voice and visual identity
 
 ### Customer Support Analyst
 **Tiendanube** | Mar 2025 – Dec 2025
 
-- Advised merchants on e-commerce growth, sales enablement, and digital strategy, acting as a bridge between commercial objectives and merchant needs
-- Implemented and configured integrations with Meta Ads, Google Ads, Google Analytics (GA4), Search Console, and Meta Pixel to improve merchant campaign performance
-- Analyzed digital channel metrics and merchant behavior using Excel and Google Sheets to identify trends, flag improvement opportunities, and inform decision-making
-- Trained and onboarded new merchants through complex technical and marketing setups, reducing friction and increasing autonomous platform adoption
-- Collaborated cross-functionally with product, technology, and operations teams to resolve merchant issues and improve the customer journey
+- Provided strategic advisory to merchants for sales enablement and digital growth on e-commerce platforms
+- Implemented and configured integrations with Meta Ads, Google Ads, Google Analytics (GA4), Search Console, and Meta Pixel
+- Analyzed digital channel metrics and performance data to identify improvement opportunities, using Excel and Google Sheets
+- Trained and guided new clients during onboarding and nurturing processes
+- Collaborated cross-functionally with product, technology, and operations teams for issue resolution
 
 ### Content Creator Intern
 **Corporativo Laureate** | Dec 2025 – Jun 2026
 
-- Developed content strategies for institutional and brand campaigns aligned with brand voice, positioning objectives, and visual identity
-- Conducted market research on digital trends, audience behavior, and content opportunities to optimize organic relevance and engagement
+- Developed content strategies for institutional and brand campaigns aligned with brand voice and positioning objectives
+- Conducted market research on digital trends, audience behavior, and content opportunities to optimize organic relevance
 - Created blog articles applying SEO, GEO, and E-E-A-T principles to strengthen brand authority and visibility
-- Planned, produced, and optimized content for social media and digital channels while managing multiple simultaneous projects
-- Analyzed content performance data to identify improvement opportunities and ensure on-time, on-brand delivery
+- Planned, produced, and optimized content for social media and digital channels
+- Analyzed content performance data to identify opportunities for improvement in engagement and reach
+- Managed multiple simultaneous projects ensuring on-time delivery and brand guideline compliance
 
 ---
 
@@ -56,25 +58,25 @@ Marketing graduate with hands-on experience executing B2B and B2C campaigns, ena
 
 ## Skills
 
-- **B2B & B2C Campaign Execution:** Multi-channel campaign coordination, campaign calendars, milestone tracking, post-mortem analysis, paid media, email marketing, event marketing
-- **Merchant Communication & Enablement:** Pitch decks, POP, digital assets, co-branded content, marketing toolkits, sales enablement, merchant onboarding, onboarding/nurturing
-- **Brand Guardianship:** Brand voice, visual identity, brand guidelines, content review, consistency across online and offline communications
-- **Analytics & Reporting:** Google Analytics (GA4), Google Ads, Meta Ads, Search Console, Meta Pixel, Excel, Google Sheets, KPI tracking, ROI reporting, data-driven insights
-- **CRM & Automation:** Salesforce, Salesforce Marketing Cloud, HubSpot, Mailchimp, Klaviyo, GoToWebinar
-- **Design & Content Tools:** Figma, Canva, Adobe Photoshop, UX/UI prototyping, CRO, landing-page optimization, SEO, copywriting
-- **Cross-Functional Collaboration:** Working with Sales, KAMs, Growth Marketing, Product, and Operations teams; project management, time management, attention to detail
-- **AI & Productivity:** ChatGPT, Claude (Anthropic), Microsoft Office, Google Workspace, Asana, Slack, process optimization and automation
+- **Digital Marketing & Campaigns:** Meta Ads, Google Ads, Google Analytics (GA4), Search Console, Meta Pixel, SEM, Paid Media, PPC, TikTok Ads, Campaign Optimization, Lead Generation, E-commerce, Market Research
+- **Sales Enablement:** Sales Enablement, Direct Sales, B2B Sales Support
+- **CRM & Automation:** Salesforce, HubSpot, Mailchimp, Klaviyo, Salesforce Marketing Cloud, GoToWebinar
+- **Analytics & Reporting:** Google Analytics (GA4), Google Sheets, Excel
+- **Content & Brand:** Brand Voice, Visual Identity, Storytelling, Content Strategy, Copywriting
+- **Design & Creativity:** Figma, Adobe Photoshop, Canva
+- **Customer Lifecycle:** Onboarding, Nurturing, Retention, Customer Service
+- **Product Marketing:** Product Launch, Campaign Coordination
+- **Soft Skills:** Negotiation, Customer Service, Cross-functional Collaboration, Adaptability
+- **AI & Productivity:** Claude (Anthropic), ChatGPT, Microsoft Office, Google Workspace, Asana, Slack
 - **Other:** HTML, CSS, Python (basic)
 
 ## Competencies
 
-- Strong organizational skills and ability to manage multiple projects simultaneously
-- Analytical thinking with a focus on interpreting data and drawing actionable insights
-- Critical thinking and problem-solving to identify process gaps and improve workflows
-- Excellent written and verbal communication in English and Spanish
-- Attention to detail and commitment to quality deliverables
-- Proactive, quick learner, and adaptable to changing environments and tools
-- Customer-centric mindset with experience supporting merchants and strategic partners
+- Organisation and time management
+- Responsibility and project follow-through
+- Clear communication with clients and teams
+- Attention to detail and aesthetic eye
+- Problem-solving and self-management
 
 ## Languages
 
