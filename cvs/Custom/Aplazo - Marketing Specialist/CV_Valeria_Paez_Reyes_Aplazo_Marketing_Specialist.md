@@ -6,7 +6,7 @@ Ciudad de México, México | valppaezreyes@gmail.com | LinkedIn: linkedin.com/in
 
 ## Professional Summary
 
-Marketing graduate with experience in content creation, digital strategy, brand project management, and paid media across corporate and technology environments. Developed skills in SEM, lead generation, sales enablement, campaign optimization, market research, and multi-channel campaign coordination with partners and merchants. Proficient in Google Analytics (GA4), Meta Ads, Google Ads, Salesforce, Excel, Canva, and Figma, with experience managing multiple projects simultaneously under brand guidelines. Known for strong attention to detail, genuine interest in digital trends, analytical thinking, and ability to collaborate cross-functionally with sales, product, and operations teams. Comfortable using AI tools such as ChatGPT and Claude to improve productivity and output quality.
+Marketing graduate with experience in digital strategy, multi-channel campaign coordination, sales enablement, and brand project management across corporate and technology environments. Skilled in SEM, lead generation, campaign optimization, and analytics using Google Analytics (GA4), Meta Ads, Google Ads, Salesforce, Excel, Figma, and Canva. Strong organizational skills, attention to detail, and cross-functional collaboration with sales, product, and operations teams.
 
 ---
 
@@ -15,14 +15,10 @@ Marketing graduate with experience in content creation, digital strategy, brand 
 ### Marketing Intern
 **Bridgestone Mobility Solutions (Webfleet)** | Aug 2024 – Jan 2025
 
-- Developed and coordinated multi-channel campaigns with partners, optimizing commercial impact across digital media, paid social, and print advertising
-- Created sales enablement and product materials in collaboration with the marketing team, including coordinating translations through RWS
-- Conducted competitor analysis, SEM keyword research in Google Ads and Meta, and campaign ROI reporting using Excel
+- Developed and coordinated multi-channel campaigns with partners across digital media, paid social, and print advertising
+- Created sales enablement and product materials, including coordinating translations through RWS
 - Managed and segmented Salesforce lead databases for lead generation and nurturing campaigns
-- Produced YouTube content including scriptwriting, supervising editing, publishing, and metadata optimization
-- Created email marketing copy for campaigns in Salesforce Marketing Cloud, including monthly webinars and KPI analysis
-- Optimized landing pages with focus on CRO, UX, and SEO; developed interactive prototypes in Figma
-- Coordinated event marketing initiatives including partner activations, trade shows, and logistics
+- Created email marketing copy in Salesforce Marketing Cloud for monthly webinars and KPI analysis
 - Reviewed social media content grids ensuring alignment with brand voice and visual identity
 
 ### Customer Support Analyst
@@ -30,18 +26,13 @@ Marketing graduate with experience in content creation, digital strategy, brand 
 
 - Provided strategic advisory to merchants for sales enablement and digital growth on e-commerce platforms
 - Implemented and configured integrations with Meta Ads, Google Ads, Google Analytics (GA4), Search Console, and Meta Pixel
-- Analyzed digital channel metrics and performance data to identify improvement opportunities, using Excel and Google Sheets
-- Trained and guided new clients during onboarding and nurturing processes
 - Collaborated cross-functionally with product, technology, and operations teams for issue resolution
 
 ### Content Creator Intern
 **Corporativo Laureate** | Dec 2025 – Jun 2026
 
 - Developed content strategies for institutional and brand campaigns aligned with brand voice and positioning objectives
-- Conducted market research on digital trends, audience behavior, and content opportunities to optimize organic relevance
-- Created blog articles applying SEO, GEO, and E-E-A-T principles to strengthen brand authority and visibility
 - Planned, produced, and optimized content for social media and digital channels
-- Analyzed content performance data to identify opportunities for improvement in engagement and reach
 - Managed multiple simultaneous projects ensuring on-time delivery and brand guideline compliance
 
 ---
@@ -58,22 +49,17 @@ Marketing graduate with experience in content creation, digital strategy, brand 
 
 ## Skills
 
-- **Digital Marketing & Campaigns:** Meta Ads, Google Ads, Google Analytics (GA4), Search Console, Meta Pixel, SEM, Paid Media, PPC, TikTok Ads, Campaign Optimization, Lead Generation, E-commerce, Market Research
-- **Sales Enablement:** Sales Enablement, Direct Sales, B2B Sales Support
-- **CRM & Automation:** Salesforce, HubSpot, Mailchimp, Klaviyo, Salesforce Marketing Cloud, GoToWebinar
-- **Analytics & Reporting:** Google Analytics (GA4), Google Sheets, Excel
-- **Content & Brand:** Brand Voice, Visual Identity, Storytelling, Content Strategy, Copywriting
-- **Design & Creativity:** Figma, Adobe Photoshop, Canva
-- **Customer Lifecycle:** Onboarding, Nurturing, Retention, Customer Service
-- **Product Marketing:** Product Launch, Campaign Coordination
-- **Soft Skills:** Negotiation, Customer Service, Cross-functional Collaboration, Adaptability
-- **AI & Productivity:** Claude (Anthropic), ChatGPT, Microsoft Office, Google Workspace, Asana, Slack
+- **Digital Marketing & Campaigns:** Meta Ads, Google Ads, Google Analytics (GA4), Search Console, Meta Pixel, SEM, Paid Media, Campaign Optimization, Lead Generation, E-commerce
+- **Sales Enablement & CRM:** Salesforce, HubSpot, Mailchimp, Klaviyo, Salesforce Marketing Cloud, Sales Enablement, B2B Sales Support
+- **Analytics & Reporting:** Google Sheets, Excel, ROI Reporting, KPI Analysis, Market Research
+- **Content & Brand:** Brand Voice, Visual Identity, Content Strategy, Copywriting, Storytelling
+- **Design & Productivity:** Figma, Canva, Adobe Photoshop, Microsoft Office, Google Workspace, Asana, Slack
+- **AI & Customer Lifecycle:** ChatGPT, Claude, Onboarding, Nurturing, Customer Service
 - **Other:** HTML, CSS, Python (basic)
 
 ## Competencies
 
 - Organisation and time management
-- Responsibility and project follow-through
 - Clear communication with clients and teams
 - Attention to detail and aesthetic eye
 - Problem-solving and self-management

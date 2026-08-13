@@ -6,7 +6,7 @@ Ciudad de México, México | valppaezreyes@gmail.com | LinkedIn: linkedin.com/in
 
 ## Resumen Profesional
 
-Licenciada en Marketing con experiencia en creación de contenido, estrategia digital, gestión de proyectos de marca y medios pagados en entornos corporativos y tecnológicos. Ha desarrollado habilidades en SEM, generación de leads, habilitación de ventas, optimización de campañas, investigación de mercado y coordinación de campañas multicanal con socios y comercios. Maneja herramientas como Google Analytics (GA4), Meta Ads, Google Ads, Salesforce, Excel, Canva y Figma, además de gestionar múltiples proyectos simultáneamente bajo lineamientos de marca. Reconocida por su atención al detalle, interés genuino en tendencias digitales, pensamiento analítico y capacidad de colaboración interdisciplinaria con equipos de ventas, producto y operaciones. Utiliza herramientas de IA como ChatGPT y Claude para mejorar la productividad y calidad de entregables.
+Licenciada en Marketing con experiencia en estrategia digital, coordinación de campañas multicanal, habilitación de ventas y gestión de proyectos de marca en entornos corporativos y tecnológicos. Hábil en SEM, generación de leads, optimización de campañas y analítica con Google Analytics (GA4), Meta Ads, Google Ads, Salesforce, Excel, Figma y Canva. Fuertes habilidades organizativas, atención al detalle y colaboración interdisciplinaria con equipos de ventas, producto y operaciones.
 
 ---
 
@@ -15,33 +15,24 @@ Licenciada en Marketing con experiencia en creación de contenido, estrategia di
 ### Marketing Intern
 **Bridgestone Mobility Solutions (Webfleet)** | Ago 2024 – Ene 2025
 
-- Desarrolló y coordinó campañas multicanal con socios, optimizando el impacto comercial en medios digitales, paid social e impresos
-- Creó materiales de habilitación de ventas y producto en colaboración con el equipo de marketing, incluyendo coordinación de traducciones con RWS
-- Realizó análisis de competencia, investigación de palabras clave SEM en Google Ads y Meta, y reportes de ROI de campañas usando Excel
+- Desarrolló y coordinó campañas multicanal con socios en medios digitales, paid social e impresos
+- Creó materiales de habilitación de ventas y producto, incluyendo coordinación de traducciones con RWS
 - Gestionó y segmentó bases de datos de leads en Salesforce para campañas de generación y nurturing
-- Produjo contenido para YouTube incluyendo guionización, supervisión de edición, publicación y optimización de metadatos
-- Creó copy para campañas de email marketing en Salesforce Marketing Cloud, incluyendo webinars mensuales y análisis de KPIs
-- Optimizó landing pages con enfoque en CRO, UX y SEO; desarrolló prototipos interactivos en Figma
-- Coordinó iniciativas de marketing de eventos incluyendo activaciones con socios, ferias comerciales y logística
-- Revisó parrillas de contenido para redes sociales asegurando alineación con la voz de marca y la identidad visual
+- Creó copy para campañas de email marketing en Salesforce Marketing Cloud para webinars mensuales y análisis de KPIs
+- Revisó parrillas de contenido para redes sociales asegurando alineación con voz de marca e identidad visual
 
 ### Customer Support Analyst
 **Tiendanube** | Mar 2025 – Dic 2025
 
-- Brindó asesoría estratégica a comerciantes para la habilitación de ventas y crecimiento digital en plataformas de e-commerce
+- Brindó asesoría estratégica a comerciantes para habilitación de ventas y crecimiento digital en plataformas de e-commerce
 - Implementó y configuró integraciones con Meta Ads, Google Ads, Google Analytics (GA4), Search Console y Meta Pixel
-- Analizó métricas de canales digitales y datos de rendimiento para identificar oportunidades de mejora, usando Excel y Google Sheets
-- Capacitó y guió a nuevos clientes durante los procesos de onboarding y nurturing
-- Colaboró interdisciplinariamente con equipos de producto, tecnología y operaciones para la resolución de incidencias
+- Colaboró interdisciplinariamente con equipos de producto, tecnología y operaciones para resolución de incidencias
 
 ### Content Creator Intern
 **Corporativo Laureate** | Dic 2025 – Jun 2026
 
-- Desarrolló estrategias de contenido para campañas institucionales y de marca alineadas con la voz y los objetivos de posicionamiento
-- Realizó investigación de mercado sobre tendencias digitales, comportamiento de audiencia y oportunidades de contenido para optimizar la relevancia orgánica
-- Creó artículos de blog aplicando principios de SEO, GEO y E-E-A-T para fortalecer la autoridad y visibilidad de la marca
+- Desarrolló estrategias de contenido para campañas institucionales y de marca alineadas con voz de marca y objetivos de posicionamiento
 - Planificó, produjo y optimizó contenido para redes sociales y canales digitales
-- Analizó datos de rendimiento de contenido para identificar oportunidades de mejora en engagement y alcance
 - Gestionó múltiples proyectos simultáneos asegurando entrega a tiempo y cumplimiento de lineamientos de marca
 
 ---
@@ -58,22 +49,17 @@ Licenciada en Marketing con experiencia en creación de contenido, estrategia di
 
 ## Habilidades
 
-- **Marketing Digital y Campañas:** Meta Ads, Google Ads, Google Analytics (GA4), Search Console, Meta Pixel, SEM, Paid Media, PPC, TikTok Ads, Optimización de Campañas, Generación de Leads, E-commerce, Investigación de Mercado
-- **Habilitación de Ventas:** Sales Enablement, Ventas Directas, Soporte B2B
-- **CRM y Automatización:** Salesforce, HubSpot, Mailchimp, Klaviyo, Salesforce Marketing Cloud, GoToWebinar
-- **Analítica y Reportes:** Google Analytics (GA4), Google Sheets, Excel
-- **Contenido y Marca:** Brand Voice, Identidad Visual, Storytelling, Estrategia de Contenido, Copywriting
-- **Diseño y Creatividad:** Figma, Adobe Photoshop, Canva
-- **Ciclo de Vida del Cliente:** Onboarding, Nurturing, Retención, Servicio al Cliente
-- **Marketing de Producto:** Lanzamiento de Producto, Coordinación de Campañas
-- **Habilidades Blandas:** Negociación, Servicio al Cliente, Colaboración Interdisciplinaria, Adaptabilidad
-- **IA y Productividad:** Claude (Anthropic), ChatGPT, Microsoft Office, Google Workspace, Asana, Slack
+- **Marketing Digital y Campañas:** Meta Ads, Google Ads, Google Analytics (GA4), Search Console, Meta Pixel, SEM, Paid Media, Optimización de Campañas, Generación de Leads, E-commerce
+- **Habilitación de Ventas y CRM:** Salesforce, HubSpot, Mailchimp, Klaviyo, Salesforce Marketing Cloud, Sales Enablement, Soporte B2B
+- **Analítica y Reportes:** Google Sheets, Excel, Reportes de ROI, Análisis de KPIs, Investigación de Mercado
+- **Contenido y Marca:** Brand Voice, Identidad Visual, Estrategia de Contenido, Copywriting, Storytelling
+- **Diseño y Productividad:** Figma, Canva, Adobe Photoshop, Microsoft Office, Google Workspace, Asana, Slack
+- **IA y Ciclo de Vida del Cliente:** ChatGPT, Claude, Onboarding, Nurturing, Servicio al Cliente
 - **Otros:** HTML, CSS, Python (básico)
 
 ## Competencias
 
 - Organización y gestión del tiempo
-- Responsabilidad y seguimiento de proyectos
 - Comunicación clara con clientes y equipos
 - Atención al detalle y ojo estético
 - Resolución de problemas y autonomía
