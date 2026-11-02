@@ -269,6 +269,13 @@ async function scrapeJobsForQuery(query, page) {
 
   console.log(`\n✅ ${allJobs.length} vacantes guardadas → jobs.json`);
 
-  await context.storageState({ path: STATE_FILE }).catch(() => {});
-  await browser.close().catch(() => {});
+  await Promise.race([
+    context.storageState({ path: STATE_FILE }).catch(() => {}),
+    new Promise((r) => setTimeout(r, 8000)),
+  ]);
+  await Promise.race([
+    browser.close().catch(() => {}),
+    new Promise((r) => setTimeout(r, 8000)),
+  ]);
+  process.exit(0);
 })();
