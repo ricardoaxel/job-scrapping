@@ -57,105 +57,110 @@ const QUERIES = MODE === "test"
 const PAGES = 2;
 const MAX_CARDS = 12;
 
+const CARD_SELECTOR = '[componentkey^="job-card-component-ref-"]';
+
+function parseCardText(text) {
+  const lines = text
+    .split("\n")
+    .map((s) => s.trim().replace(/\s*\((?:verified job|empleo verificado)\)\s*$/i, ""))
+    .filter(Boolean)
+    .filter((l, i, arr) => l !== arr[i - 1]);
+  const locationLine = lines.find((l) => /\(([^)]*(hybrid|on-?site|remote|híbrido|presencial|remoto)[^)]*)\)/i.test(l));
+  return {
+    title: lines[0] || "",
+    company: lines[1] || "",
+    location: locationLine || lines[2] || "",
+  };
+}
+
 async function scrapeJobsForQuery(query, page) {
   const jobs = [];
 
   for (let p = 0; p < PAGES; p++) {
     const start = p * 25;
-    const url = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(query)}&geoId=${GEO_ID}&location=${encodeURIComponent(LOCATION_TEXT)}&f_TPR=r86400${start > 0 ? `&start=${start}` : ""}`;
+    const url = `https://www.linkedin.com/jobs/search-results/?keywords=${encodeURIComponent(query)}&geoId=${GEO_ID}&location=${encodeURIComponent(LOCATION_TEXT)}&f_TPR=r86400${start > 0 ? `&start=${start}` : ""}`;
     console.log(`  Pagina ${p + 1}...`);
 
-    try {
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
-    } catch {
-      if (p === 0) return jobs;
-      continue;
-    }
+    await page.goto(url, { waitUntil: "commit", timeout: 20000 }).catch(() => {});
 
     try {
-      await page.waitForSelector(".job-card-container", { timeout: 8000 });
+      await page.waitForSelector(CARD_SELECTOR, { timeout: 20000 });
     } catch {
+      console.log("  Sin tarjetas (sesión inválida o UI cambiada)");
       break;
     }
 
-    // Quick scroll to load cards
-    const scrollContainer = page.locator(".scaffold-layout__list > div").first();
-    for (let i = 0; i < 5; i++) {
-      await scrollContainer.evaluate((el) => el.scrollBy(0, 400), { timeout: 3000 }).catch(() => {});
-      await page.waitForTimeout(500).catch(() => {});
-    }
+    const cards = await page.evaluate((sel) => {
+      const seen = new Set();
+      const out = [];
+      for (const el of document.querySelectorAll(sel)) {
+        const id = (el.getAttribute("componentkey") || "").replace("job-card-component-ref-", "");
+        if (!id || seen.has(id)) continue;
+        seen.add(id);
+        out.push({ id, text: el.innerText });
+      }
+      return out;
+    }, CARD_SELECTOR);
+    if (cards.length === 0) break;
 
-    const cards = page.locator(".job-card-container");
-    let total = await cards.count().catch(() => 0);
-    if (total === 0) break;
-    total = Math.min(total, MAX_CARDS);
-
-    for (let i = 0; i < total; i++) {
+    for (const { id: jobId, text: cardText } of cards.slice(0, MAX_CARDS)) {
       try {
-        await cards.nth(i).scrollIntoViewIfNeeded();
-        await cards.nth(i).click();
-        await page.waitForTimeout(1500);
+        const { title, company, location } = parseCardText(cardText);
+        if (!title || !company) continue;
 
-        let cardTitle = "", cardCompany = "", cardLocation = "", cardUrl = "";
-        try {
-          cardTitle = (await cards.nth(i).locator("a.job-card-container__link span[aria-hidden='true']").innerText()) || "";
-          cardCompany = (await cards.nth(i).locator(".artdeco-entity-lockup__subtitle span").innerText()) || "";
-          cardLocation = (await cards.nth(i).locator(".job-card-container__metadata-wrapper li span").innerText()) || "";
-          cardUrl = (await cards.nth(i).locator("a.job-card-container__link").getAttribute("href")) || "";
-        } catch { continue; }
+        const card = page.locator(`${CARD_SELECTOR}[componentkey="job-card-component-ref-${jobId}"]:visible`).first();
+        await card.locator("p").first().click({ timeout: 5000 }).catch(() => card.click({ timeout: 5000 }));
+        await page.waitForSelector(`[id^="JobDetails_AboutTheJob_${jobId}"]`, { timeout: 6000 }).catch(() => {});
+        await page.waitForTimeout(800);
 
-        const details = await page.evaluate(() => {
-          const pane = document.querySelector(".jobs-search__job-details--wrapper");
-          if (!pane) return {};
-
+        const details = await page.evaluate((id) => {
+          const sections = [...document.querySelectorAll('[id^="JobDetails_AboutTheJob_"]')];
+          const section = sections.find((s) => s.id.endsWith(id)) || sections[0];
+          const descEl = section?.querySelector('[data-testid="expandable-text-box"]');
           const skills = [];
-          const descEl = pane.querySelector(".jobs-description__content, .jobs-box__html-content");
           if (descEl) {
-            for (const ul of descEl.querySelectorAll("ul")) {
-              for (const li of ul.querySelectorAll("li")) {
-                const t = li.innerText.trim();
-                if (t) skills.push(t);
-              }
+            for (const li of descEl.querySelectorAll("li")) {
+              const t = li.innerText.trim();
+              if (t) skills.push(t);
             }
           }
 
           let posted = "";
-          for (const s of pane.querySelectorAll("span")) {
-            const t = s.innerText.toLowerCase().trim();
-            if (t.includes("ago") || t.includes("hace") || t.includes("repost") || t.includes("publicado")) {
-              const c = s.innerText.trim();
-              if (!posted || c.length < posted.length) posted = c;
+          if (section) {
+            const chain = new Set();
+            for (let p = section; p; p = p.parentElement) chain.add(p);
+            let best = null;
+            let bestSteps = Infinity;
+            for (const el of document.querySelectorAll("span, strong, p")) {
+              const t = (el.innerText || "").trim();
+              if (!/(?:reposted|posted|publicado|publicado hace|hace)\b/i.test(t) || t.length > 80) continue;
+              let steps = 0;
+              let a = el;
+              while (a && !chain.has(a)) { a = a.parentElement; steps++; }
+              if (a && steps < bestSteps) { best = t; bestSteps = steps; }
             }
+            posted = best || "";
           }
 
-          let easyApply = false;
-          for (const b of pane.querySelectorAll("button, a")) {
-            const t = b.innerText.trim().toLowerCase();
-            if (t === "apply" || t === "apply now" || t === "solicitar" || t === "solicitar ahora" || t.includes("easy apply")) {
-              easyApply = t.includes("easy apply") || t.includes("solicitud rápida") || t.includes("solicitar rápido");
-              break;
-            }
-          }
+          return { description: descEl?.innerText?.trim() || "", skills, posted };
+        }, jobId);
 
-          return { posted, easyApply, description: descEl?.innerText?.trim() || "", skills };
-        });
-
-        const fullLinkedInUrl = cardUrl.startsWith("http") ? cardUrl : `https://www.linkedin.com${cardUrl}`;
+        const postedMatch = cardText.match(/(?:reposted|posted|publicado|republicado)[^\n]*/i);
         const category = QUERY_CATEGORY[query] || query;
         jobs.push({
-          title: cardTitle,
-          company: cardCompany,
-          location: cardLocation,
-          url: fullLinkedInUrl,
-          postedDate: parseRelativeTime(details.posted),
+          title,
+          company,
+          location,
+          url: `https://www.linkedin.com/jobs/view/${jobId}/`,
+          postedDate: parseRelativeTime(postedMatch?.[0] || details.posted || cardText),
           scrapedAt: new Date().toISOString(),
           skills: details.skills || [],
           description: details.description || "",
-          easyApply: details.easyApply || false,
+          easyApply: /easy apply|solicitud rápida|solicitar rápido/i.test(cardText),
           category,
         });
       } catch (err) {
-        console.log(`  Error card ${i}: ${err.message.slice(0, 60)}`);
+        console.log(`  Error card ${jobId}: ${err.message.slice(0, 60)}`);
       }
     }
   }

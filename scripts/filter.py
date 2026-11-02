@@ -1,7 +1,8 @@
-import json, re, sys
+import json, os, re, sys
 
-JOBS_PATH = "/Users/ashel/.local/share/job-scrapping/jobs.json"
-OUTPUT_PATH = "/Users/ashel/.local/share/job-scrapping/filtered_jobs.json"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+JOBS_PATH = os.path.join(ROOT, "jobs.json")
+OUTPUT_PATH = os.path.join(ROOT, "filtered_jobs.json")
 
 
 def detect_language(job):
