@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mercado laboral · Vacantes</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="insights.css">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-dialog">
+      <p>🔒 Área personal</p>
+      <input type="password" id="auth-input" placeholder="Contraseña">
+      <button id="auth-btn">Entrar</button>
+      <div id="auth-error"></div>
+    </div>
+  </div>
+
+  <header>
+    <div class="header-inner insights-header">
+      <div class="insights-brand">
+        <a class="back-link" href="index.html">← Vacantes</a>
+        <h1>📈 Mercado laboral</h1>
+        <p class="subtitle">Qué piden las vacantes, dónde hay más y qué te falta para tu próximo rol</p>
+      </div>
+      <div class="insights-meta" id="dataset-meta"></div>
+    </div>
+  </header>
+
+  <main class="insights-main">
+    <section class="insight-controls" aria-label="Filtros">
+      <div class="control-group">
+        <span class="control-label">Ventana</span>
+        <div class="pill-row" id="window-pills"></div>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Categoría</span>
+        <select id="category-select" aria-label="Categoría"></select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Modalidad</span>
+        <select id="modality-select" aria-label="Modalidad">
+          <option value="">Todas</option>
+          <option value="remote">Remote</option>
+          <option value="hybrid">Híbrido</option>
+          <option value="onsite">Presencial</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Empresas</span>
+        <button id="company-filter-btn" class="company-btn" aria-expanded="false">🏢 Excluir empresas</button>
+      </div>
+      <label class="compare-toggle">
+        <input type="checkbox" id="compare-toggle">
+        <span>Comparar con periodo anterior</span>
+      </label>
+      <button id="reset-filters" class="reset-btn">↺ Reset</button>
+      <p class="control-note" id="window-note"></p>
+
+      <div id="company-panel" class="company-panel hidden">
+        <div class="company-panel-head">
+          <input type="text" id="company-search" placeholder="Buscar empresa..." autocomplete="off">
+          <div id="company-presets" class="company-presets"></div>
+          <button id="company-clear" class="reset-btn">Limpiar</button>
+        </div>
+        <div id="company-list" class="company-list"></div>
+        <p id="company-note" class="company-note"></p>
+      </div>
+    </section>
+
+    <section id="kpis" class="kpi-grid" aria-live="polite"></section>
+
+    <section class="insight-section">
+      <div class="section-head">
+        <h2>¿De dónde hay más vacantes?</h2>
+        <p>Volumen y atractivo por categoría en la ventana seleccionada.</p>
+      </div>
+      <div class="two-col">
+        <div class="card chart-card">
+          <h3>Vacantes por categoría</h3>
+          <div class="chart-box chart-box-tall"><canvas id="chart-categories"></canvas></div>
+        </div>
+        <div class="card chart-card">
+          <h3>Modalidad</h3>
+          <div class="chart-box"><canvas id="chart-modality"></canvas></div>
+          <div id="modality-legend" class="mini-legend"></div>
+        </div>
+      </div>
+      <div id="comparison-table" class="card comparison-card hidden"></div>
+    </section>
+
+    <section class="insight-section">
+      <div class="section-head">
+        <h2>Lo más pedido</h2>
+        <p>Porcentaje de vacantes únicas que mencionan cada skill.</p>
+      </div>
+      <div class="tabs" id="demand-tabs" role="tablist"></div>
+      <div class="card demand-card">
+        <div id="demand-list" class="demand-list"></div>
+      </div>
+    </section>
+
+    <section class="insight-section" id="category-profile">
+      <div class="section-head">
+        <h2 id="profile-title">Perfil por categoría</h2>
+        <p id="profile-subtitle">Herramientas, metodologías y experiencia que pide el mercado.</p>
+      </div>
+      <div class="two-col">
+        <div class="card chart-card">
+          <h3>Top herramientas</h3>
+          <div class="chart-box chart-box-tall"><canvas id="chart-tools"></canvas></div>
+        </div>
+        <div class="card chart-card">
+          <h3>Top metodologías</h3>
+          <div class="chart-box chart-box-tall"><canvas id="chart-methods"></canvas></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card chart-card">
+          <h3>Experiencia más pedida</h3>
+          <div class="chart-box chart-box-tall"><canvas id="chart-experience"></canvas></div>
+        </div>
+        <div class="card chart-card">
+          <h3>Años de experiencia pedidos</h3>
+          <div class="chart-box"><canvas id="chart-years"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Empresas y ubicaciones</h3>
+        <div id="companies-locations" class="split-lists"></div>
+      </div>
+    </section>
+
+    <section class="insight-section" id="cv-gap">
+      <div class="section-head">
+        <h2>Tu CV vs el mercado</h2>
+        <p>Comparación contra <code>base-cv.md</code> en la ventana y categoría seleccionadas.</p>
+      </div>
+      <div class="cv-grid">
+        <div class="card cv-score-card">
+          <div class="cv-ring" id="cv-ring"><span id="cv-coverage">0%</span></div>
+          <h3 id="cv-score-title">Cobertura de lo más pedido</h3>
+          <p id="cv-score-note"></p>
+          <div id="cv-stats" class="cv-stats"></div>
+        </div>
+        <div class="card">
+          <h3>Prioriza aprender esto</h3>
+          <div id="cv-gaps" class="gap-list"></div>
+        </div>
+        <div class="card">
+          <h3>Ya tienes ventaja en</h3>
+          <div id="cv-strengths" class="chip-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="insight-section">
+      <div class="section-head">
+        <h2>Modalidad y ubicación</h2>
+        <p>Dónde están las vacantes remote y qué categorías lideran.</p>
+      </div>
+      <div class="two-col">
+        <div class="card chart-card">
+          <h3>% remote por categoría</h3>
+          <div class="chart-box chart-box-tall"><canvas id="chart-remote-category"></canvas></div>
+        </div>
+        <div class="card">
+          <h3>Top ubicaciones</h3>
+          <div id="top-locations" class="rank-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="insight-section">
+      <div class="section-head">
+        <h2>Compensación</h2>
+        <p>Porcentaje de vacantes con salario visible y rangos cuando el texto lo permite.</p>
+      </div>
+      <div class="two-col">
+        <div class="card chart-card">
+          <h3>% con salario visible</h3>
+          <div class="chart-box chart-box-tall"><canvas id="chart-salary"></canvas></div>
+        </div>
+        <div class="card">
+          <h3>Lectura rápida</h3>
+          <div id="salary-insights" class="list-note"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="insight-section">
+      <div class="section-head">
+        <h2>Tendencias y comparación de periodos</h2>
+        <p>Nuevas vacantes por mes y comparación entre periodos no traslapados.</p>
+      </div>
+      <div class="card chart-card">
+        <h3>Nuevas vacantes por mes</h3>
+        <div class="chart-box chart-box-tall"><canvas id="chart-trends"></canvas></div>
+        <p class="chart-note" id="trend-note"></p>
+      </div>
+      <div class="card period-card">
+        <h3>Comparar periodos</h3>
+        <p class="muted">Selecciona varios periodos para sumarlos. Los porcentajes se recalculan sobre la unión.</p>
+        <div class="table-wrap">
+          <table class="period-table">
+            <thead>
+              <tr>
+                <th></th><th>Periodo</th><th>Vacantes</th><th>% del total</th>
+                <th>% Remote</th><th>% Inglés</th><th>% Salario</th>
+              </tr>
+            </thead>
+            <tbody id="period-body"></tbody>
+            <tfoot id="period-foot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="insight-section methodology">
+      <h2>Metodología y límites</h2>
+      <ul>
+        <li>Las métricas de demanda deduplican por título + empresa para no inflar reposts.</li>
+        <li>El acumulado histórico puede incluir vacantes ya cerradas; usa la ventana temporal para mirar el mercado vigente.</li>
+        <li>Las skills se extraen con un diccionario bilingüe de aliases sobre título y descripción; es heurístico.</li>
+        <li>El % de salario indica que el texto menciona una cifra parseable, no que el rango sea representativo.</li>
+        <li>El análisis vs CV usa únicamente <code>cvs/base-cv.md</code>.</li>
+      </ul>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close" aria-label="Cerrar">&times;</button>
+      <div class="modal-body">
+        <h3 id="modal-title"></h3>
+        <p id="modal-subtitle" class="muted"></p>
+        <div id="modal-jobs" class="modal-job-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Proyecto personal · <a href="https://linkedin.com/in/valeria-paez-reyes" target="_blank">Valeria Páez</a> · <span id="version">dev</span></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="insights.js"></script>
+</body>
+</html>

@@ -107,6 +107,10 @@ header .subtitle {
   user-select: none;
 }
 
+a.ref-cv-btn {
+  text-decoration: none;
+}
+
 .ref-cv-btn:hover {
   border-color: var(--accent);
   color: var(--accent);
@@ -119,6 +123,28 @@ header .subtitle {
   justify-content: center;
   margin-top: 12px;
   flex-wrap: wrap;
+}
+
+@media (min-width: 641px) {
+  .header-inner {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) 150px;
+    align-items: center;
+    max-width: 1100px;
+  }
+  .header-center {
+    position: static;
+    transform: none;
+    white-space: normal;
+    min-width: 0;
+  }
+  .header-left {
+    justify-self: start;
+  }
+  .header-right {
+    justify-self: end;
+    margin-left: 0;
+  }
 }
 
 .notes-panel {

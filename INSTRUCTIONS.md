@@ -122,7 +122,20 @@ El repositorio es público, así que `.gitignore` excluye:
 - Sections: Summary, Experience (3 jobs), Education, Skills, Competencies, Languages.
 - Skills format: `- **Label:** description` (required by generate_cv.py parser).
 
-## 8. Archivos Relevantes
+## 8. Página de Insights de Mercado
+
+`site/insights.html` es una subpágina con el análisis del dataset:
+
+```bash
+python3 scripts/build_insights.py
+```
+
+- Genera `insights.json` (índice compacto por vacante + skills extraídas + skills del CV base)
+- La página calcula en el navegador: ventanas 7/30/90/12m/todo, comparación de periodos, rankings por categoría, modalidad, salario, tendencias y gaps vs `cvs/base-cv.md`
+- Se regenera automáticamente al final de `scripts/scraper.js`
+- Deploy: `.github/workflows/deploy.yml` copia `insights.json` a `_site/data/` y `site/insights.*` a `_site/`
+
+## 9. Archivos Relevantes
 
 | File | Purpose |
 |------|---------|
@@ -130,6 +143,9 @@ El repositorio es público, así que `.gitignore` excluye:
 | `scripts/login.js` | LinkedIn login + session persistence |
 | `scripts/filter.py` | Filter pipeline (location/exp/relevance/company/dedup) |
 | `scripts/build_skill_per_category.py` | Extract skills from jobs.json → skill_per_category.json |
+| `scripts/build_insights.py` | Extract per-job features from filtered_jobs.json → insights.json |
+| `insights.json` | Compact insights dataset (jobs, skills, CV gap) for the Mercado page |
+| `site/insights.html` / `.js` / `.css` | Market insights subpage |
 | `scripts/generate_all_cvs.py` | Batch format all category CVs |
 | `scripts/generate_cv.py` | Single CV formatter (MD → DOCX + 2 PDFs) |
 | `cvs/base-cv.md` | Master CV (English, manual) |

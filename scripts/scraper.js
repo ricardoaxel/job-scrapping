@@ -269,6 +269,13 @@ async function scrapeJobsForQuery(query, page) {
 
   console.log(`\n✅ ${allJobs.length} vacantes guardadas → jobs.json`);
 
+  console.log("📊 Generando insights de mercado...");
+  try {
+    execSync(`python3 "${path.join(__dirname, "build_insights.py")}"`, { stdio: "inherit" });
+  } catch (e) {
+    console.error("Error generando insights:", e.message);
+  }
+
   await Promise.race([
     context.storageState({ path: STATE_FILE }).catch(() => {}),
     new Promise((r) => setTimeout(r, 8000)),
