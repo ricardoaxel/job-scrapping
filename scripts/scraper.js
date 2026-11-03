@@ -39,6 +39,16 @@ const QUERY_CATEGORY = {
   "crm marketing": "CRM Marketing",
   "email marketing": "Email Marketing",
   "social media marketing": "Social Media Marketing",
+  "performance marketing": "Performance / Paid Media",
+  "paid media": "Performance / Paid Media",
+  "seo": "SEO",
+  "digital marketing": "Marketing Generalista",
+  "brand manager": "Brand / Product",
+  "product marketing": "Brand / Product",
+  "marketing analyst": "Analytics",
+  "marketing operations": "Martech / Ops",
+  "ecommerce marketing": "E-commerce / Marketplace",
+  "community manager": "Social / Community",
 };
 
 const QUERIES = MODE === "test"
@@ -52,6 +62,16 @@ const QUERIES = MODE === "test"
       "crm marketing",
       "email marketing",
       "social media marketing",
+      "performance marketing",
+      "paid media",
+      "seo",
+      "digital marketing",
+      "brand manager",
+      "product marketing",
+      "marketing analyst",
+      "marketing operations",
+      "ecommerce marketing",
+      "community manager",
     ];
 
 const PAGES = 2;

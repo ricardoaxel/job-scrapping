@@ -6,7 +6,7 @@
 node scripts/scraper.js
 ```
 
-- Scraps LinkedIn marketing jobs in Mexico City using 8 search queries
+- Scraps LinkedIn marketing jobs in Mexico City using 18 search queries (marketing general, performance/paid, SEO, brand, product, analytics, martech, ecommerce, social)
 - Saves raw results to `jobs.json` (143 jobs typical with working account)
 - Runs `scripts/filter.py` automatically at the end
 - **Session**: uses `li_at` token from `linkedin-state.json` for authenticated access
