@@ -8,22 +8,23 @@
   var authBtn = document.getElementById("auth-btn");
   var authError = document.getElementById("auth-error");
 
-  if (localStorage.getItem(AUTH_KEY)) authOverlay.classList.add("authed");
-
-  function tryAuth() {
-    if (authInput.value === "pikachu") {
-      localStorage.setItem(AUTH_KEY, "1");
-      authOverlay.classList.add("authed");
-    } else {
-      authError.textContent = "Contraseña incorrecta";
-      authInput.value = "";
-      authInput.focus();
-    }
+  if (authOverlay) {
+    if (localStorage.getItem(AUTH_KEY)) authOverlay.classList.add("authed");
+    var tryAuth = function () {
+      if (authInput.value === "pikachu") {
+        localStorage.setItem(AUTH_KEY, "1");
+        authOverlay.classList.add("authed");
+      } else {
+        authError.textContent = "Contraseña incorrecta";
+        authInput.value = "";
+        authInput.focus();
+      }
+    };
+    authBtn.addEventListener("click", tryAuth);
+    authInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") tryAuth();
+    });
   }
-  authBtn.addEventListener("click", tryAuth);
-  authInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") tryAuth();
-  });
 
   var WINDOWS = [
     { value: "7", label: "7 días", days: 7 },
@@ -45,7 +46,7 @@
   var COLORS = {
     accent: "#2563eb",
     accentSoft: "#93c5fd",
-    palette: ["#2563eb", "#0ea5e9", "#14b8a6", "#f59e0b", "#8b5cf6", "#ec4899", "#ef4444", "#84cc16"],
+    palette: ["#6d4aff", "#ff6b5e", "#14b8a6", "#f59e0b", "#8b5cf6", "#ec4899", "#ef4444", "#84cc16"],
     muted: "#9ca3af",
     grid: "#eef0f3",
   };
@@ -335,9 +336,17 @@
 
   function chartDefaults() {
     if (typeof Chart === "undefined") return;
-    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif";
-    Chart.defaults.color = "#6b7280";
-    Chart.defaults.borderColor = COLORS.grid;
+    var css = getComputedStyle(document.documentElement);
+    var muted = css.getPropertyValue("--muted").trim() || "#6b7280";
+    var border = css.getPropertyValue("--border").trim() || "#eef0f3";
+    var accent = css.getPropertyValue("--accent").trim() || "#6d4aff";
+    Chart.defaults.font.family = "Manrope, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    Chart.defaults.color = muted;
+    Chart.defaults.borderColor = border;
+    COLORS.accent = accent;
+    COLORS.accentSoft = accent;
+    COLORS.grid = border;
+    COLORS.muted = muted;
   }
 
   function barConfig(labels, values, horizontal, color, tooltipLabel, onClick) {
@@ -667,7 +676,7 @@
       tools.map(function (t) { return t.name; }),
       tools.map(function (t) { return t.pct; }),
       true,
-      "#2563eb",
+      "#6d4aff",
       function (ctx) { return tools[ctx.dataIndex].pct + "% (" + tools[ctx.dataIndex].count + " roles)"; },
       function (evt, elements) { if (elements.length) openSkillModal(tools[elements[0].index].name); }
     ));
@@ -1427,6 +1436,10 @@
         (err.message || err) + ". Corre <code>python3 scripts/build_insights.py</code> y vuelve a intentar.</div>";
     }
   }
+
+  window.addEventListener("themechange", function () {
+    if (DATA) { chartDefaults(); render(); }
+  });
 
   init();
 })();

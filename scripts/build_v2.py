@@ -235,7 +235,7 @@ def main():
                 rel -= 15
             rel = max(0, min(100, rel))
         jobs.append({
-            "id": j.get("u", "").rstrip("/").split("/")[-1],
+            "id": (re.search(r"/jobs/view/(\d+)", j.get("u", "")) or [None, j.get("u", "").rstrip("/").split("/")[-1]])[1],
             "t": title,
             "c": company,
             "l": location,

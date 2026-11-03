@@ -3,33 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mercado laboral · Vacantes</title>
+  <meta name="color-scheme" content="light dark">
+  <title>Mercado · Vale OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="insights.css">
+  <link rel="stylesheet" href="v2.css">
+  <link rel="stylesheet" href="insights-v2.css">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 <body>
-  <div id="auth-overlay" class="auth-overlay">
-    <div class="auth-dialog">
-      <p>🔒 Área personal</p>
-      <input type="password" id="auth-input" placeholder="Contraseña">
-      <button id="auth-btn">Entrar</button>
-      <div id="auth-error"></div>
-    </div>
-  </div>
-
-  <header>
-    <div class="header-inner insights-header">
-      <div class="insights-brand">
-        <a class="back-link" href="index.html">← Vacantes</a>
-        <h1>📈 Mercado laboral</h1>
-        <p class="subtitle">Qué piden las vacantes, dónde hay más y qué te falta para tu próximo rol</p>
-      </div>
-      <div class="insights-meta" id="dataset-meta"></div>
+  <header class="topbar insights-topbar">
+    <a class="brand" href="index.html#/hoy" aria-label="Vale OS inicio">
+      <span class="brand-mark">V</span>
+      <span class="brand-text">vale<em>os</em></span>
+    </a>
+    <nav class="desktop-nav" aria-label="Navegación principal">
+      <a href="index.html#/hoy">Hoy</a>
+      <a href="index.html#/vacantes">Vacantes</a>
+      <a href="insights.html" class="active">Mercado</a>
+      <a href="index.html#/empresas">Empresas</a>
+      <a href="index.html#/aplicaciones">Aplicaciones</a>
+      <a href="index.html#/cv">CV</a>
+      <a href="index.html#/recursos">Recursos</a>
+    </nav>
+    <div class="topbar-actions">
+      <button id="theme-btn" class="icon-btn" aria-label="Cambiar tema" title="Tema">◐</button>
+      <a class="icon-btn" href="index.html#/ajustes" aria-label="Ajustes" title="Ajustes">⚙</a>
     </div>
   </header>
 
   <main class="insights-main">
+    <div class="insights-subhead">
+      <div>
+        <div class="eyebrow">Análisis</div>
+        <h1>Mercado</h1>
+        <p>Qué piden las vacantes, dónde hay más y qué te falta para tu próximo rol.</p>
+      </div>
+      <div class="insights-meta" id="dataset-meta"></div>
+    </div>
     <section class="insight-controls" aria-label="Filtros">
       <div class="control-group">
         <span class="control-label">Ventana</span>
@@ -291,10 +305,19 @@
     </div>
   </div>
 
+  <nav class="bottom-nav" aria-label="Navegación móvil">
+    <a href="index.html#/hoy"><span>◉</span>Hoy</a>
+    <a href="index.html#/vacantes"><span>⌕</span>Vacantes</a>
+    <a href="insights.html" class="active"><span>▥</span>Mercado</a>
+    <a href="index.html#/aplicaciones"><span>✦</span>Apps</a>
+    <a href="index.html#/cv"><span>◧</span>CV</a>
+  </nav>
+
   <footer>
     <p>Proyecto personal · <a href="https://linkedin.com/in/valeria-paez-reyes" target="_blank">Valeria Páez</a> · <span id="version">dev</span></p>
   </footer>
 
+  <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="insights.js"></script>
 </body>

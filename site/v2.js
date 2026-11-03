@@ -19,11 +19,25 @@
     streak: read("streak", { count: 0, last: "" }),
     badges: read("badges", []),
     theme: read("theme", "system"),
+    pokemon: read("pokemon", []),
+    migratedApps: read("migratedAppsV2", false),
+    migratedPokemon: read("migratedPokemonV2", false),
     prevVisit: read("lastVisit", ""),
     newCount: 0,
     companyQuery: "",
   };
   var modalJob = null;
+  var FS_KEY = "AIzaSyANT112Y6OIzN-TUeldWFNQ9n9jniqhxXo";
+  var POKE_POOL = [
+    { id: 25, name: "Pikachu" }, { id: 1, name: "Bulbasaur" }, { id: 4, name: "Charmander" },
+    { id: 7, name: "Squirtle" }, { id: 133, name: "Eevee" }, { id: 39, name: "Jigglypuff" },
+    { id: 52, name: "Meowth" }, { id: 54, name: "Psyduck" }, { id: 58, name: "Growlithe" },
+    { id: 66, name: "Machop" }, { id: 74, name: "Geodude" }, { id: 92, name: "Gastly" },
+    { id: 104, name: "Cubone" }, { id: 143, name: "Snorlax" }, { id: 147, name: "Dratini" },
+    { id: 150, name: "Mewtwo" }, { id: 151, name: "Mew" }, { id: 16, name: "Pidgey" },
+    { id: 18, name: "Pidgeot" }, { id: 21, name: "Spearow" }, { id: 65, name: "Alakazam" },
+    { id: 99, name: "Kingler" },
+  ];
 
   function read(key, fallback) {
     try { var v = localStorage.getItem(STORE + key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
@@ -90,11 +104,11 @@
     document.documentElement.setAttribute("data-theme", resolved);
   }
   function cycleTheme() {
-    var order = ["system", "light", "dark"];
-    state.theme = order[(order.indexOf(state.theme) + 1) % order.length];
+    var resolved = document.documentElement.getAttribute("data-theme");
+    state.theme = resolved === "dark" ? "light" : "dark";
     write("theme", state.theme);
     applyTheme();
-    toast("Tema: " + (state.theme === "system" ? "sistema" : state.theme === "light" ? "claro" : "oscuro"));
+    toast("Tema: " + (state.theme === "light" ? "claro" : "oscuro"));
     if (state.route === "ajustes") renderAjustes();
   }
 
@@ -131,6 +145,12 @@
     state.badges.push(id);
     write("badges", state.badges);
     toast("🏅 " + label);
+  }
+  function addBadgeSilent(id) {
+    if (state.badges.indexOf(id) === -1) {
+      state.badges.push(id);
+      write("badges", state.badges);
+    }
   }
   function badgeList() {
     return [
@@ -364,7 +384,7 @@
         '<h1>Tu próximo movimiento empieza aquí.</h1>' +
         '<p class="muted" style="margin-top:10px;max-width:480px">' + (fresh.length ? "Hay <b>" + fresh.length + " vacantes nuevas</b> desde tu última visita. Tú eliges por dónde empezar." : "Todo al día. Buen momento para explorar el mercado o preparar tu siguiente CV.") + "</p></div>" +
         '<div class="hero-actions"><a class="btn primary" href="#/vacantes">Ver vacantes →</a><a class="btn" href="#/mercado" style="background:transparent;color:inherit;border-color:rgba(255,255,255,.25)">Ver mercado</a></div></div>' +
-        '<div class="card level-card"><div class="level-top"><div><div class="k-label">Tu nivel</div><div class="level-big">Lv ' + level.level + "</div><div class=\"small muted\">" + fmt(state.xp) + " XP</div></div><div style=\"font-size:2.2rem\">🦊</div></div>" +
+        '<div class="card level-card"><div class="level-top"><div><div class="k-label">Tu nivel</div><div class="level-big">Lv ' + level.level + "</div><div class=\"small muted\">" + fmt(state.xp) + " XP</div></div><div style=\"font-size:2.2rem\"><img class=\"poke-active\" id=\"active-poke\" alt=\"Pokémon activo\"><div class=\"tiny muted\" id=\"active-poke-name\"></div></div></div>" +
         '<div><div class="xp-bar"><i style="width:' + level.pct + '%"></i></div><div class="small muted" style="margin-top:6px">' + level.pct + "% para Lv " + (level.level + 1) + " · " + fmt(level.next - state.xp) + " XP</div></div>" +
         '<div class="streak-row"><span class="streak-pill ' + (state.streak.count >= 3 ? "hot" : "") + '">🔥 ' + (state.streak.count || 0) + " días</span><span class=\"streak-pill\">🏅 " + state.badges.length + " badges</span></div>" +
         '<div class="card-soft"><div class="k-label">Siguiente reto</div><div class="small">' + (savedCount < 5 ? "Guarda 5 vacantes (" + savedCount + "/5)" : appliedCount < 1 ? "Aplica a tu primer match" : "Haz 1 acción hoy para mantener la racha") + "</div></div></div>" +
@@ -393,9 +413,11 @@
         '<div class="span-6 card"><div class="k-label">Constancia</div><h2 style="margin:6px 0 10px">Badges</h2><div class="chips">' +
         badgeList().map(function (b) { return '<span class="chip ' + (state.badges.indexOf(b.id) !== -1 ? "active" : "") + '" title="' + esc(b.label) + '">' + b.icon + " " + esc(b.label) + "</span>"; }).join("") + "</div>" +
         '<p class="small muted" style="margin-top:12px">Gana XP guardando, aplicando y manteniendo la racha.</p></div>' +
+        '<div class="span-12 card"><div class="k-label">Pokédex</div><h2 style="margin:6px 0 10px">Tus Pokémon</h2>' + pokedexHtml(true) + "</div>" +
         '<div class="span-12 card"><div class="k-label">Explorar</div><div class="chips" style="margin-top:8px"><a class="chip" href="#/empresas">Empresas</a><a class="chip" href="#/recursos">Recursos</a><a class="chip" href="#/ajustes">Ajustes</a><a class="chip" href="insights.html">Análisis completo ↗</a></div></div>' +
       "</div>";
     bindJobs($("#view-hoy"));
+    setActivePoke();
     $$("[data-apply-saved]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var saved = state.saved[Number(btn.dataset.applySaved)];
@@ -520,6 +542,7 @@
     var applied = Object.keys(state.tracker).filter(function (k) { return state.tracker[k].applied; }).length;
     if (saved >= 10) award("save10", "10 guardadas");
     if (applied >= 5) award("apply5", "5 aplicadas");
+    ensurePokemonUnlocks();
   }
 
   /* ── Job modal ── */
@@ -549,6 +572,7 @@
       '<div class="modal-section"><h4>Descripción</h4><p class="desc">' + esc(j.desc || "Sin descripción disponible.") + '</p><a class="btn small" href="' + esc(j.u) + '" target="_blank" rel="noopener" style="margin-top:10px">Ver completa en LinkedIn ↗</a></div>' +
       '<div class="modal-section"><h4>Skills detectadas</h4><div class="chips">' + skills.map(function (s) { return '<span class="chip ' + (CV.has(s) ? "active" : "") + '">' + esc(s) + "</span>"; }).join("") + "</div></div>" +
       (t.applied ? '<div class="modal-section"><h4>Etapa del proceso</h4><select class="input" id="job-stage">' + ["Aplicada", "Screening", "Entrevista", "Oferta", "Rechazada"].map(function (s) { return '<option ' + (t.stage === s ? "selected" : "") + ">" + s + "</option>"; }).join("") + "</select></div>" : "") +
+      '<div class="modal-section"><h4>Notas</h4><textarea class="input" id="job-note" rows="3" placeholder="Contacto, entrevista, por qué te interesa...">' + esc(t.note || "") + "</textarea></div>" +
       '<div class="modal-actions">' +
         '<button class="btn ' + (t.saved ? "primary" : "") + '" data-modal-track="saved">🔖 ' + (t.saved ? "Guardada" : "Guardar") + "</button>" +
         '<button class="btn ' + (t.applied ? "primary" : "") + '" data-modal-track="applied">✓ ' + (t.applied ? "Aplicada" : "Marcar aplicada") + "</button>" +
@@ -567,6 +591,13 @@
       state.tracker[modalJob.id].stage = e.target.value;
       write("tracker", state.tracker);
       addXp(10, "Actualizaste tu proceso");
+    });
+    var note = $("#job-note");
+    if (note) note.addEventListener("change", function (e) {
+      state.tracker[modalJob.id] = state.tracker[modalJob.id] || {};
+      state.tracker[modalJob.id].note = e.target.value;
+      write("tracker", state.tracker);
+      addXp(5, "Nota guardada");
     });
     if (state.route === "vacantes") renderVacantes(); else if (state.route === "hoy") renderHoy();
   }
@@ -718,11 +749,12 @@
         ["system", "light", "dark"].map(function (t) { return '<button class="chip ' + (state.theme === t ? "active" : "") + '" data-theme="' + t + '">' + ({ system: "Sistema", light: "Claro", dark: "Oscuro" })[t] + "</button>"; }).join("") + "</div></div>" +
         '<div class="card"><div class="k-label">Datos</div><h2 style="margin:6px 0 10px">Respaldo</h2><div class="toolbar"><button class="btn" id="export">Exportar JSON</button><label class="btn" for="import">Importar<input type="file" id="import" accept="application/json" class="sr-only"></label><button class="btn" id="reset" style="color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,var(--border))">Reset</button></div><p class="small muted" style="margin-top:10px">Incluye tracker, búsquedas, XP, racha y tema. Sin servidor: si borras el navegador, se borra todo.</p></div>' +
       "</div>" +
-      '<div class="card" style="margin-top:14px"><div class="k-label">Info</div><h2 style="margin:6px 0 8px">Dataset</h2><p class="small muted">' + fmt(DATA.total) + " vacantes · actualizado " + esc(new Date(DATA.updatedAt).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })) + " · fuente LinkedIn. Los CVs son públicos en este sitio.</p></div>";
+      '<div class="card" style="margin-top:14px"><div class="k-label">Info</div><h2 style="margin:6px 0 8px">Dataset</h2><p class="small muted">' + fmt(DATA.total) + " vacantes · actualizado " + esc(new Date(DATA.updatedAt).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })) + " · fuente LinkedIn. Los CVs son públicos en este sitio.</p></div>" +
+      '<div class="card" style="margin-top:14px"><div class="k-label">Pokédex</div><h2 style="margin:6px 0 10px">Tus Pokémon</h2>' + pokedexHtml(false) + "</div>";
     $$("button[data-theme]").forEach(function (b) { b.addEventListener("click", function () { state.theme = b.dataset.theme; write("theme", state.theme); applyTheme(); renderAjustes(); }); });
     var exp = $("#export");
     if (exp) exp.addEventListener("click", function () {
-      var payload = { tracker: state.tracker, saved: state.saved, xp: state.xp, streak: state.streak, badges: state.badges, theme: state.theme };
+      var payload = { tracker: state.tracker, saved: state.saved, xp: state.xp, streak: state.streak, badges: state.badges, theme: state.theme, pokemon: state.pokemon };
       var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
       var a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
@@ -738,7 +770,7 @@
       reader.onload = function () {
         try {
           var data = JSON.parse(reader.result);
-          ["tracker", "saved", "xp", "streak", "badges", "theme"].forEach(function (k) { if (data[k] != null) { state[k] = data[k]; write(k, state[k]); } });
+          ["tracker", "saved", "xp", "streak", "badges", "theme", "pokemon"].forEach(function (k) { if (data[k] != null) { state[k] = data[k]; write(k, state[k]); } });
           applyTheme();
           toast("Respaldo importado");
           go("hoy");
@@ -752,6 +784,183 @@
       ["tracker", "saved", "xp", "streak", "badges", "theme", "lastVisit"].forEach(function (k) { localStorage.removeItem(STORE + k); });
       location.reload();
     });
+  }
+
+
+  /* ── Pokédex + migración del sitio anterior ── */
+  function pokeInfo(id) {
+    var found = POKE_POOL.filter(function (p) { return p.id === Number(id); })[0];
+    return found || { id: Number(id), name: "Pokémon #" + id };
+  }
+  function pokeSprite(id) {
+    return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + Number(id) + ".png";
+  }
+  function appliedCount() {
+    return Object.keys(state.tracker).filter(function (k) { return state.tracker[k].applied; }).length;
+  }
+  function activePokemon() {
+    var sorted = state.pokemon.slice().sort(function (a, b) { return (b.unlockedAt || 0) - (a.unlockedAt || 0); });
+    return sorted[0] || { index: 25, unlockedAt: Date.now() };
+  }
+  function setActivePoke() {
+    var el = $("#active-poke");
+    if (el) el.src = pokeSprite(activePokemon().index);
+    var name = $("#active-poke-name");
+    if (name) name.textContent = pokeInfo(activePokemon().index).name;
+  }
+  function ensurePokemonUnlocks() {
+    var earned = Math.floor(appliedCount() / 5);
+    if (!state.pokemon.length) state.pokemon.push({ index: 25, unlockedAt: Date.now() });
+    var owned = new Set(state.pokemon.map(function (p) { return Number(p.index); }));
+    var changed = false;
+    while (state.pokemon.length < earned) {
+      var available = POKE_POOL.filter(function (p) { return !owned.has(p.id); });
+      if (!available.length) break;
+      var pick = available[Math.floor(Math.random() * available.length)];
+      state.pokemon.push({ index: pick.id, unlockedAt: Date.now() });
+      owned.add(pick.id);
+      changed = true;
+      revealPokemon(pick);
+    }
+    if (changed) write("pokemon", state.pokemon);
+  }
+  function pokedexHtml(compact) {
+    var list = state.pokemon.slice().sort(function (a, b) { return (a.unlockedAt || 0) - (b.unlockedAt || 0); });
+    var next = Math.max(0, Math.ceil(appliedCount() / 5) * 5 - appliedCount());
+    return '<div class="pokedex ' + (compact ? "compact" : "") + '">' +
+      list.map(function (p) {
+        var info = pokeInfo(p.index);
+        return '<div class="poke-slot" title="' + esc(info.name) + '"><img src="' + pokeSprite(p.index) + '" alt="' + esc(info.name) + '" loading="lazy"><span>' + esc(info.name) + "</span></div>";
+      }).join("") +
+      (list.length ? "" : '<div class="poke-empty">Aún sin Pokémon. Aplica para desbloquear el primero.</div>') +
+      "</div>" +
+      '<p class="small muted" style="margin-top:8px">' + (next ? "Próximo Pokémon en " + next + " aplicación" + (next === 1 ? "" : "es") + " más." : "¡Pokédex completa por ahora!") + "</p>";
+  }
+  function revealPokemon(p) {
+    var el = document.createElement("div");
+    el.className = "poke-reveal";
+    el.innerHTML = '<div class="poke-reveal-card"><div class="k-label">¡Nuevo Pokémon!</div><img src="' + pokeSprite(p.id) + '" alt="' + esc(p.name) + '"><h3>' + esc(p.name) + '</h3><p class="small muted">Desbloqueado por tus aplicaciones</p></div>';
+    document.body.appendChild(el);
+    setTimeout(function () { el.classList.add("show"); }, 20);
+    setTimeout(function () { el.classList.remove("show"); setTimeout(function () { el.remove(); }, 300); }, 2600);
+  }
+  function fsValue(v) {
+    if (!v) return null;
+    if (v.stringValue !== undefined) return v.stringValue;
+    if (v.booleanValue !== undefined) return v.booleanValue;
+    if (v.integerValue !== undefined) return Number(v.integerValue);
+    if (v.doubleValue !== undefined) return Number(v.doubleValue);
+    if (v.mapValue) {
+      var obj = {};
+      var fields = v.mapValue.fields || {};
+      Object.keys(fields).forEach(function (k) { obj[k] = fsValue(fields[k]); });
+      return obj;
+    }
+    if (v.arrayValue) return (v.arrayValue.values || []).map(fsValue);
+    return null;
+  }
+  function fsDoc(path) {
+    return fetch("https://firestore.googleapis.com/v1/projects/job-search-9d700/databases/(default)/documents/" + path + "?key=" + FS_KEY)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.fields) return null;
+        var obj = {};
+        Object.keys(j.fields).forEach(function (k) { obj[k] = fsValue(j.fields[k]); });
+        return obj;
+      })
+      .catch(function () { return null; });
+  }
+  function jobIndex() {
+    var byId = {}, byTc = {};
+    DATA.jobs.forEach(function (j) {
+      byId[j.id] = j;
+      byTc[strip(j.t + j.c)] = j;
+    });
+    return { byId: byId, byTc: byTc };
+  }
+  function oldKeyToJob(key, index) {
+    var m = String(key).match(/jobs\/view\/(\d+)/);
+    if (m && index.byId[m[1]]) return index.byId[m[1]];
+    var k = strip(key);
+    if (index.byTc[k]) return index.byTc[k];
+    return null;
+  }
+  function mergeOldEntry(id, old) {
+    var stage = old.stage === "Enviada" ? "Aplicada" : old.stage;
+    var entry = {
+      saved: !!old.interested,
+      applied: !!old.applied,
+      disliked: !!old.disliked,
+      stage: stage || (old.applied ? "Aplicada" : ""),
+      note: old.note || old.dislikeReason || "",
+      updatedAt: old.trackedAt || new Date().toISOString(),
+    };
+    var current = state.tracker[id];
+    if (!current) { state.tracker[id] = entry; return 1; }
+    var changed = 0;
+    ["saved", "applied", "disliked"].forEach(function (k) {
+      if (entry[k] && !current[k]) { current[k] = true; changed = 1; }
+    });
+    if (entry.stage && !current.stage) { current.stage = entry.stage; changed = 1; }
+    if (entry.note && !current.note) { current.note = entry.note; changed = 1; }
+    return changed;
+  }
+  async function migrateLegacyData() {
+    var migrated = 0;
+    if (!state.migratedApps) {
+      var index = jobIndex();
+      var local = {};
+      try { local = JSON.parse(localStorage.getItem("tracked_jobs") || "{}"); } catch (e) {}
+      var remote = await fsDoc("tracked/jobs");
+      var remoteData = remote && remote.data ? remote.data : {};
+      var merged = Object.assign({}, local, remoteData);
+      Object.keys(merged).forEach(function (key) {
+        var job = oldKeyToJob(key, index);
+        if (job) migrated += mergeOldEntry(job.id, merged[key]);
+      });
+      if (remote !== null || Object.keys(local).length) {
+        write("tracker", state.tracker);
+        write("migratedAppsV2", true);
+        state.migratedApps = true;
+      }
+    }
+    if (!state.migratedPokemon) {
+      var oldPoke = [];
+      try { oldPoke = JSON.parse(localStorage.getItem("pokemon_collection") || "[]"); } catch (e) {}
+      var doc = await fsDoc("tracked/pokemon");
+      var remotePoke = doc && Array.isArray(doc.collection) ? doc.collection : [];
+      var byIndex = {};
+      [].concat(oldPoke, remotePoke).forEach(function (p) {
+        if (!p || p.index == null) return;
+        byIndex[Number(p.index)] = { index: Number(p.index), unlockedAt: p.unlockedAt || Date.now() };
+      });
+      state.pokemon = Object.keys(byIndex).map(function (k) { return byIndex[k]; });
+      if (!state.pokemon.length) state.pokemon = [{ index: 25, unlockedAt: Date.now() }];
+      if (doc !== null || oldPoke.length) {
+        write("pokemon", state.pokemon);
+        write("migratedPokemonV2", true);
+        state.migratedPokemon = true;
+      }
+    }
+    ensurePokemonUnlocks();
+    var appliedNow = appliedCount();
+    var savedNow = Object.keys(state.tracker).filter(function (k) { return state.tracker[k].saved; }).length;
+    if (appliedNow >= 1) addBadgeSilent("first_apply");
+    if (appliedNow >= 5) addBadgeSilent("apply5");
+    if (savedNow >= 10) addBadgeSilent("save10");
+    if (state.pokemon.length) addBadgeSilent("explorer");
+    if (!state.xp && appliedNow) {
+      state.xp = appliedNow * 20 + savedNow * 5;
+      write("xp", state.xp);
+    }
+    var lp = $("#level-pill"); if (lp) lp.textContent = "Lv " + levelInfo().level;
+    if (migrated) {
+      toast("Migradas " + migrated + " aplicaciones de tu sitio anterior");
+      setTimeout(function () { go(state.route); }, 500);
+    } else {
+      setActivePoke();
+      if (state.route === "hoy") renderHoy();
+    }
   }
 
   /* ── Init ── */
@@ -783,6 +992,7 @@
     routeFromHash();
     if (state.route === "vacantes") award("explorer", "Exploradora");
     write("lastVisit", new Date().toISOString());
+    migrateLegacyData();
   }
   init();
 })();
