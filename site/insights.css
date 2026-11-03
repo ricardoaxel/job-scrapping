@@ -179,6 +179,69 @@ header { position: static; }
   margin-top: 2px;
 }
 
+.cap-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 10px 12px;
+  background: var(--accent-light);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+}
+
+.cap-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.cap-toggle strong { color: var(--text); }
+.cap-toggle input { accent-color: var(--accent); }
+
+#cap-value {
+  width: 68px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  background: var(--surface);
+}
+
+.cap-hint {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.cap-presets { display: flex; gap: 5px; }
+
+.cap-preset {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.cap-preset:hover,
+.cap-preset.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cap-note {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin: 4px 0 10px;
+}
+
 .company-panel-head {
   display: flex;
   flex-wrap: wrap;

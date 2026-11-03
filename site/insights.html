@@ -60,6 +60,16 @@
       <p class="control-note" id="window-note"></p>
 
       <div id="company-panel" class="company-panel hidden">
+        <div class="cap-row">
+          <label class="cap-toggle">
+            <input type="checkbox" id="cap-toggle">
+            <span><strong>Cap por empresa</strong> · limitar a</span>
+          </label>
+          <input type="number" id="cap-value" min="1" max="500" step="1" value="10" aria-label="Máximo de vacantes por empresa">
+          <span class="cap-hint">roles únicos por empresa</span>
+          <div class="cap-presets" id="cap-presets"></div>
+        </div>
+        <p class="cap-note" id="cap-note"></p>
         <div class="company-panel-head">
           <input type="text" id="company-search" placeholder="Buscar empresa..." autocomplete="off">
           <div id="company-presets" class="company-presets"></div>
@@ -222,6 +232,7 @@
       <h2>Metodología y límites</h2>
       <ul>
         <li>Las métricas de demanda deduplican por título + empresa para no inflar reposts.</li>
+        <li>El <strong>cap por empresa</strong> limita los roles únicos por empresa (N más recientes) para que las empresas que repiten vacantes no dominen las métricas. Es opcional y afecta todo el análisis; la alternativa estadística más robusta es dar peso igual a cada empresa.</li>
         <li>El acumulado histórico puede incluir vacantes ya cerradas; usa la ventana temporal para mirar el mercado vigente.</li>
         <li>Las skills se extraen con un diccionario bilingüe de aliases sobre título y descripción; es heurístico.</li>
         <li>El % de salario indica que el texto menciona una cifra parseable, no que el rango sea representativo.</li>

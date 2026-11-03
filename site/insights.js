@@ -60,6 +60,8 @@
     excludedCompanies: new Set(),
     companyPanelOpen: false,
     companySearch: "",
+    companyCapEnabled: false,
+    companyCap: 10,
   };
 
   var DATA = null;
@@ -128,6 +130,41 @@
     if (!state.excludedCompanies.size) return jobs;
     return jobs.filter(function (j) { return !state.excludedCompanies.has(j.c); });
   }
+  function applyCompanyCap(jobs) {
+    if (!state.companyCapEnabled) return jobs;
+    var cap = Math.max(1, Math.floor(Number(state.companyCap) || 10));
+    var groups = new Map();
+    jobs.forEach(function (j) {
+      if (!groups.has(j.c)) groups.set(j.c, []);
+      groups.get(j.c).push(j);
+    });
+    var out = [];
+    groups.forEach(function (list) {
+      var byTitle = new Map();
+      list.forEach(function (j) {
+        var key = stripAccents(j.t || "").trim();
+        var prev = byTitle.get(key);
+        if (!prev || (j.sd || "") > (prev.sd || "")) byTitle.set(key, j);
+      });
+      Array.from(byTitle.values())
+        .sort(function (a, b) {
+          return (b.sd || "").localeCompare(a.sd || "") || (a.t || "").localeCompare(b.t || "");
+        })
+        .slice(0, cap)
+        .forEach(function (j) { out.push(j); });
+    });
+    return out;
+  }
+  function companiesAboveCap(cap) {
+    var map = new Map();
+    JOBS.forEach(function (j) {
+      if (!map.has(j.c)) map.set(j.c, new Set());
+      map.get(j.c).add(stripAccents(j.t || "").trim());
+    });
+    var count = 0;
+    map.forEach(function (titles) { if (titles.size > cap) count++; });
+    return count;
+  }
   function companyCounts() {
     var map = new Map();
     JOBS.forEach(function (j) { map.set(j.c, (map.get(j.c) || 0) + 1); });
@@ -138,13 +175,7 @@
 
   /* ─── Data scoping ─────────────────────────────────────────── */
 
-  function baseJobs() {
-    var jobs = applyCompanyFilter(JOBS);
-    if (state.category) jobs = jobs.filter(function (j) { return j.cat === state.category; });
-    if (state.modality) jobs = jobs.filter(function (j) { return j.mod === state.modality; });
-    return jobs;
-  }
-  function scopeJobs(days, opts) {
+  function filterJobs(days, opts) {
     opts = opts || {};
     var jobs = applyCompanyFilter(JOBS);
     if (!opts.ignoreCategory && state.category) jobs = jobs.filter(function (j) { return j.cat === state.category; });
@@ -152,12 +183,18 @@
     if (days != null) jobs = jobs.filter(function (j) { return inWindow(j, days); });
     return jobs;
   }
+  function baseJobs() {
+    return filterJobs(null);
+  }
+  function scopeJobs(days, opts) {
+    return applyCompanyCap(filterJobs(days, opts));
+  }
   function previousJobs(days) {
     if (days == null) return [];
-    return baseJobs().filter(function (j) {
+    return applyCompanyCap(filterJobs(null).filter(function (j) {
       var age = daysOld(j);
       return age > days && age <= days * 2;
-    });
+    }));
   }
 
   function aggregate(jobs) {
@@ -368,11 +405,34 @@
   function renderCompanyPanel() {
     var btn = $("company-filter-btn");
     var excluded = state.excludedCompanies.size;
-    btn.textContent = "🏢 Empresas" + (excluded ? " (" + excluded + ")" : "");
-    btn.classList.toggle("active", excluded > 0);
+    var cap = Math.max(1, Math.floor(Number(state.companyCap) || 10));
+    var parts = [];
+    if (excluded) parts.push(excluded + " excl.");
+    if (state.companyCapEnabled) parts.push("cap " + cap);
+    btn.textContent = "🏢 Empresas" + (parts.length ? " · " + parts.join(" · ") : "");
+    btn.classList.toggle("active", excluded > 0 || state.companyCapEnabled);
     btn.setAttribute("aria-expanded", state.companyPanelOpen ? "true" : "false");
     $("company-panel").classList.toggle("hidden", !state.companyPanelOpen);
     if (!state.companyPanelOpen) return;
+
+    $("cap-toggle").checked = state.companyCapEnabled;
+    $("cap-value").value = cap;
+    $("cap-presets").innerHTML = [5, 10, 25].map(function (value) {
+      return '<button class="cap-preset' + (state.companyCapEnabled && cap === value ? " active" : "") +
+        '" data-cap="' + value + '">' + value + "</button>";
+    }).join("");
+    $("cap-presets").querySelectorAll(".cap-preset").forEach(function (preset) {
+      preset.addEventListener("click", function () {
+        state.companyCap = Number(preset.dataset.cap);
+        state.companyCapEnabled = true;
+        render();
+      });
+    });
+    var affected = companiesAboveCap(cap);
+    $("cap-note").textContent = state.companyCapEnabled
+      ? "Cap activo: máximo " + cap + " roles únicos por empresa · afecta a " + affected +
+        " empresa" + (affected === 1 ? "" : "s") + " del histórico. Se aplica después de los filtros."
+      : "Opcional. Actívalo para que ninguna empresa pese más de N roles en KPIs, rankings, tendencias y gap vs CV.";
 
     var all = companyCounts();
     $("company-presets").innerHTML = [10, 25, 50, 100].map(function (threshold) {
@@ -723,13 +783,22 @@
 
   function renderTrends() {
     var months = monthKeys();
-    var scope = scopeJobs(null);
-    var catCounts = {};
-    scope.forEach(function (j) {
+    var byMonth = {};
+    filterJobs(null).forEach(function (j) {
       var key = (j.sd || j.d || "").slice(0, 7);
       if (!key) return;
-      if (!catCounts[j.cat]) catCounts[j.cat] = {};
-      catCounts[j.cat][key] = (catCounts[j.cat][key] || 0) + 1;
+      if (!byMonth[key]) byMonth[key] = [];
+      byMonth[key].push(j);
+    });
+    Object.keys(byMonth).forEach(function (key) {
+      byMonth[key] = applyCompanyCap(byMonth[key]);
+    });
+    var catCounts = {};
+    Object.keys(byMonth).forEach(function (key) {
+      byMonth[key].forEach(function (j) {
+        if (!catCounts[j.cat]) catCounts[j.cat] = {};
+        catCounts[j.cat][key] = (catCounts[j.cat][key] || 0) + 1;
+      });
     });
     var cats = Object.keys(catCounts).map(function (name) {
       return { name: name, total: Object.values(catCounts[name]).reduce(function (a, b) { return a + b; }, 0) };
@@ -804,14 +873,12 @@
     });
   }
 
-  function updatePeriodFooter(base, periods, total) {
-    var selectedJobs = base.filter(function (j) {
-      var age = daysOld(j);
-      return Array.from(state.periodSel).some(function (key) {
-        var period = periods.filter(function (x) { return x.key === key; })[0];
-        return period && age >= period.min && age < period.max;
-      });
+  function updatePeriodFooter(rows, total) {
+    var union = [];
+    rows.forEach(function (row) {
+      if (state.periodSel.has(row.period.key)) union.push.apply(union, row.jobs);
     });
+    var selectedJobs = applyCompanyCap(union);
     var selAgg = aggregate(selectedJobs);
     $("period-foot").innerHTML = '<tr><td></td><td>Suma seleccionada</td><td>' + fmt(selectedJobs.length) +
       "</td><td>" + pct(selectedJobs.length, total) + "%</td><td>" + selAgg.remotePct +
@@ -821,20 +888,23 @@
   function renderPeriodTable() {
     var periods = periodDefinitions();
     var base = baseJobs();
-    var total = base.length || 1;
+    var rows = periods.map(function (period) {
+      var jobs = applyCompanyCap(jobsForPeriod(base, period));
+      return { period: period, jobs: jobs, agg: aggregate(jobs) };
+    });
+    var total = rows.reduce(function (sum, row) { return sum + row.jobs.length; }, 0) || 1;
 
-    $("period-body").innerHTML = periods.map(function (period) {
-      var jobs = jobsForPeriod(base, period);
-      var agg = aggregate(jobs);
+    $("period-body").innerHTML = rows.map(function (row) {
+      var period = row.period;
       var selected = state.periodSel.has(period.key);
       return '<tr data-key="' + period.key + '" class="' + (selected ? "selected" : "") + '">' +
         '<td><input type="checkbox" ' + (selected ? "checked" : "") + ' aria-label="Seleccionar ' + period.label + '"></td>' +
         "<td>" + period.label + "</td>" +
-        "<td>" + fmt(jobs.length) + "</td>" +
-        "<td>" + pct(jobs.length, total) + "%</td>" +
-        "<td>" + agg.remotePct + "%</td>" +
-        "<td>" + agg.englishPct + "%</td>" +
-        "<td>" + agg.salaryPct + "%</td>" +
+        "<td>" + fmt(row.jobs.length) + "</td>" +
+        "<td>" + pct(row.jobs.length, total) + "%</td>" +
+        "<td>" + row.agg.remotePct + "%</td>" +
+        "<td>" + row.agg.englishPct + "%</td>" +
+        "<td>" + row.agg.salaryPct + "%</td>" +
         "</tr>";
     }).join("");
 
@@ -844,11 +914,11 @@
         if (e.target.checked) state.periodSel.add(key);
         else state.periodSel.delete(key);
         row.classList.toggle("selected", e.target.checked);
-        updatePeriodFooter(base, periods, total);
+        updatePeriodFooter(rows, total);
       });
     });
 
-    updatePeriodFooter(base, periods, total);
+    updatePeriodFooter(rows, total);
   }
 
   function renderComparison(agg, prev) {
@@ -908,8 +978,10 @@
     var excludedNote = state.excludedCompanies.size
       ? " · " + state.excludedCompanies.size + " empresa" + (state.excludedCompanies.size === 1 ? "" : "s") + " excluida" + (state.excludedCompanies.size === 1 ? "" : "s")
       : "";
-    $("window-note").textContent = "Mostrando " + fmt(agg.raw) + " postings (" + fmt(agg.n) +
-      " roles únicos) vistos por el scraper en " + label + excludedNote +
+    var body = state.companyCapEnabled
+      ? "Mostrando " + fmt(agg.n) + " roles únicos (cap " + Math.max(1, Math.floor(Number(state.companyCap) || 10)) + "/empresa)"
+      : "Mostrando " + fmt(agg.raw) + " postings (" + fmt(agg.n) + " roles únicos)";
+    $("window-note").textContent = body + " vistos por el scraper en " + label + excludedNote +
       ". Fecha de corte: " + formatDate(DATA.meta.maxScrapedAt) + ".";
   }
 
@@ -998,6 +1070,18 @@
       render();
     });
 
+    $("cap-toggle").addEventListener("change", function (e) {
+      state.companyCapEnabled = e.target.checked;
+      render();
+    });
+
+    $("cap-value").addEventListener("change", function (e) {
+      var value = parseInt(e.target.value, 10);
+      state.companyCap = Math.max(1, Math.min(500, value || 10));
+      state.companyCapEnabled = true;
+      render();
+    });
+
     $("reset-filters").addEventListener("click", function () {
       state.window = "90";
       state.category = "";
@@ -1007,6 +1091,8 @@
       state.excludedCompanies.clear();
       state.companySearch = "";
       state.companyPanelOpen = false;
+      state.companyCapEnabled = false;
+      state.companyCap = 10;
       $("category-select").value = "";
       $("modality-select").value = "";
       $("compare-toggle").checked = false;
@@ -1024,6 +1110,7 @@
     if (state.excludedCompanies.size) {
       params.set("exclude", Array.from(state.excludedCompanies).map(encodeURIComponent).join("|"));
     }
+    if (state.companyCapEnabled) params.set("cap", String(state.companyCap));
     var query = params.toString();
     var url = window.location.pathname + (query ? "?" + query : "");
     window.history.replaceState(null, "", url);
@@ -1045,6 +1132,11 @@
       exclude.split("|").forEach(function (name) {
         try { state.excludedCompanies.add(decodeURIComponent(name)); } catch (e) { /* ignore */ }
       });
+    }
+    var cap = parseInt(params.get("cap"), 10);
+    if (cap > 0) {
+      state.companyCapEnabled = true;
+      state.companyCap = Math.min(500, cap);
     }
   }
 
