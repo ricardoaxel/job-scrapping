@@ -393,6 +393,7 @@
         '<div class="span-6 card"><div class="k-label">Constancia</div><h2 style="margin:6px 0 10px">Badges</h2><div class="chips">' +
         badgeList().map(function (b) { return '<span class="chip ' + (state.badges.indexOf(b.id) !== -1 ? "active" : "") + '" title="' + esc(b.label) + '">' + b.icon + " " + esc(b.label) + "</span>"; }).join("") + "</div>" +
         '<p class="small muted" style="margin-top:12px">Gana XP guardando, aplicando y manteniendo la racha.</p></div>' +
+        '<div class="span-12 card"><div class="k-label">Explorar</div><div class="chips" style="margin-top:8px"><a class="chip" href="#/empresas">Empresas</a><a class="chip" href="#/recursos">Recursos</a><a class="chip" href="#/ajustes">Ajustes</a><a class="chip" href="insights.html">Análisis completo ↗</a></div></div>' +
       "</div>";
     bindJobs($("#view-hoy"));
     $$("[data-apply-saved]").forEach(function (btn) {
@@ -678,7 +679,17 @@
         '<div class="card"><div class="k-label">Ya tienes ventaja</div><div class="chips" style="margin-top:8px">' + have.slice(0, 12).map(function (s) { return '<span class="chip active">' + esc(s.name) + "</span>"; }).join("") + "</div></div>" +
       "</div>" +
       '<div class="card" style="margin-top:14px"><div class="k-label">Descargas</div><h2 style="margin:6px 0 10px">CVs por categoría</h2><div class="cv-grid">' +
-      (cvs.length ? cvs.map(function (c) { return '<div class="cv-card"><div class="t">' + esc(c.category) + '</div><span class="small muted">' + c.type + '</span><a class="btn small" href="' + esc(c.url) + '" target="_blank" rel="noopener">Descargar</a></div>'; }).join("") : '<p class="small muted">No se encontraron CVs generados.</p>') +
+      (function () {
+        var groups = {};
+        cvs.forEach(function (c) { (groups[c.category] = groups[c.category] || []).push(c); });
+        var keys = Object.keys(groups);
+        return keys.length ? keys.map(function (k) {
+          return '<div class="cv-card"><div class="t">' + esc(k) + '</div><div class="chips">' +
+            groups[k].map(function (c) {
+              return '<a class="chip" href="' + esc(c.url) + '" target="_blank" rel="noopener">' + esc(c.type + " " + c.lang) + "</a>";
+            }).join("") + "</div></div>";
+        }).join("") : '<p class="small muted">No se encontraron CVs generados.</p>';
+      })() +
       "</div></div>";
   }
 

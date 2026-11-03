@@ -175,13 +175,15 @@ def scan_cvs():
                 "category": folder,
                 "label": folder,
                 "type": "PDF",
+                "lang": "ES" if re.search(r"_es[_.]", f, re.I) else "EN",
                 "url": "cvs/" + folder.replace(" ", "%20") + "/" + f.replace(" ", "%20"),
             })
-        for f in docs[:1]:
+        for f in docs[:2]:
             out.append({
                 "category": folder,
                 "label": folder,
                 "type": "DOCX",
+                "lang": "ES" if re.search(r"_es[_.]", f, re.I) else "EN",
                 "url": "cvs/" + folder.replace(" ", "%20") + "/" + f.replace(" ", "%20"),
             })
     return out
