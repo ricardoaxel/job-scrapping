@@ -772,6 +772,66 @@ header { position: static; }
   white-space: nowrap;
 }
 
+.modal-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin-bottom: 4px;
+}
+
+.modal-filters select {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.74rem;
+  padding: 5px 7px;
+  max-width: 100%;
+}
+
+.modal-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.modal-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.modal-date input {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.72rem;
+  padding: 4px 6px;
+}
+
+.modal-check input { accent-color: var(--accent); }
+
+#modal-clear {
+  padding: 5px 10px;
+  font-size: 0.74rem;
+}
+
+@media (max-width: 640px) {
+  .modal-filters select { flex: 1 1 42%; }
+  .modal-check { flex: 1 1 42%; }
+}
+
 .click-hint {
   flex-basis: 100%;
   font-size: 0.7rem;

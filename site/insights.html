@@ -253,6 +253,38 @@
           <input type="text" id="modal-search" placeholder="Buscar en estas vacantes..." autocomplete="off">
           <span id="modal-count" class="modal-count"></span>
         </div>
+        <div class="modal-filters">
+          <select id="modal-category" aria-label="Categoría"><option value="">Todas las categorías</option></select>
+          <select id="modal-modality" aria-label="Modalidad">
+            <option value="">Toda modalidad</option>
+            <option value="remote">Remote</option>
+            <option value="hybrid">Híbrido</option>
+            <option value="onsite">Presencial</option>
+            <option value="other">Otra</option>
+          </select>
+          <select id="modal-language" aria-label="Idioma">
+            <option value="">Todo idioma</option>
+            <option value="es">Español</option>
+            <option value="en">Inglés</option>
+          </select>
+          <select id="modal-years" aria-label="Experiencia">
+            <option value="">Toda experiencia</option>
+            <option value="0">Sin experiencia</option>
+            <option value="1">1 año</option>
+            <option value="2">2 años</option>
+            <option value="3-4">3–4 años</option>
+            <option value="5+">5+ años</option>
+          </select>
+          <label class="modal-date"><span>Desde</span><input type="date" id="modal-from" aria-label="Desde"></label>
+          <label class="modal-date"><span>Hasta</span><input type="date" id="modal-to" aria-label="Hasta"></label>
+          <select id="modal-sort" aria-label="Orden">
+            <option value="recent">Más recientes</option>
+            <option value="oldest">Más antiguas</option>
+          </select>
+          <label class="modal-check"><input type="checkbox" id="modal-easy"> Easy Apply</label>
+          <label class="modal-check"><input type="checkbox" id="modal-salary"> Con salario</label>
+          <button id="modal-clear" class="reset-btn">Limpiar</button>
+        </div>
         <div id="modal-jobs" class="modal-job-list"></div>
         <div id="modal-pagination" class="modal-pagination"></div>
       </div>

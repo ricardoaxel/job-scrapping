@@ -133,7 +133,7 @@ python3 scripts/build_insights.py
 - Genera `insights.json` (índice compacto por vacante + skills extraídas + skills del CV base)
 - La página calcula en el navegador: ventanas 7/30/90/12m/todo, comparación de periodos, rankings por categoría, modalidad, salario, tendencias y gaps vs `cvs/base-cv.md`
 - Filtros globales opcionales: excluir empresas específicas y **cap por empresa** (máximo N roles únicos por empresa, seleccionando los más recientes; se aplica por vista y por periodo/mes para no sesgar las tendencias)
-- Click en cualquier barra, segmento o punto de un gráfico abre un modal con las vacantes que lo componen (búsqueda + paginación, sin salir de la página)
+- Click en cualquier barra, segmento o punto de un gráfico abre un modal con las vacantes que lo componen (sin salir de la página), ordenadas por fecha y con filtros propios: búsqueda, categoría, modalidad, idioma, experiencia, fecha desde/hasta, Easy Apply, salario, orden y paginación
 - Se regenera automáticamente al final de `scripts/scraper.js`
 - Deploy: `.github/workflows/deploy.yml` copia `insights.json` a `_site/data/` y `site/insights.*` a `_site/`
 

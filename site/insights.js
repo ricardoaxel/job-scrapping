@@ -72,7 +72,11 @@
   var CV_HAVE = new Set();
   var NOW = new Date();
   var CHARTS = {};
-  var modalState = { jobs: [], filtered: [], page: 1, perPage: 20, search: "" };
+  var modalState = {
+    base: [], filtered: [], page: 1, perPage: 20, search: "",
+    category: "", modality: "", language: "", years: "",
+    easy: false, salary: false, from: "", to: "", sort: "recent",
+  };
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -1079,16 +1083,64 @@
     openJobsModal(skillName, filterContext(), jobs);
   }
 
-  function openJobsModal(title, subtitle, jobs) {
-    modalState.jobs = dedupe(jobs || []).sort(function (a, b) {
-      return (b.sd || "").localeCompare(a.sd || "");
-    });
-    modalState.filtered = modalState.jobs;
-    modalState.page = 1;
+  function jobDateIso(j) {
+    return j.d || j.sd || "";
+  }
+
+  function jobDateKey(j) {
+    var iso = jobDateIso(j);
+    if (!iso) return "";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function jobDateLabel(j) {
+    var iso = jobDateIso(j);
+    if (!iso) return "Sin fecha";
+    return (j.d ? "Publicado " : "Visto ") + formatDate(iso);
+  }
+
+  function resetModalFilters() {
     modalState.search = "";
+    modalState.category = "";
+    modalState.modality = "";
+    modalState.language = "";
+    modalState.years = "";
+    modalState.easy = false;
+    modalState.salary = false;
+    modalState.from = "";
+    modalState.to = "";
+    modalState.sort = "recent";
+    modalState.page = 1;
+    $("modal-search").value = "";
+    $("modal-category").value = "";
+    $("modal-modality").value = "";
+    $("modal-language").value = "";
+    $("modal-years").value = "";
+    $("modal-from").value = "";
+    $("modal-to").value = "";
+    $("modal-sort").value = "recent";
+    $("modal-easy").checked = false;
+    $("modal-salary").checked = false;
+  }
+
+  function populateModalCategories() {
+    var cats = Array.from(new Set(modalState.base.map(function (j) { return j.cat; }).filter(Boolean))).sort();
+    $("modal-category").innerHTML = '<option value="">Todas las categorías</option>' +
+      cats.map(function (cat) {
+        return '<option value="' + esc(cat) + '">' + esc(cat) + "</option>";
+      }).join("");
+  }
+
+  function openJobsModal(title, subtitle, jobs) {
+    modalState.base = dedupe((jobs || []).slice().sort(function (a, b) {
+      return jobDateIso(b).localeCompare(jobDateIso(a));
+    }));
+    resetModalFilters();
+    populateModalCategories();
     $("modal-title").textContent = title;
     $("modal-subtitle").textContent = subtitle;
-    $("modal-search").value = "";
     renderModalJobs();
     $("modal").classList.remove("hidden");
   }
@@ -1108,7 +1160,7 @@
       '<div class="mj-head"><a class="mj-title" href="' + esc(j.u) + '" target="_blank" rel="noopener">' +
       esc(j.t || "Sin título") + "</a></div>" +
       '<div class="mj-company">' + esc(j.c || "") + "</div>" +
-      '<div class="mj-meta">' + esc(cleanLocation(j.l)) + " · visto " + formatDate(j.sd) + "</div>" +
+      '<div class="mj-meta">' + esc(cleanLocation(j.l)) + " · " + esc(jobDateLabel(j)) + "</div>" +
       '<div class="mj-tags">' + tags.join("") + "</div>" +
       (skills.length ? '<div class="mj-skills">' + skills.map(function (name) {
         return '<span class="mj-skill">' + esc(name) + "</span>";
@@ -1116,11 +1168,41 @@
       "</div>";
   }
 
+  function modalYearsMatch(j, value) {
+    if (!value) return true;
+    var years = j.yrs;
+    if (value === "0") return years === 0;
+    if (value === "1") return years === 1;
+    if (value === "2") return years === 2;
+    if (value === "3-4") return typeof years === "number" && years >= 3 && years <= 4;
+    if (value === "5+") return typeof years === "number" && years >= 5;
+    return true;
+  }
+
   function renderModalJobs() {
     var query = stripAccents(modalState.search.trim());
-    var filtered = query ? modalState.jobs.filter(function (j) {
-      return stripAccents([j.t, j.c, j.l, j.cat].join(" ")).indexOf(query) !== -1;
-    }) : modalState.jobs;
+    var filtered = modalState.base.filter(function (j) {
+      if (query && stripAccents([j.t, j.c, j.l, j.cat].join(" ")).indexOf(query) === -1) return false;
+      if (modalState.category && j.cat !== modalState.category) return false;
+      if (modalState.modality && j.mod !== modalState.modality) return false;
+      if (modalState.language && j.lang !== modalState.language) return false;
+      if (modalState.easy && !j.ea) return false;
+      if (modalState.salary && j.sal == null) return false;
+      if (!modalYearsMatch(j, modalState.years)) return false;
+      if (modalState.from || modalState.to) {
+        var key = jobDateKey(j);
+        if (!key) return false;
+        if (modalState.from && key < modalState.from) return false;
+        if (modalState.to && key > modalState.to) return false;
+      }
+      return true;
+    });
+
+    filtered.sort(function (a, b) {
+      var cmp = jobDateIso(b).localeCompare(jobDateIso(a));
+      if (cmp !== 0) return modalState.sort === "oldest" ? -cmp : cmp;
+      return (a.t || "").localeCompare(b.t || "");
+    });
     modalState.filtered = filtered;
 
     var pages = Math.max(1, Math.ceil(filtered.length / modalState.perPage));
@@ -1128,8 +1210,9 @@
     var start = (modalState.page - 1) * modalState.perPage;
     var pageJobs = filtered.slice(start, start + modalState.perPage);
 
+    var narrowed = filtered.length !== modalState.base.length;
     $("modal-count").textContent = fmt(filtered.length) + " vacante" + (filtered.length === 1 ? "" : "s") +
-      (query && filtered.length !== modalState.jobs.length ? " de " + fmt(modalState.jobs.length) : "");
+      (narrowed ? " de " + fmt(modalState.base.length) : "");
     $("modal-jobs").innerHTML = pageJobs.length ? pageJobs.map(modalJobHtml).join("") :
       '<p class="muted">Sin vacantes con estos filtros.</p>';
 
@@ -1147,9 +1230,53 @@
     });
   }
 
+  function onModalFilterChange() {
+    modalState.page = 1;
+    renderModalJobs();
+  }
+
   $("modal-search").addEventListener("input", function (e) {
     modalState.search = e.target.value;
-    modalState.page = 1;
+    onModalFilterChange();
+  });
+  $("modal-category").addEventListener("change", function (e) {
+    modalState.category = e.target.value;
+    onModalFilterChange();
+  });
+  $("modal-modality").addEventListener("change", function (e) {
+    modalState.modality = e.target.value;
+    onModalFilterChange();
+  });
+  $("modal-language").addEventListener("change", function (e) {
+    modalState.language = e.target.value;
+    onModalFilterChange();
+  });
+  $("modal-years").addEventListener("change", function (e) {
+    modalState.years = e.target.value;
+    onModalFilterChange();
+  });
+  $("modal-from").addEventListener("change", function (e) {
+    modalState.from = e.target.value;
+    onModalFilterChange();
+  });
+  $("modal-to").addEventListener("change", function (e) {
+    modalState.to = e.target.value;
+    onModalFilterChange();
+  });
+  $("modal-sort").addEventListener("change", function (e) {
+    modalState.sort = e.target.value;
+    onModalFilterChange();
+  });
+  $("modal-easy").addEventListener("change", function (e) {
+    modalState.easy = e.target.checked;
+    onModalFilterChange();
+  });
+  $("modal-salary").addEventListener("change", function (e) {
+    modalState.salary = e.target.checked;
+    onModalFilterChange();
+  });
+  $("modal-clear").addEventListener("click", function () {
+    resetModalFilters();
     renderModalJobs();
   });
 
