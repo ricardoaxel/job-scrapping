@@ -164,3 +164,11 @@ python3 scripts/build_insights.py
 - LinkedIn kills sessions after X interactions per account. Preserve the original session.
 - Two PDF variants: `_simple` (md-bookify, LLM-friendly) and `_styled` (pandoc+Playwright, human-friendly).
 - `generate_cv.py` template mapping is fixed-index based on WordTemplate.docx structure; if template changes, indices must be updated.
+
+## 11. Sitio v2 (Vale OS)
+
+- `site/index.html` + `site/v2.css` + `site/v2.js` — shell moderno con light/dark/system, navegación, dashboard, vacantes, mercado, empresas, aplicaciones, CV, recursos y ajustes.
+- `scripts/build_v2.py` genera `data/v2/jobs.json` (índice compacto con familia de rol, seniority, relevancia, agencias, lifecycle y links de CV). Se ejecuta después de `build_insights.py` en cada scrape.
+- Filtros por defecto: ventana 90 días, solo relevantes y solo empleadores directos (las agencias se pueden reactivar).
+- Datos personales (tracker, búsquedas, XP, racha, tema) viven en `localStorage`; no hay backend.
+- Deploy: `.github/workflows/deploy.yml` copia `data/v2` y `site/v2.*`.

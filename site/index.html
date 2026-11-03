@@ -1,93 +1,72 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vacantes x Vale bb &lt;3</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="color-scheme" content="light dark">
+  <title>Vale OS · tu buscador de vacantes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="v2.css">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div id="auth-overlay" class="auth-overlay">
-    <div class="auth-dialog">
-      <p>🔒 Área personal</p>
-      <input type="password" id="auth-input" placeholder="Contraseña">
-      <button id="auth-btn">Entrar</button>
-      <div id="auth-error"></div>
-    </div>
-  </div>
-
-  <header>
-    <div class="header-inner">
-      <div class="header-left" id="header-left"></div>
-      <div class="header-center">
-        <h1>Vacantes para mi Vale bb &lt;3</h1>
-        <p class="subtitle">Ofertas de marketing filtradas para tu perfil &middot; Te amo osita, tú puedes &lt;3 jeje ;^)</p>
-        <div class="header-actions">
-          <button id="ref-cv-btn" class="ref-cv-btn">📄 Ver CV base de referencia</button>
-          <button id="custom-cvs-btn" class="ref-cv-btn">🎯 CVs personalizados</button>
-          <button id="notes-btn" class="ref-cv-btn">📝 Notas</button>
-          <button id="stats-btn" class="ref-cv-btn">📊 Stats</button>
-          <a class="ref-cv-btn" href="insights.html">📈 Mercado</a>
-        </div>
-        <div id="notes-panel" class="notes-panel hidden">
-          <div class="notes-list" id="notes-list"></div>
-          <div class="notes-add">
-            <textarea id="notes-input" placeholder="Nueva nota..." rows="2"></textarea>
-            <button id="notes-add-btn" class="btn btn-primary">Agregar</button>
-          </div>
-        </div>
-      </div>
-      <div class="header-right" id="header-right"></div>
+  <header class="topbar">
+    <a class="brand" href="#/hoy" aria-label="Vale OS inicio">
+      <span class="brand-mark">V</span>
+      <span class="brand-text">vale<em>os</em></span>
+    </a>
+    <nav class="desktop-nav" aria-label="Navegación principal">
+      <a href="#/hoy" data-route="hoy">Hoy</a>
+      <a href="#/vacantes" data-route="vacantes">Vacantes</a>
+      <a href="#/mercado" data-route="mercado">Mercado</a>
+      <a href="#/empresas" data-route="empresas">Empresas</a>
+      <a href="#/aplicaciones" data-route="aplicaciones">Aplicaciones</a>
+      <a href="#/cv" data-route="cv">CV</a>
+      <a href="#/recursos" data-route="recursos">Recursos</a>
+    </nav>
+    <div class="topbar-actions">
+      <button id="theme-btn" class="icon-btn" aria-label="Cambiar tema" title="Tema">◐</button>
+      <button id="settings-btn" class="icon-btn" aria-label="Ajustes" title="Ajustes">⚙</button>
+      <div class="level-pill" id="level-pill" title="Tu nivel">Lv 1</div>
     </div>
   </header>
 
-  <main>
-    <div class="filters-card">
-      <div class="filter-group">
-        <span class="filter-label">Buscar</span>
-        <input type="text" id="search" placeholder="Título, empresa, categoría..." autocomplete="off">
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Categoría</span>
-        <div id="category-filters" class="pills-row"></div>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Publicación</span>
-        <div id="time-filters"></div>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Seguimiento</span>
-        <div id="tracking-filters" class="pills-row"></div>
-      </div>
-      <button id="reset-filters-btn" class="reset-filters-btn">↺ Resetear filtros</button>
-    </div>
-
-    <div id="stats" class="stats"></div>
-
-    <div id="job-list" class="job-list"></div>
-
-    <div id="pagination" class="pagination"></div>
+  <main id="app" class="app">
+    <section id="view-hoy" class="view"></section>
+    <section id="view-vacantes" class="view"></section>
+    <section id="view-mercado" class="view"></section>
+    <section id="view-empresas" class="view"></section>
+    <section id="view-aplicaciones" class="view"></section>
+    <section id="view-cv" class="view"></section>
+    <section id="view-recursos" class="view"></section>
+    <section id="view-ajustes" class="view"></section>
   </main>
 
-  <div id="modal" class="modal hidden">
-    <div class="modal-backdrop" id="modal-backdrop"></div>
-    <div class="modal-content">
-      <button class="modal-close" id="modal-close">&times;</button>
-      <div id="modal-body" class="modal-body"></div>
+  <nav class="bottom-nav" aria-label="Navegación móvil">
+    <a href="#/hoy" data-route="hoy"><span>◉</span>Hoy</a>
+    <a href="#/vacantes" data-route="vacantes"><span>⌕</span>Vacantes</a>
+    <a href="#/mercado" data-route="mercado"><span>▥</span>Mercado</a>
+    <a href="#/aplicaciones" data-route="aplicaciones"><span>✦</span>Apps</a>
+    <a href="#/cv" data-route="cv"><span>◧</span>CV</a>
+  </nav>
+
+  <div id="job-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="job-modal-title">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card">
+      <button class="modal-close" data-close-modal aria-label="Cerrar">&times;</button>
+      <div id="job-modal-body"></div>
     </div>
   </div>
 
-  <div id="stats-view" class="stats-view hidden">
-    <div id="stats-content"></div>
-  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <footer>
-    <p>Proyecto personal &middot; <a href="https://linkedin.com/in/valeria-paez-reyes" target="_blank">Valeria Páez</a> &middot; <span id="version">dev</span></p>
+  <footer class="site-footer">
+    <span>Vale OS v2 · datos de LinkedIn · <a href="insights.html">análisis completo</a></span>
+    <span id="data-stamp"></span>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="v2.js"></script>
 </body>
 </html>

@@ -272,6 +272,7 @@ async function scrapeJobsForQuery(query, page) {
   console.log("📊 Generando insights de mercado...");
   try {
     execSync(`python3 "${path.join(__dirname, "build_insights.py")}"`, { stdio: "inherit" });
+    execSync(`python3 "${path.join(__dirname, "build_v2.py")}"`, { stdio: "inherit" });
   } catch (e) {
     console.error("Error generando insights:", e.message);
   }
