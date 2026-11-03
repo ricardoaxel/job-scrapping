@@ -58,6 +58,7 @@
       </label>
       <button id="reset-filters" class="reset-btn">↺ Reset</button>
       <p class="control-note" id="window-note"></p>
+      <p class="click-hint">Tip: haz clic en cualquier barra, segmento o punto de las gráficas para ver las vacantes que lo componen.</p>
 
       <div id="company-panel" class="company-panel hidden">
         <div class="cap-row">
@@ -248,7 +249,12 @@
       <div class="modal-body">
         <h3 id="modal-title"></h3>
         <p id="modal-subtitle" class="muted"></p>
+        <div class="modal-toolbar">
+          <input type="text" id="modal-search" placeholder="Buscar en estas vacantes..." autocomplete="off">
+          <span id="modal-count" class="modal-count"></span>
+        </div>
         <div id="modal-jobs" class="modal-job-list"></div>
+        <div id="modal-pagination" class="modal-pagination"></div>
       </div>
     </div>
   </div>

@@ -72,6 +72,7 @@
   var CV_HAVE = new Set();
   var NOW = new Date();
   var CHARTS = {};
+  var modalState = { jobs: [], filtered: [], page: 1, perPage: 20, search: "" };
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -335,7 +336,7 @@
     Chart.defaults.borderColor = COLORS.grid;
   }
 
-  function barConfig(labels, values, horizontal, color, tooltipLabel) {
+  function barConfig(labels, values, horizontal, color, tooltipLabel, onClick) {
     return {
       type: "bar",
       data: {
@@ -352,6 +353,7 @@
         indexAxis: horizontal ? "y" : "x",
         responsive: true,
         maintainAspectRatio: false,
+        onClick: onClick,
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -551,10 +553,9 @@
         maintainAspectRatio: false,
         onClick: function (evt, elements) {
           if (!elements.length) return;
-          var name = labels[elements[0].index];
-          state.category = state.category === name ? "" : name;
-          $("category-select").value = state.category;
-          render();
+          var cat = cats[elements[0].index];
+          var jobs = scopeJobs(currentDays(), { ignoreCategory: true }).filter(function (j) { return j.cat === cat.name; });
+          openJobsModal(cat.name, "Categoría · " + baseContext(), jobs);
         },
         plugins: {
           legend: { display: false },
@@ -579,6 +580,15 @@
     });
   }
 
+  var MODALITY_KEYS = ["remote", "hybrid", "onsite", "other"];
+
+  function openModalityModal(index) {
+    var key = MODALITY_KEYS[index];
+    if (!key) return;
+    var jobs = scopeJobs(currentDays()).filter(function (j) { return j.mod === key; });
+    openJobsModal(MODALITY_LABELS[key], "Modalidad · " + baseContext(), jobs);
+  }
+
   function renderModality(agg) {
     var labels = ["Remote", "Híbrido", "Presencial", "Otra"];
     var values = [agg.counts.remote, agg.counts.hybrid, agg.counts.onsite, agg.counts.other];
@@ -590,13 +600,23 @@
         cutout: "62%",
         responsive: true,
         maintainAspectRatio: false,
+        onClick: function (evt, elements) {
+          if (!elements.length) return;
+          openModalityModal(elements[0].index);
+        },
         plugins: { legend: { display: false } },
       },
     });
     $("modality-legend").innerHTML = labels.map(function (label, i) {
       var p = pct(values[i], agg.n);
-      return '<span><span class="dot" style="background:' + colors[i] + '"></span>' + label + " " + p + "%</span>";
+      return '<button class="legend-btn" data-modality-index="' + i + '">' +
+        '<span class="dot" style="background:' + colors[i] + '"></span>' + label + " " + p + "%</button>";
     }).join("");
+    $("modality-legend").querySelectorAll(".legend-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        openModalityModal(Number(btn.dataset.modalityIndex));
+      });
+    });
   }
 
   function renderDemand(agg) {
@@ -644,14 +664,16 @@
       tools.map(function (t) { return t.pct; }),
       true,
       "#2563eb",
-      function (ctx) { return tools[ctx.dataIndex].pct + "% (" + tools[ctx.dataIndex].count + " roles)"; }
+      function (ctx) { return tools[ctx.dataIndex].pct + "% (" + tools[ctx.dataIndex].count + " roles)"; },
+      function (evt, elements) { if (elements.length) openSkillModal(tools[elements[0].index].name); }
     ));
     makeChart("chart-methods", barConfig(
       methods.map(function (t) { return t.name; }),
       methods.map(function (t) { return t.pct; }),
       true,
       "#8b5cf6",
-      function (ctx) { return methods[ctx.dataIndex].pct + "% (" + methods[ctx.dataIndex].count + " roles)"; }
+      function (ctx) { return methods[ctx.dataIndex].pct + "% (" + methods[ctx.dataIndex].count + " roles)"; },
+      function (evt, elements) { if (elements.length) openSkillModal(methods[elements[0].index].name); }
     ));
     var experience = (agg.rankings.experience || []).slice(0, 10);
     makeChart("chart-experience", barConfig(
@@ -659,14 +681,23 @@
       experience.map(function (t) { return t.pct; }),
       true,
       "#f59e0b",
-      function (ctx) { return experience[ctx.dataIndex].pct + "% (" + experience[ctx.dataIndex].count + " roles)"; }
+      function (ctx) { return experience[ctx.dataIndex].pct + "% (" + experience[ctx.dataIndex].count + " roles)"; },
+      function (evt, elements) { if (elements.length) openSkillModal(experience[elements[0].index].name); }
     ));
     makeChart("chart-years", barConfig(
       agg.yearBuckets.map(function (b) { return b.label; }),
       agg.yearBuckets.map(function (b) { return b.count; }),
       false,
       "#14b8a6",
-      function (ctx) { return agg.yearBuckets[ctx.dataIndex].count + " roles"; }
+      function (ctx) { return agg.yearBuckets[ctx.dataIndex].count + " roles"; },
+      function (evt, elements) {
+        if (!elements.length) return;
+        var bucket = agg.yearBuckets[elements[0].index];
+        var jobs = scopeJobs(currentDays()).filter(function (j) {
+          return typeof j.yrs === "number" && j.yrs >= bucket.min && j.yrs <= bucket.max;
+        });
+        openJobsModal("Experiencia: " + bucket.label, "Años pedidos · " + baseContext(), jobs);
+      }
     ));
 
     var companies = agg.companies.slice(0, 6);
@@ -751,6 +782,14 @@
       function (ctx) {
         var c = cats[ctx.dataIndex];
         return c.remotePct + "% remote (" + fmt(c.count) + " roles)";
+      },
+      function (evt, elements) {
+        if (!elements.length) return;
+        var cat = cats[elements[0].index];
+        var jobs = scopeJobs(currentDays(), { ignoreModality: true }).filter(function (j) {
+          return j.cat === cat.name && j.mod === "remote";
+        });
+        openJobsModal(cat.name + " · Remote", "Remote por categoría · " + baseContext(), jobs);
       }
     ));
 
@@ -768,7 +807,15 @@
       cats.map(function (c) { return c.salaryPct; }),
       true,
       "#f59e0b",
-      function (ctx) { return cats[ctx.dataIndex].salaryPct + "% con salario"; }
+      function (ctx) { return cats[ctx.dataIndex].salaryPct + "% con salario"; },
+      function (evt, elements) {
+        if (!elements.length) return;
+        var cat = cats[elements[0].index];
+        var jobs = scopeJobs(currentDays(), { ignoreCategory: true }).filter(function (j) {
+          return j.cat === cat.name && j.sal != null;
+        });
+        openJobsModal(cat.name + " · con salario", "Compensación · " + baseContext(), jobs);
+      }
     ));
 
     var agg = aggregate(scopeJobs(currentDays()));
@@ -824,6 +871,16 @@
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
+        onClick: function (evt, elements) {
+          if (!elements.length) return;
+          var element = elements[0];
+          var month = months[element.index];
+          var dataset = datasets[element.datasetIndex];
+          var category = dataset ? dataset.label : "";
+          var monthJobs = byMonth[month] || [];
+          var jobs = category ? monthJobs.filter(function (j) { return j.cat === category; }) : monthJobs;
+          openJobsModal((category ? category + " · " : "") + monthLabel(month), "Tendencia · " + baseContext(), jobs);
+        },
         plugins: { legend: { position: "bottom", labels: { boxWidth: 10, usePointStyle: true } } },
         scales: {
           x: { grid: { display: false } },
@@ -997,27 +1054,104 @@
 
   /* ─── Modal ────────────────────────────────────────────────── */
 
+  function filterContext() {
+    var bits = [currentLabel()];
+    if (state.category) bits.push(state.category);
+    if (state.modality) bits.push(MODALITY_LABELS[state.modality]);
+    if (state.companyCapEnabled) bits.push("cap " + Math.max(1, Math.floor(Number(state.companyCap) || 10)) + "/empresa");
+    if (state.excludedCompanies.size) bits.push(state.excludedCompanies.size + " empresas excluidas");
+    return bits.join(" · ");
+  }
+
+  function baseContext() {
+    var bits = [currentLabel()];
+    if (state.companyCapEnabled) bits.push("cap " + Math.max(1, Math.floor(Number(state.companyCap) || 10)) + "/empresa");
+    if (state.excludedCompanies.size) bits.push(state.excludedCompanies.size + " empresas excluidas");
+    return bits.join(" · ");
+  }
+
   function openSkillModal(skillName) {
     var idx = SKILL_INDEX_BY_NAME[skillName];
     if (idx == null) return;
     var jobs = dedupe(scopeJobs(currentDays())).filter(function (j) {
       return (j.sk || []).indexOf(idx) !== -1;
-    }).sort(function (a, b) { return (b.sd || "").localeCompare(a.sd || ""); });
+    });
+    openJobsModal(skillName, filterContext(), jobs);
+  }
 
-    $("modal-title").textContent = skillName;
-    $("modal-subtitle").textContent = jobs.length + " vacantes únicas en " + currentLabel().toLowerCase() +
-      (state.category ? " · " + state.category : "") + (state.modality ? " · " + MODALITY_LABELS[state.modality] : "");
-
-    $("modal-jobs").innerHTML = jobs.length ? jobs.slice(0, 80).map(function (j) {
-      return '<div class="modal-job">' +
-        '<a href="' + esc(j.u) + '" target="_blank" rel="noopener">' + esc(j.t || "Sin título") + "</a>" +
-        '<span class="job-meta">' + esc(j.c || "") + " · " + esc(cleanLocation(j.l)) + " · " + esc(j.cat || "") +
-        " · " + MODALITY_LABELS[j.mod] + " · visto " + formatDate(j.sd) + "</span>" +
-        "</div>";
-    }).join("") : '<p class="muted">No hay vacantes con esta skill y filtros.</p>';
-
+  function openJobsModal(title, subtitle, jobs) {
+    modalState.jobs = dedupe(jobs || []).sort(function (a, b) {
+      return (b.sd || "").localeCompare(a.sd || "");
+    });
+    modalState.filtered = modalState.jobs;
+    modalState.page = 1;
+    modalState.search = "";
+    $("modal-title").textContent = title;
+    $("modal-subtitle").textContent = subtitle;
+    $("modal-search").value = "";
+    renderModalJobs();
     $("modal").classList.remove("hidden");
   }
+
+  function modalJobHtml(j) {
+    var skills = (j.sk || []).slice(0, 8).map(function (idx) {
+      return SKILL_BY_INDEX[idx] ? SKILL_BY_INDEX[idx].n : null;
+    }).filter(Boolean);
+    var tags = [
+      '<span class="mj-tag">' + esc(j.cat || "") + "</span>",
+      '<span class="mj-tag mod">' + esc(MODALITY_LABELS[j.mod] || "") + "</span>",
+      '<span class="mj-tag lang">' + (j.lang === "en" ? "EN" : "ES") + "</span>",
+    ];
+    if (j.ea) tags.push('<span class="mj-tag easy">Easy Apply</span>');
+    if (j.sal != null) tags.push('<span class="mj-tag salary">$' + fmt(Math.round(j.sal)) + " MXN</span>");
+    return '<div class="modal-job">' +
+      '<div class="mj-head"><a class="mj-title" href="' + esc(j.u) + '" target="_blank" rel="noopener">' +
+      esc(j.t || "Sin título") + "</a></div>" +
+      '<div class="mj-company">' + esc(j.c || "") + "</div>" +
+      '<div class="mj-meta">' + esc(cleanLocation(j.l)) + " · visto " + formatDate(j.sd) + "</div>" +
+      '<div class="mj-tags">' + tags.join("") + "</div>" +
+      (skills.length ? '<div class="mj-skills">' + skills.map(function (name) {
+        return '<span class="mj-skill">' + esc(name) + "</span>";
+      }).join("") + "</div>" : "") +
+      "</div>";
+  }
+
+  function renderModalJobs() {
+    var query = stripAccents(modalState.search.trim());
+    var filtered = query ? modalState.jobs.filter(function (j) {
+      return stripAccents([j.t, j.c, j.l, j.cat].join(" ")).indexOf(query) !== -1;
+    }) : modalState.jobs;
+    modalState.filtered = filtered;
+
+    var pages = Math.max(1, Math.ceil(filtered.length / modalState.perPage));
+    if (modalState.page > pages) modalState.page = pages;
+    var start = (modalState.page - 1) * modalState.perPage;
+    var pageJobs = filtered.slice(start, start + modalState.perPage);
+
+    $("modal-count").textContent = fmt(filtered.length) + " vacante" + (filtered.length === 1 ? "" : "s") +
+      (query && filtered.length !== modalState.jobs.length ? " de " + fmt(modalState.jobs.length) : "");
+    $("modal-jobs").innerHTML = pageJobs.length ? pageJobs.map(modalJobHtml).join("") :
+      '<p class="muted">Sin vacantes con estos filtros.</p>';
+
+    $("modal-pagination").innerHTML = pages > 1
+      ? '<button class="modal-page-btn" data-page="prev"' + (modalState.page <= 1 ? " disabled" : "") + ">‹ Anterior</button>" +
+        '<span class="modal-page-info">Página ' + modalState.page + " de " + pages + "</span>" +
+        '<button class="modal-page-btn" data-page="next"' + (modalState.page >= pages ? " disabled" : "") + ">Siguiente ›</button>"
+      : "";
+    $("modal-pagination").querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        modalState.page += btn.dataset.page === "prev" ? -1 : 1;
+        renderModalJobs();
+        $("modal-jobs").scrollTop = 0;
+      });
+    });
+  }
+
+  $("modal-search").addEventListener("input", function (e) {
+    modalState.search = e.target.value;
+    modalState.page = 1;
+    renderModalJobs();
+  });
 
   function closeModal() {
     $("modal").classList.add("hidden");
