@@ -170,7 +170,7 @@ python3 scripts/build_insights.py
 - `site/index.html` + `site/v2.css` + `site/v2.js` — shell moderno con light/dark/system, navegación, dashboard, vacantes, mercado, empresas, aplicaciones, CV, recursos y ajustes.
 - `scripts/build_v2.py` genera `data/v2/jobs.json` (índice compacto con familia de rol, seniority, relevancia, agencias, lifecycle y links de CV). Se ejecuta después de `build_insights.py` en cada scrape.
 - Filtros por defecto: ventana 90 días, solo relevantes y solo empleadores directos (las agencias se pueden reactivar).
-- Datos personales (tracker, búsquedas, XP, racha, tema, Pokédex) viven en `localStorage`; no hay backend.
+- Datos personales (tracker, búsquedas, XP, racha, tema, Pokédex) viven en `localStorage` y se sincronizan a Firestore (`tracked/valeos`) para una sola usuaria; localStorage es caché/offline.
 - Migración única desde el sitio v1: lee `tracked/jobs` y `tracked/pokemon` de Firestore y `tracked_jobs`/`pokemon_collection` de localStorage, y los pasa al tracker v2.
 - El sistema de Pokémon se conserva y se potencia: un Pokémon por cada 5 aplicaciones, Pokédex en Hoy/Ajustes y revelación al desbloquear.
 - `insights.html` fue integrado al look v2 (`v2.css` + `insights-v2.css`), sin auth y con tema claro/oscuro.

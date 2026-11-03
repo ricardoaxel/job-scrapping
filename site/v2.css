@@ -469,3 +469,19 @@ h3 { font-size: 1.02rem; }
 .poke-reveal.show .poke-reveal-card { transform: none; }
 .poke-reveal-card img { width: 120px; height: 120px; margin: 8px auto; image-rendering: pixelated; }
 .poke-reveal-card h3 { font-family: var(--font-display); font-size: 1.8rem; font-weight: 400; }
+
+/* ── Cloud sync ─────────────────────────────────────────── */
+.sync-status {
+  font-size: 0.68rem;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  min-width: 34px;
+  text-align: center;
+  user-select: none;
+}
+.sync-status.saving { color: var(--accent); border-color: var(--accent); }
+.sync-status.saved { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 35%, var(--border)); }
+.sync-status.local { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 35%, var(--border)); }

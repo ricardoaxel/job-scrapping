@@ -22,12 +22,18 @@
     pokemon: read("pokemon", []),
     migratedApps: read("migratedAppsV2", false),
     migratedPokemon: read("migratedPokemonV2", false),
+    updatedAt: read("updatedAt", ""),
     prevVisit: read("lastVisit", ""),
     newCount: 0,
     companyQuery: "",
   };
   var modalJob = null;
   var FS_KEY = "AIzaSyANT112Y6OIzN-TUeldWFNQ9n9jniqhxXo";
+  var FS_BASE = "https://firestore.googleapis.com/v1/projects/job-search-9d700/databases/(default)/documents/";
+  var CLOUD_PATH = "tracked/valeos";
+  var SYNC_KEYS = ["tracker", "saved", "xp", "streak", "badges", "pokemon", "theme", "migratedAppsV2", "migratedPokemonV2"];
+  var suppressSync = false;
+  var cloudTimer = null;
   var POKE_POOL = [
     { id: 25, name: "Pikachu" }, { id: 1, name: "Bulbasaur" }, { id: 4, name: "Charmander" },
     { id: 7, name: "Squirtle" }, { id: 133, name: "Eevee" }, { id: 39, name: "Jigglypuff" },
@@ -44,6 +50,87 @@
   }
   function write(key, value) {
     try { localStorage.setItem(STORE + key, JSON.stringify(value)); } catch (e) {}
+    if (!suppressSync && SYNC_KEYS.indexOf(key) !== -1) scheduleCloudSync();
+  }
+  function setSync(kind) {
+    var el = $("#sync-status");
+    if (!el) return;
+    el.className = "sync-status " + kind;
+    el.textContent = kind === "saving" ? "↻" : kind === "saved" ? "☁️" : "⌁";
+    el.title = kind === "saving" ? "Sincronizando con Firestore..." : kind === "saved" ? "Guardado en Firestore" : "Solo local (sin conexión)";
+  }
+  function markLocalChange() {
+    state.updatedAt = new Date().toISOString();
+    try { localStorage.setItem(STORE + "updatedAt", JSON.stringify(state.updatedAt)); } catch (e) {}
+  }
+  function cloudPayload() {
+    return {
+      tracker: state.tracker,
+      saved: state.saved,
+      xp: state.xp,
+      streak: state.streak,
+      badges: state.badges,
+      pokemon: state.pokemon,
+      theme: state.theme,
+      migratedAppsV2: !!state.migratedApps,
+      migratedPokemonV2: !!state.migratedPokemon,
+      updatedAt: state.updatedAt || new Date().toISOString(),
+    };
+  }
+  function cloudWrite() {
+    if (!state.updatedAt) markLocalChange();
+    var payload = cloudPayload();
+    setSync("saving");
+    return fetch(FS_BASE + CLOUD_PATH + "?key=" + FS_KEY, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fields: {
+          state: { stringValue: JSON.stringify(payload) },
+          updatedAt: { timestampValue: payload.updatedAt },
+        },
+      }),
+    }).then(function (r) {
+      setSync(r.ok ? "saved" : "local");
+      return r.ok;
+    }).catch(function () {
+      setSync("local");
+      return false;
+    });
+  }
+  function scheduleCloudSync() {
+    if (suppressSync) return;
+    markLocalChange();
+    setSync("saving");
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(cloudWrite, 900);
+  }
+  function cloudRead() {
+    return fetch(FS_BASE + CLOUD_PATH + "?key=" + FS_KEY)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.fields || !j.fields.state) return null;
+        try { return JSON.parse(j.fields.state.stringValue); } catch (e) { return null; }
+      })
+      .catch(function () { return null; });
+  }
+  function adoptCloud(c) {
+    suppressSync = true;
+    if (c.tracker && typeof c.tracker === "object") { state.tracker = c.tracker; write("tracker", state.tracker); }
+    if (Array.isArray(c.saved)) { state.saved = c.saved; write("saved", state.saved); }
+    if (typeof c.xp === "number") { state.xp = c.xp; write("xp", state.xp); }
+    if (c.streak && typeof c.streak === "object") { state.streak = c.streak; write("streak", state.streak); }
+    if (Array.isArray(c.badges)) { state.badges = c.badges; write("badges", state.badges); }
+    if (Array.isArray(c.pokemon)) { state.pokemon = c.pokemon; write("pokemon", state.pokemon); }
+    if (c.theme) { state.theme = c.theme; write("theme", state.theme); applyTheme(); }
+    state.migratedApps = !!c.migratedAppsV2;
+    state.migratedPokemon = !!c.migratedPokemonV2;
+    write("migratedAppsV2", state.migratedApps);
+    write("migratedPokemonV2", state.migratedPokemon);
+    state.updatedAt = c.updatedAt || new Date().toISOString();
+    try { localStorage.setItem(STORE + "updatedAt", JSON.stringify(state.updatedAt)); } catch (e) {}
+    suppressSync = false;
+    setSync("saved");
   }
   function load() {
     try {
@@ -747,7 +834,7 @@
       '<div class="grid g2">' +
         '<div class="card"><div class="k-label">Tema</div><h2 style="margin:6px 0 10px">Apariencia</h2><div class="chips">' +
         ["system", "light", "dark"].map(function (t) { return '<button class="chip ' + (state.theme === t ? "active" : "") + '" data-theme="' + t + '">' + ({ system: "Sistema", light: "Claro", dark: "Oscuro" })[t] + "</button>"; }).join("") + "</div></div>" +
-        '<div class="card"><div class="k-label">Datos</div><h2 style="margin:6px 0 10px">Respaldo</h2><div class="toolbar"><button class="btn" id="export">Exportar JSON</button><label class="btn" for="import">Importar<input type="file" id="import" accept="application/json" class="sr-only"></label><button class="btn" id="reset" style="color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,var(--border))">Reset</button></div><p class="small muted" style="margin-top:10px">Incluye tracker, búsquedas, XP, racha y tema. Sin servidor: si borras el navegador, se borra todo.</p></div>' +
+        '<div class="card"><div class="k-label">Datos</div><h2 style="margin:6px 0 10px">Respaldo</h2><div class="toolbar"><button class="btn" id="sync-now">☁️ Sincronizar ahora</button><button class="btn" id="export">Exportar JSON</button><label class="btn" for="import">Importar<input type="file" id="import" accept="application/json" class="sr-only"></label><button class="btn" id="reset" style="color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,var(--border))">Reset</button></div><p class="small muted" style="margin-top:10px">Incluye tracker, búsquedas, XP, racha y tema. Sin servidor: si borras el navegador, se borra todo.</p></div>' +
       "</div>" +
       '<div class="card" style="margin-top:14px"><div class="k-label">Info</div><h2 style="margin:6px 0 8px">Dataset</h2><p class="small muted">' + fmt(DATA.total) + " vacantes · actualizado " + esc(new Date(DATA.updatedAt).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })) + " · fuente LinkedIn. Los CVs son públicos en este sitio.</p></div>" +
       '<div class="card" style="margin-top:14px"><div class="k-label">Pokédex</div><h2 style="margin:6px 0 10px">Tus Pokémon</h2>' + pokedexHtml(false) + "</div>";
@@ -772,17 +859,21 @@
           var data = JSON.parse(reader.result);
           ["tracker", "saved", "xp", "streak", "badges", "theme", "pokemon"].forEach(function (k) { if (data[k] != null) { state[k] = data[k]; write(k, state[k]); } });
           applyTheme();
+          markLocalChange();
+          cloudWrite();
           toast("Respaldo importado");
           go("hoy");
         } catch (err) { toast("Archivo inválido"); }
       };
       reader.readAsText(file);
     });
+    var syncNow = $("#sync-now");
+    if (syncNow) syncNow.addEventListener("click", function () { markLocalChange(); cloudWrite(); });
     var reset = $("#reset");
     if (reset) reset.addEventListener("click", function () {
-      if (!confirm("¿Borrar tracker, búsquedas, XP y ajustes?")) return;
-      ["tracker", "saved", "xp", "streak", "badges", "theme", "lastVisit"].forEach(function (k) { localStorage.removeItem(STORE + k); });
-      location.reload();
+      if (!confirm("¿Borrar tracker, búsquedas, XP, Pokémon y la copia en la nube?")) return;
+      ["tracker", "saved", "xp", "streak", "badges", "theme", "lastVisit", "pokemon", "updatedAt"].forEach(function (k) { localStorage.removeItem(STORE + k); });
+      fetch(FS_BASE + CLOUD_PATH + "?key=" + FS_KEY, { method: "DELETE" }).catch(function () {}).then(function () { location.reload(); });
     });
   }
 
@@ -906,6 +997,19 @@
     return changed;
   }
   async function migrateLegacyData() {
+    setSync("saving");
+    var cloud = await cloudRead();
+    if (cloud && cloud.tracker) {
+      var cloudTime = cloud.updatedAt || "";
+      if (!state.updatedAt || cloudTime >= state.updatedAt) {
+        adoptCloud(cloud);
+        ensurePokemonUnlocks();
+        setActivePoke();
+        go(state.route);
+        return;
+      }
+    }
+    suppressSync = true;
     var migrated = 0;
     if (!state.migratedApps) {
       var index = jobIndex();
@@ -953,6 +1057,8 @@
       state.xp = appliedNow * 20 + savedNow * 5;
       write("xp", state.xp);
     }
+    suppressSync = false;
+    await cloudWrite();
     var lp = $("#level-pill"); if (lp) lp.textContent = "Lv " + levelInfo().level;
     if (migrated) {
       toast("Migradas " + migrated + " aplicaciones de tu sitio anterior");
@@ -970,6 +1076,8 @@
     $$("[data-close-modal]").forEach(function (el) { el.addEventListener("click", closeJob); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeJob(); });
     window.addEventListener("hashchange", routeFromHash);
+    window.addEventListener("online", function () { if (state.updatedAt) cloudWrite(); else migrateLegacyData(); });
+    window.addEventListener("offline", function () { setSync("local"); });
     if (window.matchMedia) {
       try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); } catch (e) {}
     }
@@ -986,6 +1094,7 @@
     CV = new Set((DATA.cvHave || []).map(function (i) { return SKILLS[i] ? SKILLS[i].n : null; }).filter(Boolean));
     NOW = new Date(DATA.updatedAt || Date.now());
     $("#level-pill").textContent = "Lv " + levelInfo().level;
+    setSync("local");
     $("#data-stamp").textContent = fmt(DATA.total) + " vacantes · actualizado " + new Date(DATA.updatedAt).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
     bindGlobal();
     if (!location.hash) history.replaceState(null, "", "#/hoy");
